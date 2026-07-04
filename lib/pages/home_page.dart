@@ -1,11 +1,11 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../services/pdf_service.dart';
-import '../services/pdf_reader_service.dart';
 import '../controllers/quiz_controller.dart';
-import 'quiz_page.dart';
-import '../models/quiz_model.dart';
+import '../services/pdf_reader_service.dart';
+import '../services/pdf_service.dart';
 import 'pdf_view_page.dart';
+import 'quiz_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,61 +15,123 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String? selectedPdf;
+  PlatformFile? selectedPdf;
+  bool isGenerating = false;
+
+  final QuizController quizController = QuizController();
 
   Future<void> importPdf() async {
-    final path = await PdfService.pickPdf();
+    try {
+      final pdf = await PdfService.pickPdf();
 
-    if (path == null) return;
+      if (pdf == null) return;
 
-    setState(() {
-      selectedPdf = path;
-    });
+      setState(() {
+        selectedPdf = pdf;
+      });
 
-    if (!mounted) return;
+      final text = await PdfReaderService.readPdf(pdf);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Reading PDF..."),
-      ),
-    );
+      if (!mounted) return;
 
-    final text = await PdfReaderService.readPdf(path);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PdfViewPage(text: text),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
 
-    if (!mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PdfViewPage(text: text),
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+    }
   }
 
-  Widget menuButton({
-    required String title,
+  Future<void> generateQuiz() async {
+    if (selectedPdf == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select a PDF first."),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isGenerating = true;
+    });
+
+    try {
+      final questions =
+      await quizController.generateQuiz(selectedPdf!);
+
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => QuizPage(
+            questions: questions,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Failed to generate quiz\n\n$e",
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isGenerating = false;
+        });
+      }
+    }
+  }
+
+  Widget buildActionCard({
     required IconData icon,
+    required String title,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return SizedBox(
-      width: double.infinity,
-      height: 65,
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon),
-        label: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: color.withValues(alpha: 0.25),
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                color: color,
+                size: 30,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -78,110 +140,172 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final hasPdf = selectedPdf != null;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("QuizForge AI"),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
 
-              const Icon(
-                Icons.quiz,
-                size: 100,
-                color: Colors.deepPurple,
+            const Icon(
+              Icons.auto_awesome,
+              size: 90,
+              color: Colors.deepPurple,
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              "AI Powered UPSC Quiz Generator",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-              const Text(
-                "AI Powered UPSC Quiz Generator",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            const Text(
+              "Import a PDF and generate UPSC Prelims questions using Gemini AI.",
+              textAlign: TextAlign.center,
+            ),
 
-              const SizedBox(height: 10),
+            const SizedBox(height: 30),
 
-              const Text(
-                "Generate quizzes from your UPSC PDFs using AI.",
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 25),
-
-              if (selectedPdf != null)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      selectedPdf!,
-                      style: const TextStyle(fontSize: 14),
-                    ),
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: importPdf,
+              child: Ink(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: hasPdf
+                        ? Colors.green
+                        : Colors.deepPurple,
                   ),
                 ),
-
-              const SizedBox(height: 25),
-
-              menuButton(
-                title: "Import PDF",
-                icon: Icons.picture_as_pdf,
-                color: Colors.red,
-                onTap: importPdf,
-              ),
-
-              const SizedBox(height: 15),
-
-              menuButton(
-                title: "Generate AI Quiz",
-                icon: Icons.smart_toy,
-                color: Colors.deepPurple,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        "AI integration will be added next.",
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: hasPdf
+                          ? Colors.green.shade50
+                          : Colors.red.shade50,
+                      child: Icon(
+                        Icons.picture_as_pdf,
+                        size: 30,
+                        color: hasPdf
+                            ? Colors.green
+                            : Colors.red,
                       ),
                     ),
-                  );
-                },
-              ),
 
-              const SizedBox(height: 15),
+                    const SizedBox(width: 16),
 
-              menuButton(
-                title: "Previous Quizzes",
-                icon: Icons.history,
-                color: Colors.blue,
-                onTap: () {},
-              ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            hasPdf
+                                ? "Selected PDF"
+                                : "Select PDF",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                            ),
+                          ),
 
-              const SizedBox(height: 15),
+                          const SizedBox(height: 6),
 
-              menuButton(
-                title: "Settings",
-                icon: Icons.settings,
-                color: Colors.green,
-                onTap: () {},
-              ),
+                          Text(
+                            hasPdf
+                                ? selectedPdf!.name
+                                : "Tap here to choose a PDF",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
 
-              const SizedBox(height: 30),
-
-              const Center(
-                child: Text(
-                  "QuizForge AI v1.0",
-                  style: TextStyle(color: Colors.grey),
+                    Icon(
+                      hasPdf
+                          ? Icons.check_circle
+                          : Icons.upload_file,
+                      color: hasPdf
+                          ? Colors.green
+                          : Colors.deepPurple,
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 30),
+
+            SizedBox(
+              width: double.infinity,
+              height: 58,
+              child: FilledButton.icon(
+                onPressed: isGenerating
+                    ? null
+                    : generateQuiz,
+                icon: isGenerating
+                    ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                )
+                    : const Icon(Icons.smart_toy),
+                label: Text(
+                  isGenerating
+                      ? "Generating..."
+                      : "Generate AI Quiz",
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            Row(
+              children: [
+                buildActionCard(
+                  icon: Icons.history,
+                  title: "History",
+                  color: Colors.blue,
+                  onTap: () {},
+                ),
+                const SizedBox(width: 16),
+                buildActionCard(
+                  icon: Icons.settings,
+                  title: "Settings",
+                  color: Colors.green,
+                  onTap: () {},
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 40),
+
+            const Text(
+              "QuizForge AI v0.5 Alpha",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ],
         ),
       ),
     );

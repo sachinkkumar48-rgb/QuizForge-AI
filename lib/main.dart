@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'pages/home_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
+  await dotenv.load(fileName: ".env");
+
   runApp(const QuizForgeApp());
 }
+
 class QuizForgeApp extends StatelessWidget {
   const QuizForgeApp({super.key});
 

@@ -1,16 +1,27 @@
-import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class PdfReaderService {
-  static Future<String> readPdf(String path) async {
-    final bytes = File(path).readAsBytesSync();
+  PdfReaderService._();
 
-    final document = PdfDocument(inputBytes: bytes);
+  static Future<String> readPdf(PlatformFile file) async {
+    if (file.bytes == null) {
+      throw Exception(
+        kIsWeb
+            ? "Unable to read PDF bytes in the browser."
+            : "PDF bytes are unavailable. Please reselect the PDF.",
+      );
+    }
 
-    final text = PdfTextExtractor(document).extractText();
+    final document = PdfDocument(
+      inputBytes: file.bytes!,
+    );
 
-    document.dispose();
-
-    return text;
+    try {
+      return PdfTextExtractor(document).extractText().trim();
+    } finally {
+      document.dispose();
+    }
   }
 }
