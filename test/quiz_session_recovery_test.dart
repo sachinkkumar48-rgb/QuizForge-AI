@@ -5,6 +5,8 @@ import 'package:quizforge_upsc/models/quiz_model.dart';
 import 'package:quizforge_upsc/models/quiz_session.dart';
 import 'package:quizforge_upsc/repositories/quiz_history_repository.dart';
 import 'package:quizforge_upsc/repositories/quiz_session_repository.dart';
+import 'package:quizforge_upsc/repositories/quiz_source_repository.dart';
+import 'package:quizforge_upsc/models/quiz_source.dart';
 
 class FakeQuizHistoryRepository implements QuizHistoryRepository {
   final List<QuizAttempt> attempts = [];
@@ -17,6 +19,24 @@ class FakeQuizHistoryRepository implements QuizHistoryRepository {
       attempts.removeWhere((e) => e.id == id);
   @override
   Future<void> clearHistory() async => attempts.clear();
+}
+
+class FakeQuizSourceRepository implements QuizSourceRepository {
+  final Map<String, QuizSource> sources = {};
+  @override
+  Future<void> saveSource(QuizSource source) async =>
+      sources[source.id] = source;
+  @override
+  Future<List<QuizSource>> getSources() async => sources.values.toList();
+  @override
+  Future<void> updateSource(QuizSource source) async => saveSource(source);
+  @override
+  Future<void> deleteSource(String id) async => sources.remove(id);
+  @override
+  Future<void> toggleFavorite(String id) async {
+    final s = sources[id];
+    if (s != null) sources[id] = s.copyWith(favorite: !s.favorite);
+  }
 }
 
 class FakeQuizSessionRepository implements QuizSessionRepository {
@@ -53,6 +73,7 @@ void main() {
     fakeHistoryRepo = FakeQuizHistoryRepository();
     QuizSessionRepository.instance = fakeSessionRepo;
     QuizHistoryRepository.instance = fakeHistoryRepo;
+    QuizSourceRepository.instance = FakeQuizSourceRepository();
 
     mockQuestions = [
       QuizQuestion(

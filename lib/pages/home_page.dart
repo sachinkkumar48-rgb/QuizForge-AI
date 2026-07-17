@@ -7,6 +7,7 @@ import '../services/pdf_service.dart';
 import '../widgets/loading_dialog.dart';
 import 'quiz_page.dart';
 import 'history_page.dart';
+import 'library_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -327,6 +328,25 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LibraryPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.folder_open),
+              label: const Text("Choose from PDF Library"),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(58),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
             const SizedBox(height: 30),
             Row(
               children: [
@@ -345,15 +365,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(width: 16),
                 buildActionCard(
-                  icon: Icons.settings,
-                  title: "Settings",
+                  icon: Icons.library_books,
+                  title: "PDF Library",
                   color: Colors.green,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "Settings feature coming soon.",
-                        ),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const LibraryPage(),
                       ),
                     );
                   },

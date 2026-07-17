@@ -3,8 +3,10 @@ import '../models/quiz_analytics.dart';
 import '../models/quiz_attempt.dart';
 import '../models/quiz_model.dart';
 import '../models/quiz_session.dart';
+import '../models/quiz_source.dart';
 import '../repositories/quiz_history_repository.dart';
 import '../repositories/quiz_session_repository.dart';
+import '../repositories/quiz_source_repository.dart';
 
 class QuizSessionController {
   final String sessionId;
@@ -169,6 +171,27 @@ class QuizSessionController {
       analytics: analytics,
     );
     await QuizHistoryRepository().saveAttempt(attempt);
+
+    try {
+      final sourceRepo = QuizSourceRepository();
+      final sources = await sourceRepo.getSources();
+      QuizSource? source;
+      for (final s in sources) {
+        if (s.name == sourceName) {
+          source = s;
+          break;
+        }
+      }
+      if (source != null) {
+        final updated = source.copyWith(
+          attemptCount: source.attemptCount + 1,
+          lastAttemptedAt: DateTime.now(),
+        );
+        await sourceRepo.updateSource(updated);
+      }
+    } catch (e) {
+      // Safeguard attempt completion if source metadata updates fail
+    }
   }
 
   void _submitOnTimeUp() async {

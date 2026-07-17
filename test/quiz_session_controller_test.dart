@@ -4,8 +4,10 @@ import 'package:quizforge_upsc/models/quiz_analytics.dart';
 import 'package:quizforge_upsc/models/quiz_attempt.dart';
 import 'package:quizforge_upsc/models/quiz_model.dart';
 import 'package:quizforge_upsc/models/quiz_session.dart';
+import 'package:quizforge_upsc/models/quiz_source.dart';
 import 'package:quizforge_upsc/repositories/quiz_history_repository.dart';
 import 'package:quizforge_upsc/repositories/quiz_session_repository.dart';
+import 'package:quizforge_upsc/repositories/quiz_source_repository.dart';
 
 void main() {
   late List<QuizQuestion> mockQuestions;
@@ -13,6 +15,7 @@ void main() {
   setUp(() {
     QuizHistoryRepository.instance = FakeQuizHistoryRepository();
     QuizSessionRepository.instance = FakeQuizSessionRepository();
+    QuizSourceRepository.instance = FakeQuizSourceRepository();
     mockQuestions = [
       QuizQuestion(
         question: "Q1",
@@ -262,5 +265,23 @@ class FakeQuizSessionRepository implements QuizSessionRepository {
   @override
   Future<bool> hasActiveSession() async {
     return activeSession != null;
+  }
+}
+
+class FakeQuizSourceRepository implements QuizSourceRepository {
+  final Map<String, QuizSource> sources = {};
+  @override
+  Future<void> saveSource(QuizSource source) async =>
+      sources[source.id] = source;
+  @override
+  Future<List<QuizSource>> getSources() async => sources.values.toList();
+  @override
+  Future<void> updateSource(QuizSource source) async => saveSource(source);
+  @override
+  Future<void> deleteSource(String id) async => sources.remove(id);
+  @override
+  Future<void> toggleFavorite(String id) async {
+    final s = sources[id];
+    if (s != null) sources[id] = s.copyWith(favorite: !s.favorite);
   }
 }
