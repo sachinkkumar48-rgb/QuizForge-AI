@@ -27,6 +27,7 @@ Services
 ↓
 Gemini REST API
 
+
 ## Current Project Status
 
 ### Completed
@@ -72,3 +73,13 @@ after every change.
 - Clean, readable code.
 - Reusable widgets where appropriate.
 - Maintain separation between domain models and UI state.
+### Completed
+- ✅ Project setup
+- ✅ PDF processing
+- ✅ Gemini integration
+- ✅ Quiz generation
+- ✅ Result screen
+- ✅ Question State Management
+- ✅ Responsive Question Palette
+- ✅ QuizSessionController
+- ✅ UPSC Countdown Timer

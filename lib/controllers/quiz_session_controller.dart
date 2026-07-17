@@ -117,16 +117,22 @@ class QuizSessionController {
       _updateVisitedStatus();
       onStateChanged();
     } else {
-      _stopTimer();
-      int correct = 0;
-      answers.forEach((index, selected) {
-        if (selected == questions[index].answer) {
-          correct++;
-        }
-      });
-      final attempted = answers.values.where((e) => e != null).length;
-      onFinished(correct, questions.length, attempted);
+      submitQuiz(onFinished: onFinished);
     }
+  }
+
+  void submitQuiz({
+    required void Function(int score, int total, int attempted) onFinished,
+  }) {
+    _stopTimer();
+    int correct = 0;
+    answers.forEach((index, selected) {
+      if (selected == questions[index].answer) {
+        correct++;
+      }
+    });
+    final attempted = answers.values.where((e) => e != null).length;
+    onFinished(correct, questions.length, attempted);
   }
 
   void jumpToQuestion(int index) {

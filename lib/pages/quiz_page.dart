@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/quiz_session_controller.dart';
 import '../models/quiz_model.dart';
 import 'result_page.dart';
+import 'review_page.dart';
 
 class QuizPage extends StatefulWidget {
   final List<QuizQuestion> questions;
@@ -102,6 +103,19 @@ class _QuizPageState extends State<QuizPage> {
           "Question ${controller.currentQuestionIndex + 1}/${controller.questions.length}",
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.rate_review_outlined,
+                color: Colors.deepPurple),
+            tooltip: "Review",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ReviewPage(controller: controller),
+                ),
+              );
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Row(
