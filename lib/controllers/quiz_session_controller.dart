@@ -1,11 +1,15 @@
 import 'dart:async';
+import '../models/quiz_analytics.dart';
+import '../models/quiz_attempt.dart';
 import '../models/quiz_model.dart';
+import '../repositories/quiz_history_repository.dart';
 
 class QuizSessionController {
+  final String sourceName;
   final List<QuizQuestion> questions;
   final void Function() onStateChanged;
   final Duration duration;
-  final void Function(int score, int total, int attempted) onTimeUp;
+  final void Function(QuizAnalytics analytics) onTimeUp;
 
   int currentQuestionIndex = 0;
   final Map<int, String?> answers = {};
@@ -15,6 +19,7 @@ class QuizSessionController {
   Timer? _timer;
 
   QuizSessionController({
+    this.sourceName = "Practice Quiz",
     required this.questions,
     required this.onStateChanged,
     this.duration = const Duration(hours: 2),
@@ -45,6 +50,60 @@ class QuizSessionController {
     return "$hStr:$mStr:$sStr";
   }
 
+  QuizAnalytics generateAnalytics() {
+    int correct = 0;
+    answers.forEach((index, selected) {
+      if (selected == questions[index].answer) {
+        correct++;
+      }
+    });
+
+    final attemptedVal = answers.values.where((e) => e != null).length;
+    final skippedVal = questions.length - attemptedVal;
+    final incorrectVal = attemptedVal - correct;
+    final accuracyVal =
+        questions.isEmpty ? 0.0 : (correct / questions.length) * 100;
+
+    PerformanceLevel level;
+    if (accuracyVal >= 80) {
+      level = PerformanceLevel.excellent;
+    } else if (accuracyVal >= 60) {
+      level = PerformanceLevel.good;
+    } else if (accuracyVal >= 40) {
+      level = PerformanceLevel.average;
+    } else {
+      level = PerformanceLevel.needsImprovement;
+    }
+
+    final Map<QuestionStatus, int> counts = {
+      QuestionStatus.notVisited: 0,
+      QuestionStatus.visited: 0,
+      QuestionStatus.answered: 0,
+      QuestionStatus.markedForReview: 0,
+    };
+
+    for (int i = 0; i < questions.length; i++) {
+      final s = statuses[i] ?? QuestionStatus.notVisited;
+      counts[s] = (counts[s] ?? 0) + 1;
+    }
+
+    final spentSeconds = duration.inSeconds - _remainingSeconds;
+
+    return QuizAnalytics(
+      score: correct,
+      totalQuestions: questions.length,
+      attempted: attemptedVal,
+      skipped: skippedVal,
+      incorrect: incorrectVal,
+      accuracy: accuracyVal,
+      performanceLevel: level,
+      timeSpent: Duration(seconds: spentSeconds),
+      remainingTime: remainingTime,
+      totalDuration: duration,
+      statusCounts: counts,
+    );
+  }
+
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
@@ -66,15 +125,20 @@ class QuizSessionController {
     _timer = null;
   }
 
-  void _submitOnTimeUp() {
-    int correct = 0;
-    answers.forEach((index, selected) {
-      if (selected == questions[index].answer) {
-        correct++;
-      }
-    });
-    final attempted = answers.values.where((e) => e != null).length;
-    onTimeUp(correct, questions.length, attempted);
+  Future<void> _saveQuizAttempt(QuizAnalytics analytics) async {
+    final attempt = QuizAttempt(
+      id: "${DateTime.now().microsecondsSinceEpoch}_${analytics.score}",
+      completedAt: DateTime.now(),
+      sourceName: sourceName,
+      analytics: analytics,
+    );
+    await QuizHistoryRepository().saveAttempt(attempt);
+  }
+
+  void _submitOnTimeUp() async {
+    final analytics = generateAnalytics();
+    await _saveQuizAttempt(analytics);
+    onTimeUp(analytics);
   }
 
   void _updateVisitedStatus() {
@@ -114,7 +178,7 @@ class QuizSessionController {
   }
 
   void nextQuestion({
-    required void Function(int score, int total, int attempted) onFinished,
+    required void Function(QuizAnalytics analytics) onFinished,
   }) {
     if (currentQuestionIndex < questions.length - 1) {
       currentQuestionIndex++;
@@ -125,18 +189,13 @@ class QuizSessionController {
     }
   }
 
-  void submitQuiz({
-    required void Function(int score, int total, int attempted) onFinished,
-  }) {
+  Future<void> submitQuiz({
+    required void Function(QuizAnalytics analytics) onFinished,
+  }) async {
     _stopTimer();
-    int correct = 0;
-    answers.forEach((index, selected) {
-      if (selected == questions[index].answer) {
-        correct++;
-      }
-    });
-    final attempted = answers.values.where((e) => e != null).length;
-    onFinished(correct, questions.length, attempted);
+    final analytics = generateAnalytics();
+    await _saveQuizAttempt(analytics);
+    onFinished(analytics);
   }
 
   void jumpToQuestion(int index) {

@@ -152,14 +152,12 @@ class ReviewPage extends StatelessWidget {
                     child: FilledButton(
                       onPressed: () {
                         controller.submitQuiz(
-                          onFinished: (score, total, attempted) {
+                          onFinished: (analytics) {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ResultPage(
-                                  score: score,
-                                  totalQuestions: total,
-                                  attempted: attempted,
+                                  analytics: analytics,
                                 ),
                               ),
                               (route) => route.isFirst,

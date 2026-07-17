@@ -5,6 +5,7 @@ import '../controllers/quiz_controller.dart';
 import '../services/pdf_service.dart';
 import '../widgets/loading_dialog.dart';
 import 'quiz_page.dart';
+import 'history_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -86,6 +87,7 @@ class _HomePageState extends State<HomePage> {
         MaterialPageRoute(
           builder: (_) => QuizPage(
             questions: questions,
+            sourceName: selectedPdf!.name,
           ),
         ),
       );
@@ -268,11 +270,10 @@ class _HomePageState extends State<HomePage> {
                   title: "History",
                   color: Colors.blue,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "History feature coming soon.",
-                        ),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HistoryPage(),
                       ),
                     );
                   },

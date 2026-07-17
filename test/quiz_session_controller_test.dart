@@ -1,11 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quizforge_upsc/controllers/quiz_session_controller.dart';
+import 'package:quizforge_upsc/models/quiz_analytics.dart';
+import 'package:quizforge_upsc/models/quiz_attempt.dart';
 import 'package:quizforge_upsc/models/quiz_model.dart';
+import 'package:quizforge_upsc/repositories/quiz_history_repository.dart';
 
 void main() {
   late List<QuizQuestion> mockQuestions;
 
   setUp(() {
+    QuizHistoryRepository.instance = FakeQuizHistoryRepository();
     mockQuestions = [
       QuizQuestion(
         question: "Q1",
@@ -33,7 +37,7 @@ void main() {
         questions: mockQuestions,
         onStateChanged: () => stateChangedCount++,
         duration: const Duration(seconds: 5),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       expect(controller.currentQuestionIndex, 0);
@@ -50,7 +54,7 @@ void main() {
         questions: mockQuestions,
         onStateChanged: () => stateChangedCount++,
         duration: const Duration(seconds: 5),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       controller.selectAnswer("A");
@@ -65,7 +69,7 @@ void main() {
         questions: mockQuestions,
         onStateChanged: () {},
         duration: const Duration(seconds: 5),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       controller.toggleMarkForReview();
@@ -89,10 +93,10 @@ void main() {
         questions: mockQuestions,
         onStateChanged: () {},
         duration: const Duration(seconds: 5),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
-      controller.nextQuestion(onFinished: (score, total, attempted) {});
+      controller.nextQuestion(onFinished: (analytics) {});
       expect(controller.currentQuestionIndex, 1);
       expect(controller.statuses[1], QuestionStatus.visited);
 
@@ -107,7 +111,7 @@ void main() {
         questions: mockQuestions,
         onStateChanged: () {},
         duration: const Duration(seconds: 5),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       controller.jumpToQuestion(1);
@@ -116,17 +120,15 @@ void main() {
       controller.dispose();
     });
 
-    test('submitQuiz calculates correct results', () {
+    test('submitQuiz calculates correct results', () async {
       bool finishedCalled = false;
-      int finalScore = 0;
-      int totalQuestions = 0;
-      int attemptedQuestions = 0;
+      late QuizAnalytics results;
 
       final controller = QuizSessionController(
         questions: mockQuestions,
         onStateChanged: () {},
         duration: const Duration(seconds: 5),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       controller.selectAnswer("A");
@@ -134,19 +136,21 @@ void main() {
       controller.jumpToQuestion(1);
       controller.selectAnswer("C");
 
-      controller.submitQuiz(
-        onFinished: (score, total, attempted) {
+      await controller.submitQuiz(
+        onFinished: (analytics) {
           finishedCalled = true;
-          finalScore = score;
-          totalQuestions = total;
-          attemptedQuestions = attempted;
+          results = analytics;
         },
       );
 
       expect(finishedCalled, true);
-      expect(finalScore, 1);
-      expect(totalQuestions, 2);
-      expect(attemptedQuestions, 2);
+      expect(results.score, 1);
+      expect(results.incorrect, 1);
+      expect(results.totalQuestions, 2);
+      expect(results.attempted, 2);
+      expect(results.skipped, 0);
+      expect(results.accuracy, 50.0);
+      expect(results.performanceLevel, PerformanceLevel.average);
 
       controller.dispose();
     });
@@ -159,7 +163,7 @@ void main() {
         questions: mockQuestions,
         onStateChanged: () {},
         duration: duration,
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       expect(controller.remainingTime.inSeconds, duration.inSeconds);
@@ -176,7 +180,7 @@ void main() {
           stateChangedCount++;
         },
         duration: const Duration(seconds: 3),
-        onTimeUp: (score, total, attempted) {},
+        onTimeUp: (analytics) {},
       );
 
       await Future.delayed(const Duration(milliseconds: 1100));
@@ -188,15 +192,15 @@ void main() {
 
     test('Timer completion triggers onTimeUp automatically', () async {
       bool timeUpCalled = false;
-      int finalScore = -1;
+      late QuizAnalytics results;
 
       final controller = QuizSessionController(
         questions: mockQuestions,
         onStateChanged: () {},
         duration: const Duration(seconds: 1),
-        onTimeUp: (score, total, attempted) {
+        onTimeUp: (analytics) {
           timeUpCalled = true;
-          finalScore = score;
+          results = analytics;
         },
       );
 
@@ -205,9 +209,31 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 1500));
 
       expect(timeUpCalled, true);
-      expect(finalScore, 1);
+      expect(results.score, 1);
       expect(controller.isTimeUp, true);
       controller.dispose();
     });
   });
+}
+
+class FakeQuizHistoryRepository implements QuizHistoryRepository {
+  final List<QuizAttempt> attempts = [];
+
+  @override
+  Future<void> saveAttempt(QuizAttempt attempt) async {
+    attempts.add(attempt);
+  }
+
+  @override
+  Future<List<QuizAttempt>> getAttempts() async => attempts;
+
+  @override
+  Future<void> deleteAttempt(String id) async {
+    attempts.removeWhere((e) => e.id == id);
+  }
+
+  @override
+  Future<void> clearHistory() async {
+    attempts.clear();
+  }
 }

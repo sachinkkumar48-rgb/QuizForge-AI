@@ -7,10 +7,12 @@ import 'review_page.dart';
 
 class QuizPage extends StatefulWidget {
   final List<QuizQuestion> questions;
+  final String sourceName;
 
   const QuizPage({
     super.key,
     required this.questions,
+    required this.sourceName,
   });
 
   @override
@@ -24,19 +26,18 @@ class _QuizPageState extends State<QuizPage> {
   void initState() {
     super.initState();
     controller = QuizSessionController(
+      sourceName: widget.sourceName,
       questions: widget.questions,
       onStateChanged: () {
         setState(() {});
       },
-      onTimeUp: (score, total, attempted) {
+      onTimeUp: (analytics) {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => ResultPage(
-              score: score,
-              totalQuestions: total,
-              attempted: attempted,
+              analytics: analytics,
             ),
           ),
         );
@@ -214,14 +215,12 @@ class _QuizPageState extends State<QuizPage> {
                               child: FilledButton.icon(
                                 onPressed: () {
                                   controller.nextQuestion(
-                                    onFinished: (score, total, attempted) {
+                                    onFinished: (analytics) {
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => ResultPage(
-                                            score: score,
-                                            totalQuestions: total,
-                                            attempted: attempted,
+                                            analytics: analytics,
                                           ),
                                         ),
                                       );
