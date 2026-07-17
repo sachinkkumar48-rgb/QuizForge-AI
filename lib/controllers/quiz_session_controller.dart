@@ -50,6 +50,10 @@ class QuizSessionController {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
         onStateChanged();
+        if (_remainingSeconds <= 0) {
+          _stopTimer();
+          _submitOnTimeUp();
+        }
       } else {
         _stopTimer();
         _submitOnTimeUp();
