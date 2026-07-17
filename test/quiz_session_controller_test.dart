@@ -3,13 +3,16 @@ import 'package:quizforge_upsc/controllers/quiz_session_controller.dart';
 import 'package:quizforge_upsc/models/quiz_analytics.dart';
 import 'package:quizforge_upsc/models/quiz_attempt.dart';
 import 'package:quizforge_upsc/models/quiz_model.dart';
+import 'package:quizforge_upsc/models/quiz_session.dart';
 import 'package:quizforge_upsc/repositories/quiz_history_repository.dart';
+import 'package:quizforge_upsc/repositories/quiz_session_repository.dart';
 
 void main() {
   late List<QuizQuestion> mockQuestions;
 
   setUp(() {
     QuizHistoryRepository.instance = FakeQuizHistoryRepository();
+    QuizSessionRepository.instance = FakeQuizSessionRepository();
     mockQuestions = [
       QuizQuestion(
         question: "Q1",
@@ -235,5 +238,29 @@ class FakeQuizHistoryRepository implements QuizHistoryRepository {
   @override
   Future<void> clearHistory() async {
     attempts.clear();
+  }
+}
+
+class FakeQuizSessionRepository implements QuizSessionRepository {
+  QuizSession? activeSession;
+
+  @override
+  Future<void> saveSession(QuizSession session) async {
+    activeSession = session;
+  }
+
+  @override
+  Future<QuizSession?> loadSession() async {
+    return activeSession;
+  }
+
+  @override
+  Future<void> deleteSession() async {
+    activeSession = null;
+  }
+
+  @override
+  Future<bool> hasActiveSession() async {
+    return activeSession != null;
   }
 }

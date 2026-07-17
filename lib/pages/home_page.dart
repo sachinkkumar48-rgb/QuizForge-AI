@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/quiz_controller.dart';
+import '../repositories/quiz_session_repository.dart';
 import '../services/pdf_service.dart';
 import '../widgets/loading_dialog.dart';
 import 'quiz_page.dart';
@@ -20,6 +21,70 @@ class _HomePageState extends State<HomePage> {
   bool isGenerating = false;
 
   final QuizController quizController = QuizController();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkActiveSession();
+  }
+
+  Future<void> _checkActiveSession() async {
+    await Future.delayed(Duration.zero);
+    if (!mounted) return;
+
+    final hasSession = await QuizSessionRepository().hasActiveSession();
+    if (hasSession && mounted) {
+      _showResumeDialog();
+    }
+  }
+
+  Future<void> _showResumeDialog() async {
+    final sessionRepo = QuizSessionRepository();
+    final session = await sessionRepo.loadSession();
+    if (session == null || !mounted) return;
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text("Resume Previous Quiz?"),
+          content: const Text("An unfinished quiz was found."),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                await sessionRepo.deleteSession();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("Previous quiz session discarded.")),
+                  );
+                }
+              },
+              child: const Text("Discard"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => QuizPage(
+                      questions: session.quizQuestions,
+                      sourceName: session.sourceName,
+                      restoredSession: session,
+                    ),
+                  ),
+                );
+              },
+              child: const Text("Resume"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   Future<void> importPdf() async {
     try {

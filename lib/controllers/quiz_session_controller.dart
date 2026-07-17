@@ -2,9 +2,13 @@ import 'dart:async';
 import '../models/quiz_analytics.dart';
 import '../models/quiz_attempt.dart';
 import '../models/quiz_model.dart';
+import '../models/quiz_session.dart';
 import '../repositories/quiz_history_repository.dart';
+import '../repositories/quiz_session_repository.dart';
 
 class QuizSessionController {
+  final String sessionId;
+  final DateTime createdAt;
   final String sourceName;
   final List<QuizQuestion> questions;
   final void Function() onStateChanged;
@@ -24,10 +28,20 @@ class QuizSessionController {
     required this.onStateChanged,
     this.duration = const Duration(hours: 2),
     required this.onTimeUp,
-  }) {
-    _remainingSeconds = duration.inSeconds;
-    if (questions.isNotEmpty) {
-      _updateVisitedStatus();
+    QuizSession? restoredSession,
+  })  : sessionId = restoredSession?.sessionId ??
+            "${DateTime.now().microsecondsSinceEpoch}",
+        createdAt = restoredSession?.createdAt ?? DateTime.now() {
+    if (restoredSession != null) {
+      currentQuestionIndex = restoredSession.currentQuestionIndex;
+      answers.addAll(restoredSession.selectedAnswers);
+      statuses.addAll(restoredSession.questionStatuses);
+      _remainingSeconds = restoredSession.remainingTime.inSeconds;
+    } else {
+      _remainingSeconds = duration.inSeconds;
+      if (questions.isNotEmpty) {
+        _updateVisitedStatus();
+      }
     }
     _startTimer();
   }
@@ -104,11 +118,33 @@ class QuizSessionController {
     );
   }
 
+  Future<void> saveSession() async {
+    final session = QuizSession(
+      sessionId: sessionId,
+      sourceName: sourceName,
+      createdAt: createdAt,
+      lastSavedAt: DateTime.now(),
+      totalQuestions: questions.length,
+      currentQuestionIndex: currentQuestionIndex,
+      remainingTime: Duration(seconds: _remainingSeconds),
+      selectedAnswers: answers,
+      questionStatuses: statuses,
+      quizQuestions: questions,
+    );
+    await QuizSessionRepository().saveSession(session);
+  }
+
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
         onStateChanged();
+
+        final spentSeconds = duration.inSeconds - _remainingSeconds;
+        if (spentSeconds > 0 && spentSeconds % 30 == 0) {
+          saveSession();
+        }
+
         if (_remainingSeconds <= 0) {
           _stopTimer();
           _submitOnTimeUp();
@@ -138,6 +174,7 @@ class QuizSessionController {
   void _submitOnTimeUp() async {
     final analytics = generateAnalytics();
     await _saveQuizAttempt(analytics);
+    await QuizSessionRepository().deleteSession();
     onTimeUp(analytics);
   }
 
@@ -152,6 +189,7 @@ class QuizSessionController {
     answers[currentQuestionIndex] = option;
     statuses[currentQuestionIndex] = QuestionStatus.answered;
     onStateChanged();
+    saveSession();
   }
 
   void toggleMarkForReview() {
@@ -167,6 +205,7 @@ class QuizSessionController {
       statuses[currentQuestionIndex] = QuestionStatus.markedForReview;
     }
     onStateChanged();
+    saveSession();
   }
 
   void previousQuestion() {
@@ -174,6 +213,7 @@ class QuizSessionController {
       currentQuestionIndex--;
       _updateVisitedStatus();
       onStateChanged();
+      saveSession();
     }
   }
 
@@ -184,6 +224,7 @@ class QuizSessionController {
       currentQuestionIndex++;
       _updateVisitedStatus();
       onStateChanged();
+      saveSession();
     } else {
       submitQuiz(onFinished: onFinished);
     }
@@ -195,6 +236,7 @@ class QuizSessionController {
     _stopTimer();
     final analytics = generateAnalytics();
     await _saveQuizAttempt(analytics);
+    await QuizSessionRepository().deleteSession();
     onFinished(analytics);
   }
 
@@ -203,6 +245,7 @@ class QuizSessionController {
       currentQuestionIndex = index;
       _updateVisitedStatus();
       onStateChanged();
+      saveSession();
     }
   }
 

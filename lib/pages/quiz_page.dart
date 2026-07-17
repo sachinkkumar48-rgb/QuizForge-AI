@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../controllers/quiz_session_controller.dart';
 import '../models/quiz_model.dart';
+import '../models/quiz_session.dart';
 import 'result_page.dart';
 import 'review_page.dart';
 
 class QuizPage extends StatefulWidget {
   final List<QuizQuestion> questions;
   final String sourceName;
+  final QuizSession? restoredSession;
 
   const QuizPage({
     super.key,
     required this.questions,
     required this.sourceName,
+    this.restoredSession,
   });
 
   @override
@@ -28,6 +31,7 @@ class _QuizPageState extends State<QuizPage> {
     controller = QuizSessionController(
       sourceName: widget.sourceName,
       questions: widget.questions,
+      restoredSession: widget.restoredSession,
       onStateChanged: () {
         setState(() {});
       },
