@@ -49,8 +49,8 @@ void main() {
   setUp(() {
     final TestWidgetsFlutterBinding binding =
         TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.physicalSizeTestValue = const Size(1280, 800);
-    binding.window.devicePixelRatioTestValue = 1.0;
+    binding.platformDispatcher.views.first.physicalSize = const Size(1280, 800);
+    binding.platformDispatcher.views.first.devicePixelRatio = 1.0;
 
     QuizSourceRepository.instance = FakeQuizSourceRepository();
     QuizHistoryRepository.instance = FakeQuizHistoryRepository();
@@ -60,8 +60,8 @@ void main() {
   tearDown(() {
     final TestWidgetsFlutterBinding binding =
         TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.clearPhysicalSizeTestValue();
-    binding.window.clearDevicePixelRatioTestValue();
+    binding.platformDispatcher.views.first.resetPhysicalSize();
+    binding.platformDispatcher.views.first.resetDevicePixelRatio();
   });
 
   testWidgets('HomePage renders correctly and has PDF Library button',

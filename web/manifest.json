@@ -1,6 +1,6 @@
 {
-    "name": "quizforge_upsc",
-    "short_name": "quizforge_upsc",
+    "name": "QuizForge AI",
+    "short_name": "QuizForge AI",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
