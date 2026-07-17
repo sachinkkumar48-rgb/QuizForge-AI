@@ -5,12 +5,14 @@ import '../quiz_source_repository.dart';
 
 class HiveQuizSourceRepository implements QuizSourceRepository {
   static const String _boxName = 'quiz_sources';
+  Box<String>? _box;
 
   Future<Box<String>> _getBox() async {
-    if (!Hive.isBoxOpen(_boxName)) {
-      await Hive.openBox<String>(_boxName);
+    if (_box != null && _box!.isOpen) {
+      return _box!;
     }
-    return Hive.box<String>(_boxName);
+    _box = await Hive.openBox<String>(_boxName);
+    return _box!;
   }
 
   @override

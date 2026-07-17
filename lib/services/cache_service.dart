@@ -9,13 +9,14 @@ class CacheService {
   CacheService._();
 
   static const String _boxName = 'quiz_cache';
+  static Box<String>? _cachedBox;
 
   static Future<Box<String>> _box() async {
-    if (!Hive.isBoxOpen(_boxName)) {
-      await Hive.openBox<String>(_boxName);
+    if (_cachedBox != null && _cachedBox!.isOpen) {
+      return _cachedBox!;
     }
-
-    return Hive.box<String>(_boxName);
+    _cachedBox = await Hive.openBox<String>(_boxName);
+    return _cachedBox!;
   }
 
   static String generateKey(String text) {

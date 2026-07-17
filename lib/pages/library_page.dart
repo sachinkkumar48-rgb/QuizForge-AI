@@ -58,7 +58,9 @@ class _LibraryPageState extends State<LibraryPage> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error loading PDF library: $e")),
+          SnackBar(
+              content: Text(
+                  "Error loading PDF library: ${e.toString().replaceAll("Exception: ", "")}")),
         );
       }
     }
@@ -71,7 +73,9 @@ class _LibraryPageState extends State<LibraryPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error updating favorite: $e")),
+          SnackBar(
+              content: Text(
+                  "Error updating favorite: ${e.toString().replaceAll("Exception: ", "")}")),
         );
       }
     }
@@ -131,7 +135,9 @@ class _LibraryPageState extends State<LibraryPage> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error renaming: $e")),
+            SnackBar(
+                content: Text(
+                    "Error renaming: ${e.toString().replaceAll("Exception: ", "")}")),
           );
         }
       }
@@ -218,7 +224,9 @@ class _LibraryPageState extends State<LibraryPage> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error deleting: $e")),
+            SnackBar(
+                content: Text(
+                    "Error deleting: ${e.toString().replaceAll("Exception: ", "")}")),
           );
         }
       }
@@ -249,7 +257,9 @@ class _LibraryPageState extends State<LibraryPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error opening quiz: $e")),
+          SnackBar(
+              content: Text(
+                  "Error opening quiz: ${e.toString().replaceAll("Exception: ", "")}")),
         );
       }
     }
@@ -462,12 +472,13 @@ class _LibraryPageState extends State<LibraryPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                         CircleAvatar(
-                                           backgroundColor:
-                                               Colors.deepPurple.shade100,
-                                           foregroundColor: Colors.deepPurple,
-                                           child: const Icon(Icons.picture_as_pdf),
-                                         ),
+                                        CircleAvatar(
+                                          backgroundColor:
+                                              Colors.deepPurple.shade100,
+                                          foregroundColor: Colors.deepPurple,
+                                          child:
+                                              const Icon(Icons.picture_as_pdf),
+                                        ),
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: Column(

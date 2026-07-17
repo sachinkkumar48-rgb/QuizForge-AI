@@ -1,17 +1,118 @@
-# quizforge_upsc
+# QuizForge AI: UPSC Quiz Generator
 
-AI-powered UPSC Quiz Generator
+QuizForge AI is a production-ready, local-first Flutter application that leverages Gemini AI to parse UPSC (Union Public Service Commission) preparation study materials in PDF format and generate high-fidelity, exam-conforming practice quizzes.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Technical Architecture
 
-A few resources to get you started if this is your first Flutter project:
+The codebase adheres strictly to **Clean Architecture** and **MVC-like separation patterns**:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+1. **Domain Models (`lib/models/`)**: Pure Dart models with zero Flutter imports. Handles data modeling, immutability contracts, and JSON serialization.
+2. **Controller Layer (`lib/controllers/`)**: Encapsulates state mutation and business logic rules. Decoupled from the database and UI layers.
+3. **Repository Layer (`lib/repositories/`)**: Abstract interfaces with concrete implementations (Hive CE) managing offline persistence, metadata updates, and cache structures.
+4. **Service Layer (`lib/services/`)**: Interfaces with external modules, local PDF extraction utilities, and the Google Gemini API.
+5. **UI Layer (`lib/pages/` & `lib/widgets/`)**: Responsive, Material 3 layouts presenting loading, empty, and success states dynamically depending on form factors.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## Directory Structure
+
+```text
+lib/
+├── core/
+│   └── utils/
+│       └── text_chunk_service.dart          # Text preprocessing and cleanup
+├── models/
+│   ├── quiz_analytics.dart                  # Analytics snapshot model
+│   ├── quiz_attempt.dart                    # Complete historical attempt
+│   ├── quiz_model.dart                      # Questions and state models
+│   ├── quiz_session.dart                    # Active session snapshot
+│   └── quiz_source.dart                     # PDF Library entry metadata
+├── repositories/
+│   ├── impl/
+│   │   ├── hive_quiz_history_repository.dart# Persistent quiz history
+│   │   ├── hive_quiz_session_repository.dart# Persistent active sessions
+│   │   └── hive_quiz_source_repository.dart # Persistent PDF source metadata
+│   ├── quiz_history_repository.dart
+│   ├── quiz_session_repository.dart
+│   └── quiz_source_repository.dart
+├── services/
+│   ├── ai_service.dart                      # Gemini 2.5 API connector & retry handler
+│   ├── cache_service.dart                   # Local quiz caching service
+│   ├── pdf_reader_service.dart              # Syncfusion PDF text extractor
+│   └── pdf_service.dart                     # File picker service
+├── themes/
+│   ├── app_colors.dart                      # Color constants
+│   ├── app_text_styles.dart
+│   └── app_theme.dart                       # Global Material 3 configurations
+├── widgets/
+│   ├── analytics_dashboard.dart
+│   ├── loading_dialog.dart
+│   └── question_card.dart
+└── pages/
+    ├── home_page.dart                       # Landing screen & session recovery
+    ├── library_page.dart                    # PDF Library (Search, Sort, CRUD)
+    ├── history_page.dart                    # Historical attempts list
+    ├── attempt_summary_page.dart            # Read-only attempt results
+    ├── quiz_page.dart                       # Interactive quiz runner
+    └── result_page.dart                     # Quiz results & dashboard
+```
+
+---
+
+## AI Integration & Preprocessing
+
+* **Gemini 2.5 Flash**: Connects directly to Google's generative models with strict prompt rules specifying question formats, difficulty levels, and domain-appropriate subject tagging.
+* **Pre-processing**: Extracted PDF texts are sanitized, truncated to 15,000 characters to manage LLM attention and token usage, and hashed to generate content fingerprints.
+* **Response validation**: Responses are parsed, and formatting anomalies (such as markdown code blocks) are stripped and cleaned to prevent decoding crashes.
+
+---
+
+## Local Storage & Cache Policies
+
+* **Hive CE**: Lightweight, fast key-value storage box engines.
+* **Caching**: Quizzes generated via Gemini are cached under their SHA-256 fingerprint ID. Selecting the same PDF loads cached questions instantly, ensuring offline operability and avoiding API call overheads.
+* **Session Recovery**: Progress is auto-saved on every interaction (answering questions, bookmarking, navigation, and 30s timers). Unfinished sessions can be resumed or discarded from the Home Page.
+
+---
+
+## Setup & Running
+
+### Prerequisites
+* Flutter SDK (>=3.0.0 <4.0.0)
+* Gemini API Key
+
+### Configuration
+Create a `.env` file in the root directory:
+```env
+GEMINI_API_KEY=your_actual_gemini_api_key_here
+```
+
+### Running the Application
+```bash
+# Fetch dependencies
+flutter pub get
+
+# Run in debug mode
+flutter run
+```
+
+### Running Tests
+```bash
+# Run unit, integration, and UI smoke tests
+flutter test
+```
+
+### Building Release Bundle
+```bash
+# Build Android APK
+flutter build apk --release
+```
+
+---
+
+## Known Limitations
+
+1. **Free Tier Quota**: The application relies on free-tier Gemini API keys. Heavy usage will trigger a `429 (Too Many Requests)` warning, which is intercepted and displayed gracefully in the UI.
+2. **Text Extraction boundaries**: Scanned images (non-searchable PDFs) will return empty extracted text. The app displays a clear warning prompting the user for text-based PDFs.

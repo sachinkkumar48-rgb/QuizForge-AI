@@ -14,14 +14,20 @@ class PdfReaderService {
       );
     }
 
-    final document = PdfDocument(
-      inputBytes: file.bytes!,
-    );
-
     try {
-      return PdfTextExtractor(document).extractText().trim();
-    } finally {
-      document.dispose();
+      final document = PdfDocument(
+        inputBytes: file.bytes!,
+      );
+
+      try {
+        return PdfTextExtractor(document).extractText().trim();
+      } finally {
+        document.dispose();
+      }
+    } catch (e) {
+      throw Exception(
+        "Failed to parse the selected PDF. The file may be corrupted, encrypted, or password-protected.",
+      );
     }
   }
 }

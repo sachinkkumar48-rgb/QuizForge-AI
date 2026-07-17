@@ -110,9 +110,10 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       if (!mounted) return;
 
+      final errorMsg = e.toString().replaceAll("Exception: ", "");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: Text(errorMsg),
         ),
       );
     }
@@ -162,10 +163,11 @@ class _HomePageState extends State<HomePage> {
 
       LoadingDialog.hide(context);
 
+      final errorMsg = e.toString().replaceAll("Exception: ", "");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            e.toString(),
+            errorMsg,
           ),
         ),
       );
