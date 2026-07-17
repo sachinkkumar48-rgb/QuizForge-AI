@@ -16,9 +16,9 @@ class TextChunkService {
   /// which is safe for Gemini requests while
   /// keeping enough context.
   static List<String> splitIntoChunks(
-      String text, {
-        int chunkSize = 8000,
-      }) {
+    String text, {
+    int chunkSize = 8000,
+  }) {
     final cleaned = cleanText(text);
 
     if (cleaned.length <= chunkSize) {

@@ -24,66 +24,106 @@ class AiService {
   }
 
   static Uri get _url => Uri.parse(
-    "https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent?key=$_apiKey",
-  );
+        "https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent?key=$_apiKey",
+      );
 
   static Future<List<QuizQuestion>> generateQuiz(
-      String text, {
-        required int questionCount,
-      }) async {
+    String text, {
+    required int questionCount,
+  }) async {
     final prompt = _buildPrompt(
       text: text,
       questionCount: questionCount,
     );
 
-    final response = await http
-        .post(
-      _url,
-      headers: const {
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({
-        "contents": [
-          {
-            "parts": [
-              {
-                "text": prompt,
-              }
-            ]
-          }
-        ],
-        "generationConfig": {
-          "temperature": 0.4,
-          "responseMimeType": "application/json",
-        }
-      }),
-    )
-        .timeout(const Duration(seconds: 60));
+    http.Response? response;
 
-    if (response.statusCode != 200) {
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      response = await http
+          .post(
+            _url,
+            headers: const {
+              "Content-Type": "application/json",
+            },
+            body: jsonEncode({
+              "contents": [
+                {
+                  "parts": [
+                    {
+                      "text": prompt,
+                    }
+                  ]
+                }
+              ],
+              "generationConfig": {
+                "temperature": 0.4,
+                "responseMimeType": "application/json",
+              }
+            }),
+          )
+          .timeout(const Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        break;
+      }
+
+// Retry only if Gemini is temporarily busy.
+      if (response.statusCode == 503 && attempt < 3) {
+        await Future.delayed(
+          Duration(seconds: attempt * 2),
+        );
+        continue;
+      }
+
+      if (response.statusCode == 401) {
+        throw Exception(
+          "Invalid Gemini API Key.\n\nPlease verify your .env file.",
+        );
+      }
+
+      if (response.statusCode == 429) {
+        throw Exception(
+          "Gemini API quota exceeded.\n\nPlease try again later or use another API key.",
+        );
+      }
+
+      if (response.statusCode == 503) {
+        throw Exception(
+          "Gemini AI is currently experiencing high demand.\n\nPlease try again in a few minutes.",
+        );
+      }
+
       throw Exception(
         "Gemini API Error (${response.statusCode})\n\n${response.body}",
       );
     }
 
-    final Map<String, dynamic> responseJson =
-    jsonDecode(response.body);
+    if (response == null || response.statusCode != 200) {
+      throw Exception(
+        "Unable to connect to Gemini AI.",
+      );
+    }
+
+    final Map<String, dynamic> responseJson = jsonDecode(response.body);
 
     final candidates = responseJson["candidates"];
 
     if (candidates == null || candidates.isEmpty) {
-      throw Exception("Gemini returned an empty response.");
+      throw Exception(
+        "Gemini returned an empty response.",
+      );
     }
 
-    String rawJson =
-    candidates[0]["content"]["parts"][0]["text"];
+    String rawJson = candidates[0]["content"]["parts"][0]["text"];
 
     rawJson = _cleanJson(rawJson);
 
     final List<dynamic> decoded = jsonDecode(rawJson);
 
     return decoded
-        .map((e) => QuizQuestion.fromJson(e))
+        .map(
+          (e) => QuizQuestion.fromJson(e),
+        )
         .toList();
   }
 
@@ -133,8 +173,7 @@ STRICT RULES
 10. Every object MUST contain ALL fields.
 
 Return JSON exactly like this:
-
-[
+    [
   {
     "question":"Question text",
 
@@ -174,6 +213,13 @@ Environment
 Science & Technology
 Art & Culture
 Current Affairs
+
+IMPORTANT:
+- Return ONLY valid JSON.
+- Do NOT wrap the JSON inside ```json.
+- Do NOT add any introductory or concluding text.
+- Generate exactly $questionCount questions.
+- Ensure every question has four options and exactly one correct answer.
 
 Study Material:
 

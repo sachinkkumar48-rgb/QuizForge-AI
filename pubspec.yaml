@@ -13,11 +13,19 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Existing packages
   file_picker: ^10.2.0
   path: ^1.9.0
   syncfusion_flutter_pdf: ^30.1.40
   http: ^1.5.0
   flutter_dotenv: ^5.2.1
+
+  # Local database
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Generate unique fingerprint for PDFs
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:

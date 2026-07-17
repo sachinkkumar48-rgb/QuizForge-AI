@@ -7,8 +7,8 @@ class QuizController {
   final QuizRepository _repository = QuizRepository();
 
   Future<List<QuizQuestion>> generateQuiz(
-      PlatformFile pdf,
-      ) async {
+    PlatformFile pdf,
+  ) async {
     return await _repository.generateQuiz(pdf);
   }
 }

@@ -4,9 +4,9 @@ class LoadingDialog {
   LoadingDialog._();
 
   static void show(
-      BuildContext context, {
-        String message = "Generating UPSC Quiz...",
-      }) {
+    BuildContext context, {
+    String message = "Generating UPSC Quiz...",
+  }) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -23,9 +23,7 @@ class LoadingDialog {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const CircularProgressIndicator(),
-
                   const SizedBox(height: 24),
-
                   const Text(
                     "QuizForge AI",
                     style: TextStyle(
@@ -33,9 +31,7 @@ class LoadingDialog {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   Text(
                     message,
                     textAlign: TextAlign.center,
@@ -43,13 +39,9 @@ class LoadingDialog {
                       fontSize: 16,
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   const LinearProgressIndicator(),
-
                   const SizedBox(height: 20),
-
                   const Text(
                     "Please wait...\nGenerating high-quality UPSC questions.",
                     textAlign: TextAlign.center,

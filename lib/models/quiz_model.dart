@@ -1,3 +1,10 @@
+enum QuestionStatus {
+  notVisited,
+  visited,
+  answered,
+  markedForReview,
+}
+
 class QuizQuestion {
   final String question;
   final List<String> options;
