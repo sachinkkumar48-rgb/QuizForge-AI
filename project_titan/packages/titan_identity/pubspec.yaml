@@ -1,0 +1,38 @@
+name: titan_identity
+description: Provider-agnostic identity, authentication, session management, and M3 profile widgets for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_storage:
+    path: ../titan_storage
+  titan_analytics:
+    path: ../titan_analytics
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_planner:
+    path: ../titan_planner
+  titan_ai:
+    path: ../titan_ai
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true
