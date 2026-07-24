@@ -1,0 +1,83 @@
+{
+  "manifest": {
+    "datasetId": "upsc_prelims_gs1_2024",
+    "datasetVersion": "1.0.0",
+    "schemaVersion": "1.0",
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper I",
+    "language": "English",
+    "publisher": "QuizForge AI",
+    "totalQuestions": 2,
+    "checksum": ""
+  },
+  "exam": {
+    "examId": "UPSC_CSE_PRELIMS",
+    "code": "UPSC_CSE",
+    "name": "UPSC Civil Services Examination (Prelims)",
+    "conductingBody": "UPSC",
+    "category": "Central Civil Services"
+  },
+  "paper": {
+    "paperId": "UPSC_PRE_GS1_2024",
+    "examId": "UPSC_CSE_PRELIMS",
+    "paperName": "GS Paper I",
+    "year": 2024,
+    "totalQuestions": 100,
+    "durationMinutes": 120,
+    "maxMarks": 200.0,
+    "negativeMarkingFactor": 0.66
+  },
+  "questions": [
+    {
+      "id": "UPSC_PRE_GS1_2024_Q001",
+      "year": 2024,
+      "exam": "UPSC CSE Prelims",
+      "paper": "GS Paper 1",
+      "subject": "Polity",
+      "topic": "Preamble & Constitution",
+      "difficulty": "Medium",
+      "question": "With reference to the Constitution of India, consider the following statements:\n1. The Preamble is an integral part of the Constitution.\n2. The Preamble can be amended under Article 368 without altering its basic structure.\nWhich of the statements given above is/are correct?",
+      "options": ["1 only", "2 only", "Both 1 and 2", "Neither 1 nor 2"],
+      "correctAnswer": "Both 1 and 2",
+      "explanations": [
+        {
+          "explanationId": "UPSC_PRE_GS1_2024_Q001_exp1",
+          "explanationType": "Official UPSC",
+          "content": "Kesavananda Bharati case 1973 established Preamble is integral part.",
+          "source": "Official UPSC Key 2024",
+          "author": "UPSC",
+          "version": "1.0.0",
+          "language": "English"
+        }
+      ]
+    },
+    {
+      "id": "UPSC_PRE_GS1_2024_Q002",
+      "year": 2024,
+      "exam": "UPSC CSE Prelims",
+      "paper": "GS Paper 1",
+      "subject": "Economy",
+      "topic": "Monetary Policy & Banking",
+      "difficulty": "Hard",
+      "question": "In India, which of the following is/are the main objective(s) of the Reserve Bank of India's Inflation Targeting Framework?",
+      "options": [
+        "To maintain price stability while keeping in mind the objective of growth",
+        "To fix the exchange rate of Indian Rupee against US Dollar",
+        "To eliminate fiscal deficit of the Central Government",
+        "To manage stock market fluctuations"
+      ],
+      "correctAnswer": "To maintain price stability while keeping in mind the objective of growth",
+      "explanations": [
+        {
+          "explanationId": "UPSC_PRE_GS1_2024_Q002_exp1",
+          "explanationType": "Official UPSC",
+          "content": "Section 45ZA of RBI Act 1934 specifies price stability alongside growth.",
+          "source": "Official RBI Act",
+          "author": "RBI",
+          "version": "1.0.0",
+          "language": "English"
+        }
+      ]
+    }
+  ]
+}

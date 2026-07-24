@@ -1,0 +1,9 @@
+include: package:lints/core.yaml
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    always_declare_return_types: true
+    avoid_empty_else: true
+    cancel_subscriptions: true
+    close_sinks: true

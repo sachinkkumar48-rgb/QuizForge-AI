@@ -1,0 +1,14 @@
+# melos_managed_dependency_overrides: titan_ai,titan_network
+dependency_overrides:
+  titan_core:
+    path: ..\titan_core
+  titan_domain:
+    path: ..\titan_domain
+  titan_storage:
+    path: ..\titan_storage
+  titan_pdf:
+    path: ..\titan_pdf
+  titan_ai:
+    path: ..\\titan_ai
+  titan_network:
+    path: ..\\titan_network

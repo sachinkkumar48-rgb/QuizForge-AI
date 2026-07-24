@@ -1,0 +1,53 @@
+name: quizforge_ai
+description: QuizForge AI application integration layer for Project TITAN monorepo.
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker: ^8.3.7
+  flutter_riverpod: ^2.5.1
+  go_router: ^13.2.0
+  meta: ^1.11.0
+  titan_core:
+    path: ../../packages/titan_core
+  titan_domain:
+    path: ../../packages/titan_domain
+  titan_pdf:
+    path: ../../packages/titan_pdf
+  titan_ai:
+    path: ../../packages/titan_ai
+  titan_quiz:
+    path: ../../packages/titan_quiz
+  titan_quiz_ai:
+    path: ../../packages/titan_quiz_ai
+  titan_quiz_session:
+    path: ../../packages/titan_quiz_session
+  titan_analytics:
+    path: ../../packages/titan_analytics
+  titan_content:
+    path: ../../packages/titan_content
+  titan_revision:
+    path: ../../packages/titan_revision
+  titan_learning_profile:
+    path: ../../packages/titan_learning_profile
+  titan_recommendation:
+    path: ../../packages/titan_recommendation
+  titan_planner:
+    path: ../../packages/titan_planner
+  titan_knowledge_graph:
+    path: ../../packages/titan_knowledge_graph
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

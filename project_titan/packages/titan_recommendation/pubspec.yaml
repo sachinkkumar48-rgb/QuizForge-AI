@@ -1,0 +1,39 @@
+name: titan_recommendation
+description: Intelligent recommendation engine, rule evaluation, and personalized study guidance for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_analytics:
+    path: ../titan_analytics
+  titan_revision:
+    path: ../titan_revision
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_content:
+    path: ../titan_content
+  knowledge_engine:
+    path: ../../../packages/knowledge_engine
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+  titan_quiz:
+    path: ../titan_quiz
+
+
+flutter:
+  uses-material-design: true
+

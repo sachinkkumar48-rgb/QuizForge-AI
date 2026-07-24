@@ -1,0 +1,60 @@
+{
+  "manifest": {
+    "datasetId": "bpsc_70th_prelims",
+    "datasetVersion": "1.0.0",
+    "schemaVersion": "1.0",
+    "exam": "BPSC CCE",
+    "paper": "General Studies",
+    "language": "English",
+    "publisher": "QuizForge AI",
+    "totalQuestions": 1,
+    "checksum": ""
+  },
+  "exam": {
+    "examId": "BPSC_CCE",
+    "code": "BPSC",
+    "name": "Bihar Public Service Commission Combined Competitive Exam",
+    "conductingBody": "BPSC",
+    "category": "State PSC"
+  },
+  "paper": {
+    "paperId": "BPSC_70TH_GS",
+    "examId": "BPSC_CCE",
+    "paperName": "General Studies",
+    "year": 2024,
+    "totalQuestions": 150,
+    "durationMinutes": 120,
+    "maxMarks": 150.0,
+    "negativeMarkingFactor": 0.33
+  },
+  "questions": [
+    {
+      "id": "BPSC_PRE_GS_2024_Q001",
+      "year": 2024,
+      "exam": "BPSC CCE",
+      "paper": "General Studies",
+      "subject": "History",
+      "topic": "Bihar Modern History",
+      "difficulty": "Medium",
+      "question": "Who established the Bihar Provincial Kisan Sabha in 1929?",
+      "options": [
+        "Swami Sahajanand Saraswati",
+        "Dr. Rajendra Prasad",
+        "Jayaprakash Narayan",
+        "Kunwar Singh"
+      ],
+      "correctAnswer": "Swami Sahajanand Saraswati",
+      "explanations": [
+        {
+          "explanationId": "BPSC_PRE_GS_2024_Q001_exp1",
+          "explanationType": "Official BPSC",
+          "content": "Swami Sahajanand Saraswati formed the Bihar Provincial Kisan Sabha in 1929 to mobilize peasant grievances.",
+          "source": "BPSC Official Key 2024",
+          "author": "BPSC Board",
+          "version": "1.0.0",
+          "language": "English"
+        }
+      ]
+    }
+  ]
+}

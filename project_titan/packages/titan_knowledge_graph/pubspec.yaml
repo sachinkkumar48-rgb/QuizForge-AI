@@ -1,0 +1,31 @@
+name: titan_knowledge_graph
+description: Knowledge graph engine, graph traversal algorithms, learning paths, and M3 visualization for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_revision:
+    path: ../titan_revision
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_recommendation:
+    path: ../titan_recommendation
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true

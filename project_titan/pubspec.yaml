@@ -1,0 +1,11 @@
+name: project_titan_workspace
+description: Root workspace management package for Project TITAN monorepo.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dev_dependencies:
+  lints: ^3.0.0
+  melos: ^6.0.0

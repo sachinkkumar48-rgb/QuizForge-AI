@@ -1,0 +1,23 @@
+name: project_titan
+repository: https://github.com/sachinkkumar48-rgb/QuizForge-AI
+
+packages:
+  - apps/**
+  - packages/**
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  analyze:
+    exec: dart analyze .
+    description: Run dart analyze across all packages in the monorepo.
+
+  test:
+    exec: dart test
+    description: Run unit tests across all packages in the monorepo.
+
+  format:
+    exec: dart format . --set-exit-if-changed
+    description: Format Dart code across all packages in the monorepo.

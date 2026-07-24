@@ -1,0 +1,39 @@
+name: Project TITAN CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  analyze_and_test:
+    name: Lint, Analyze and Test Monorepo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Display Flutter version
+        run: flutter --version
+
+      - name: Install Melos
+        run: |
+          dart pub global activate melos
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+
+      - name: Bootstrap workspace
+        run: melos bootstrap
+
+      - name: Run static analysis
+        run: melos run analyze
+
+      - name: Run unit tests
+        run: melos run test

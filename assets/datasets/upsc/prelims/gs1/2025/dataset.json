@@ -1,0 +1,55 @@
+{
+  "manifest": {
+    "datasetId": "upsc_prelims_gs1_2025",
+    "datasetVersion": "1.0.0",
+    "schemaVersion": "1.0",
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper I",
+    "language": "English",
+    "publisher": "QuizForge AI",
+    "totalQuestions": 1,
+    "checksum": ""
+  },
+  "exam": {
+    "examId": "UPSC_CSE_PRELIMS",
+    "code": "UPSC_CSE",
+    "name": "UPSC Civil Services Examination (Prelims)",
+    "conductingBody": "UPSC",
+    "category": "Central Civil Services"
+  },
+  "paper": {
+    "paperId": "UPSC_PRE_GS1_2025",
+    "examId": "UPSC_CSE_PRELIMS",
+    "paperName": "GS Paper I",
+    "year": 2025,
+    "totalQuestions": 100,
+    "durationMinutes": 120,
+    "maxMarks": 200.0,
+    "negativeMarkingFactor": 0.66
+  },
+  "questions": [
+    {
+      "id": "UPSC_PRE_GS1_2025_Q001",
+      "year": 2025,
+      "exam": "UPSC CSE Prelims",
+      "paper": "GS Paper I",
+      "subject": "Polity",
+      "topic": "Preamble & Constitution",
+      "difficulty": "Medium",
+      "question": "With reference to the Indian Constitution, which article guarantees Right to Equality before Law?",
+      "options": ["Article 14", "Article 19", "Article 21", "Article 32"],
+      "correctAnswer": "Article 14",
+      "explanations": [
+        {
+          "explanationId": "UPSC_PRE_GS1_2025_Q001_exp1",
+          "explanationType": "Official UPSC",
+          "content": "Article 14 guarantees equality before law and equal protection of laws.",
+          "source": "Official UPSC Answer Key 2025",
+          "author": "UPSC",
+          "version": "1.0.0",
+          "language": "English"
+        }
+      ]
+    }
+  ]
+}

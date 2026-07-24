@@ -1,0 +1,431 @@
+[
+  {
+    "id": "UPSC_PRE_GS1_2024_Q001",
+    "year": 2024,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Polity",
+    "topic": "Preamble & Constitution",
+    "difficulty": "Medium",
+    "question": "With reference to the Constitution of India, consider the following statements:\n1. The Preamble is an integral part of the Constitution.\n2. The Preamble can be amended under Article 368 without altering its basic structure.\nWhich of the statements given above is/are correct?",
+    "options": [
+      "1 only",
+      "2 only",
+      "Both 1 and 2",
+      "Neither 1 nor 2"
+    ],
+    "correctAnswer": "Both 1 and 2",
+    "officialAnswer": "C",
+    "explanation": {
+      "official": "In the Kesavananda Bharati case (1973), the Supreme Court held that the Preamble is an integral part of the Constitution and can be amended under Article 368, subject to the condition that no amendment is made to the basic structure.",
+      "ai": "Statement 1 is correct because Supreme Court explicitly recognized Preamble as part of Constitution in 1973. Statement 2 is correct as 42nd Constitutional Amendment Act 1976 amended Preamble adding Socialist, Secular, and Integrity.",
+      "incorrectOptions": {
+        "A": "Option A ignores Statement 2, which is also correct under Article 368.",
+        "B": "Option B ignores Statement 1, which was established in Kesavananda Bharati 1973.",
+        "D": "Option D incorrectly claims both statements are wrong."
+      },
+      "relatedConcepts": [
+        "Kesavananda Bharati Case 1973",
+        "Basic Structure Doctrine",
+        "42nd Constitutional Amendment 1976"
+      ],
+      "previousYearTrend": "Questions on Preamble and Basic Structure are asked almost every 2 years in UPSC CSE Prelims."
+    },
+    "reference": "NCERT Class 11 Indian Constitution at Work Ch 1 & Kesavananda Bharati Case",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Polity", "Preamble", "UPSC2024", "BasicStructure"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2024_Q002",
+    "year": 2024,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Economy",
+    "topic": "Monetary Policy & Banking",
+    "difficulty": "Hard",
+    "question": "In India, which of the following is/are the main objective(s) of the Reserve Bank of India's Inflation Targeting Framework?",
+    "options": [
+      "To maintain price stability while keeping in mind the objective of growth",
+      "To fix the exchange rate of Indian Rupee against US Dollar",
+      "To eliminate fiscal deficit of the Central Government",
+      "To manage stock market fluctuations"
+    ],
+    "correctAnswer": "To maintain price stability while keeping in mind the objective of growth",
+    "officialAnswer": "A",
+    "explanation": {
+      "official": "Under Section 45ZA of the RBI Act 1934, the primary objective of the Monetary Policy Framework is to maintain price stability while keeping in mind the objective of growth.",
+      "ai": "The RBI adopted Flexible Inflation Targeting (FIT) in 2016 targeting CPI inflation at 4% +/- 2%. Primary focus is price stability alongside growth.",
+      "incorrectOptions": {
+        "B": "Exchange rates are determined by market supply and demand under floating rate system, not fixed by RBI FIT.",
+        "C": "Fiscal deficit is managed by Union Ministry of Finance under FRBM Act.",
+        "D": "Stock market is regulated by SEBI, not RBI."
+      },
+      "relatedConcepts": [
+        "Monetary Policy Committee (MPC)",
+        "RBI Act 1934 Section 45ZA",
+        "Flexible Inflation Targeting (FIT)"
+      ],
+      "previousYearTrend": "Monetary policy tools (repo rate, inflation targeting, SLR/CRR) are high-frequency UPSC Economy questions."
+    },
+    "reference": "RBI Act 1934 & Union Budget 2016-17",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Economy", "RBI", "Inflation", "UPSC2024"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2023_Q001",
+    "year": 2023,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "History",
+    "topic": "Ancient History & Culture",
+    "difficulty": "Medium",
+    "question": "Consider the following pairs of ancient ports and their locations:\n1. Dhannakataka - Andhra region\n2. Barygaza - Gujarat/Narmada estuary\n3. Korkai - Pandya kingdom\nHow many of the above pairs are correctly matched?",
+    "options": [
+      "Only one pair",
+      "Only two pairs",
+      "All three pairs",
+      "None of the pairs"
+    ],
+    "correctAnswer": "All three pairs",
+    "officialAnswer": "C",
+    "explanation": {
+      "official": "All three pairs are correctly matched. Dhannakataka (Amaravati) was a major Buddhist centre and riverine port in Andhra. Barygaza (Bharuch) was a major western port. Korkai was an ancient port city of the Pandyas famous for pearl fishery.",
+      "ai": "Dharanikota/Dhannakataka flourished in Satavahana times. Barygaza is mentioned in Periplus of Erythraean Sea. Korkai was the early capital and port of Pandyas.",
+      "incorrectOptions": {
+        "A": "Incorrect because all 3 pairs are correctly matched.",
+        "B": "Incorrect because statement 1, 2 and 3 are all true.",
+        "D": "Incorrect as none of the pairs are mismatched."
+      },
+      "relatedConcepts": [
+        "Satavahana Empire Ports",
+        "Sangam Age Ports",
+        "Periplus of the Erythraean Sea"
+      ],
+      "previousYearTrend": "UPSC started using 'How many of the above' options in 2022-2023 Prelims."
+    },
+    "reference": "NCERT Class 11 Ancient India & Tamil Nadu Class 11 History",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["History", "AncientIndia", "Ports", "UPSC2023"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2023_Q002",
+    "year": 2023,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Environment",
+    "topic": "Biodiversity & Conservation",
+    "difficulty": "Hard",
+    "question": "Consider the following fauna:\n1. Lion-tailed Macaque\n2. Malabar Civet\n3. Sambar Deer\nHow many of the above are naturally endemic to the Western Ghats of India?",
+    "options": [
+      "Only one",
+      "Only two",
+      "All three",
+      "None"
+    ],
+    "correctAnswer": "Only two",
+    "officialAnswer": "B",
+    "explanation": {
+      "official": "Lion-tailed Macaque and Malabar Civet are endemic to the Western Ghats. Sambar Deer is widely distributed across India, South Asia, and Southeast Asia, so it is not endemic to Western Ghats.",
+      "ai": "Endemic species are restricted to a particular geographic region. Lion-tailed Macaque (Macaca silenus) and Malabar Large-spotted Civet are Western Ghats endemics. Sambar is generalist across forests of Asia.",
+      "incorrectOptions": {
+        "A": "Incorrect because both Macaque and Civet are endemic (2 species).",
+        "C": "Incorrect because Sambar Deer is not endemic.",
+        "D": "Incorrect because 2 of the species are endemic."
+      },
+      "relatedConcepts": [
+        "Western Ghats Biodiversity Hotspot",
+        "Endemic Species of India",
+        "IUCN Red List Categories"
+      ],
+      "previousYearTrend": "Western Ghats fauna and flora conservation status is a frequent UPSC Environment theme."
+    },
+    "reference": "IUCN Red List & Environment Ministry Annual Report",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Environment", "WesternGhats", "Fauna", "UPSC2023"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2022_Q001",
+    "year": 2022,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Geography",
+    "topic": "Physical Geography & Rivers",
+    "difficulty": "Medium",
+    "question": "Gandikota canyon of South India was created by which one of the following rivers?",
+    "options": [
+      "Kaveri",
+      "Manjira",
+      "Pennar",
+      "Tungabhadra"
+    ],
+    "correctAnswer": "Pennar",
+    "officialAnswer": "C",
+    "explanation": {
+      "official": "Gandikota canyon, known as the Grand Canyon of India, is formed by the Pennar River cutting through the Erramala hills in Kadapa district of Andhra Pradesh.",
+      "ai": "Pennar river flows through Andhra Pradesh and cuts deep gorges creating the spectacular Gandikota canyon.",
+      "incorrectOptions": {
+        "A": "Kaveri forms gorges like Mekedatu, not Gandikota.",
+        "B": "Manjira is a tributary of Godavari in Telangana/Maharashtra.",
+        "D": "Tungabhadra is a major tributary of Krishna."
+      },
+      "relatedConcepts": [
+        "River Landforms and Canyons",
+        "Peninsular Rivers of India",
+        "Erramala Hills Geomorphology"
+      ],
+      "previousYearTrend": "Geographical landforms, rivers, and national parks are core UPSC geography topics."
+    },
+    "reference": "NCERT Class 11 Physical Environment Geography Ch 3",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Geography", "Rivers", "Gandikota", "UPSC2022"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2021_Q001",
+    "year": 2021,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Science & Technology",
+    "topic": "Biotechnology & Genetics",
+    "difficulty": "Medium",
+    "question": "What is the principle behind recombinant DNA technology?",
+    "options": [
+      "Combining DNA molecules from two different species to produce new genetic combinations",
+      "Splitting an atom's nucleus into smaller parts",
+      "Culturing animal tissue cells in synthetic medium",
+      "Synthesizing inorganic minerals into organic matter"
+    ],
+    "correctAnswer": "Combining DNA molecules from two different species to produce new genetic combinations",
+    "officialAnswer": "A",
+    "explanation": {
+      "official": "Recombinant DNA technology involves joining DNA molecules from two different organisms and inserting the recombinant DNA into a host organism to produce new genetic traits.",
+      "ai": "Restriction enzymes cut DNA fragments which are ligated into vectors (plasmids) to form recombinant DNA.",
+      "incorrectOptions": {
+        "B": "This describes nuclear fission in physics.",
+        "C": "This describes tissue culture.",
+        "D": "This describes chemosynthesis/photosynthesis."
+      },
+      "relatedConcepts": [
+        "Restriction Enzymes and Plasmids",
+        "CRISPR-Cas9 Gene Editing",
+        "Genetic Engineering Applications"
+      ],
+      "previousYearTrend": "Biotechnology, gene editing, and DNA technology are regularly tested in S&T."
+    },
+    "reference": "NCERT Class 12 Biology Biotechnology Principles Ch 11",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Science", "Biotechnology", "Genetics", "UPSC2021"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2020_Q001",
+    "year": 2020,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Polity",
+    "topic": "Preamble & Constitution",
+    "difficulty": "Medium",
+    "question": "A Parliamentary System of Government is one in which:",
+    "options": [
+      "All political parties in the Parliament are represented in the Government",
+      "The Government is responsible to the Parliament and can be removed by it",
+      "The Government is elected by the people and can be removed by them",
+      "The Government is chosen by the Parliament but cannot be removed by it before completion of a fixed term"
+    ],
+    "correctAnswer": "The Government is responsible to the Parliament and can be removed by it",
+    "officialAnswer": "B",
+    "explanation": {
+      "official": "Article 75(3) of Indian Constitution states that the Council of Ministers is collectively responsible to the House of the People (Lok Sabha). Parliament can remove the government by passing a No-Confidence Motion.",
+      "ai": "Collective responsibility of executive to legislature is the cardinal principle of parliamentary system.",
+      "incorrectOptions": {
+        "A": "That describes an all-party national coalition, not a parliamentary system requirement.",
+        "C": "Direct removal by people refers to recall mechanisms in direct democracy.",
+        "D": "Non-removal before fixed term is a feature of Presidential system (e.g. USA)."
+      },
+      "relatedConcepts": [
+        "Article 75 Collective Responsibility",
+        "No-Confidence Motion",
+        "Parliamentary vs Presidential System"
+      ],
+      "previousYearTrend": "Constitutional principles and executive-legislature relations are core UPSC Polity themes."
+    },
+    "reference": "M. Laxmikanth Indian Polity Ch 12 Parliamentary System",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Polity", "Parliament", "Constitution", "UPSC2020"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2019_Q001",
+    "year": 2019,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "History",
+    "topic": "Modern History & Freedom Struggle",
+    "difficulty": "Medium",
+    "question": "With reference to the Swadeshi Movement, consider the following statements:\n1. It contributed to the revival of the indigenous artisan crafts and industries.\n2. The National Council of Education was established as a part of Swadeshi Movement.\nWhich of the statements given above is/are correct?",
+    "options": [
+      "1 only",
+      "2 only",
+      "Both 1 and 2",
+      "Neither 1 nor 2"
+    ],
+    "correctAnswer": "Both 1 and 2",
+    "officialAnswer": "C",
+    "explanation": {
+      "official": "Both statements are correct. Swadeshi movement (1905) led to boycott of foreign goods and establishment of indigenous industries like Bengal Chemicals. National Council of Education was set up on 15 August 1906.",
+      "ai": "Prafulla Chandra Ray set up Bengal Chemicals. Satish Chandra Mukherjee and others founded National Council of Education which later grew into Jadavpur University.",
+      "incorrectOptions": {
+        "A": "Ignores statement 2 which is historically verified (1906).",
+        "B": "Ignores statement 1 which was the primary economic pillar of Swadeshi.",
+        "D": "Falsely claims both statements are incorrect."
+      },
+      "relatedConcepts": [
+        "Partition of Bengal 1905",
+        "Swadeshi & Boycott Resolution",
+        "National Council of Education 1906"
+      ],
+      "previousYearTrend": "Swadeshi movement and early 20th century national movement are high-yield Modern History topics."
+    },
+    "reference": "Bipan Chandra India's Struggle for Independence Ch 10",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["History", "ModernHistory", "Swadeshi", "UPSC2019"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2018_Q001",
+    "year": 2018,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Environment",
+    "topic": "Biodiversity & Conservation",
+    "difficulty": "Easy",
+    "question": "Which of the following Leaf Modification happens in desert areas to inhibit water loss?\n1. Hard and waxy leaves\n2. Tiny leaves or no leaves\n3. Thorns instead of leaves\nSelect the correct answer using the code given below:",
+    "options": [
+      "1 and 2 only",
+      "2 and 3 only",
+      "1 and 3 only",
+      "1, 2 and 3"
+    ],
+    "correctAnswer": "1, 2 and 3",
+    "officialAnswer": "D",
+    "explanation": {
+      "official": "Xerophytic plants in arid/desert regions adapt to minimize transpiration through thick cuticle (waxy coating), reduced leaf size, or modified spines/thorns.",
+      "ai": "Cacti and acacias reduce leaf area into spines, have thick waxy cuticles to reflect sunlight and retain water.",
+      "incorrectOptions": {
+        "A": "Omits statement 3 (thorns), which is a classic xerophytic adaptation.",
+        "B": "Omits statement 1 (waxy leaves).",
+        "C": "Omits statement 2 (tiny leaves)."
+      },
+      "relatedConcepts": [
+        "Xerophytic Plant Adaptations",
+        "Transpiration Reduction Mechanisms",
+        "Desert Biome Ecology"
+      ],
+      "previousYearTrend": "Plant ecology and biome adaptations are asked frequently in Environment."
+    },
+    "reference": "NCERT Class 12 Ecology Biology Ch 13 Organisms and Populations",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Environment", "Adaptations", "Xerophytes", "UPSC2018"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2015_Q001",
+    "year": 2015,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Economy",
+    "topic": "Monetary Policy & Banking",
+    "difficulty": "Easy",
+    "question": "The terms 'Marginal Standing Facility Rate' and 'Net Demand and Time Liabilities', sometimes appearing in news, are used in relation to:",
+    "options": [
+      "Banking operations",
+      "Communication networking",
+      "Military strategies",
+      "Supply and demand of agricultural produce"
+    ],
+    "correctAnswer": "Banking operations",
+    "officialAnswer": "A",
+    "explanation": {
+      "official": "Marginal Standing Facility (MSF) is a window for banks to borrow overnight funds from RBI. Net Demand and Time Liabilities (NDTL) is the total demand and time deposits held by commercial banks.",
+      "ai": "Both MSF and NDTL are core banking concepts defined under RBI regulations for Liquidity Adjustment Facility.",
+      "incorrectOptions": {
+        "B": "Has no connection to telecommunications.",
+        "C": "Has no connection to defense.",
+        "D": "Has no relation to agricultural markets."
+      },
+      "relatedConcepts": [
+        "Marginal Standing Facility (MSF)",
+        "Net Demand and Time Liabilities (NDTL)",
+        "RBI Liquidity Management Tools"
+      ],
+      "previousYearTrend": "Basic banking terminology is a recurring easy-to-medium UPSC question pattern."
+    },
+    "reference": "Ramesh Singh Indian Economy Ch 7 Banking in India",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Economy", "Banking", "RBI", "UPSC2015"]
+  },
+  {
+    "id": "UPSC_PRE_GS1_2011_Q001",
+    "year": 2011,
+    "exam": "UPSC CSE Prelims",
+    "paper": "GS Paper 1",
+    "subject": "Polity",
+    "topic": "Fundamental Rights",
+    "difficulty": "Medium",
+    "question": "Which of the following Article of Indian Constitution guarantees Right to Equality before Law?",
+    "options": [
+      "Article 14",
+      "Article 19",
+      "Article 21",
+      "Article 32"
+    ],
+    "correctAnswer": "Article 14",
+    "officialAnswer": "A",
+    "explanation": {
+      "official": "Article 14 of the Constitution provides that the State shall not deny to any person equality before the law or the equal protection of the laws within the territory of India.",
+      "ai": "Article 14 forms the bedrock of rule of law in India, combining British concept of Equality Before Law and American concept of Equal Protection of Laws.",
+      "incorrectOptions": {
+        "B": "Article 19 guarantees 6 freedoms (speech, assembly, association, movement, residence, profession).",
+        "C": "Article 21 guarantees Right to Life and Personal Liberty.",
+        "D": "Article 32 guarantees Right to Constitutional Remedies."
+      },
+      "relatedConcepts": [
+        "Article 14 Rule of Law",
+        "Fundamental Rights Part III",
+        "Equal Protection of Laws"
+      ],
+      "previousYearTrend": "Articles 14, 19, 21 (Golden Triangle) are fundamental UPSC polity themes."
+    },
+    "reference": "M. Laxmikanth Indian Polity Ch 7 Fundamental Rights",
+    "isBookmarked": false,
+    "timesAttempted": 0,
+    "timesCorrect": 0,
+    "lastAttempted": null,
+    "tags": ["Polity", "FundamentalRights", "Article14", "UPSC2011"]
+  }
+]

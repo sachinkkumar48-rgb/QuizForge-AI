@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'core/di/service_locator_init.dart';
 import 'themes/app_theme.dart';
-import 'pages/home_page.dart';
+import 'pages/quizforge_dashboard_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize TITAN Dependency Injection
+  setupServiceLocator();
 
   // Disable debug printing in release builds
   if (kReleaseMode) {
@@ -32,7 +36,7 @@ class QuizForgeApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'QuizForge AI',
       theme: AppTheme.lightTheme,
-      home: const HomePage(),
+      home: const QuizForgeDashboardPage(),
     );
   }
 }

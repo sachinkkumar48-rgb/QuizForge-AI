@@ -9,9 +9,20 @@ version: 1.6.0+7
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
+
 dependencies:
   flutter:
     sdk: flutter
+
+  # TITAN Packages
+  knowledge_engine:
+    path: ./packages/knowledge_engine
+  titan_core:
+    path: ./project_titan/packages/titan_core
+  titan_quiz:
+    path: ./project_titan/packages/titan_quiz
+  titan_quiz_ai:
+    path: ./project_titan/packages/titan_quiz_ai
 
   # Existing packages
   file_picker: ^10.2.0
@@ -26,6 +37,8 @@ dependencies:
 
   # Generate unique fingerprint for PDFs
   crypto: ^3.0.6
+  flutter_secure_storage: ^9.2.2
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -38,3 +51,7 @@ flutter:
 
   assets:
     - .env
+    - assets/pyq_dataset.json
+    - assets/datasets/upsc/prelims/gs1/2025/
+    - assets/datasets/upsc/prelims/gs1/2024/
+    - assets/datasets/bpsc/70th/

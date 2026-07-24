@@ -1,0 +1,24 @@
+name: titan_pdf
+description: PDF domain module for importing, validating, extracting, chunking, and managing PDF documents in Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_storage:
+    path: ../titan_storage
+  titan_network:
+    path: ../titan_network
+  titan_ai:
+    path: ../titan_ai
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0

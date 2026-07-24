@@ -2,12 +2,20 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/quiz_controller.dart';
+import '../core/di/service_locator_init.dart';
+import '../plugins/plugins.dart';
+import '../repositories/api_key_repository.dart';
 import '../repositories/quiz_session_repository.dart';
 import '../services/pdf_service.dart';
 import '../widgets/loading_dialog.dart';
-import 'quiz_page.dart';
+import 'api_key_setup_page.dart';
 import 'history_page.dart';
 import 'library_page.dart';
+import 'module_explorer_page.dart';
+import 'pyq/pyq_dashboard_page.dart';
+import 'quiz_page.dart';
+import 'quizforge_dashboard_page.dart';
+import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,13 +28,32 @@ class _HomePageState extends State<HomePage> {
   PlatformFile? selectedPdf;
 
   bool isGenerating = false;
+  int selectedQuestionCount = 10;
 
-  final QuizController quizController = QuizController();
+  late final QuizController quizController;
 
   @override
   void initState() {
     super.initState();
+    quizController = locate<QuizController>();
+    _initPlugins();
     _checkActiveSession();
+  }
+
+  Future<void> _initPlugins() async {
+    final registry = PluginRegistry();
+    if (registry.registeredModules.isEmpty) {
+      await registry.registerModule(UpscModule());
+      await registry.registerModule(BpscModule());
+      await registry.registerModule(SscModule());
+      await registry.registerModule(EpfoModule());
+      await registry.registerModule(NdaModule());
+      await registry.registerModule(CdsModule());
+      await registry.registerModule(CapfModule());
+      await registry.registerModule(CurrentAffairsModule());
+      await registry.registerModule(VocabularyModule());
+      await registry.registerModule(EssayModule());
+    }
   }
 
   Future<void> _checkActiveSession() async {
@@ -59,7 +86,8 @@ class _HomePageState extends State<HomePage> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text("Previous quiz session discarded.")),
+                      content: Text("Previous quiz session discarded."),
+                    ),
                   );
                 }
               },
@@ -131,18 +159,39 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    final hasKey = await ApiKeyRepository().hasKey();
+    if (!hasKey) {
+      if (!mounted) return;
+      final setupSuccess = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ApiKeySetupPage(),
+        ),
+      );
+      if (setupSuccess != true) {
+        return;
+      }
+      if (!mounted) return;
+    }
+
+    if (!mounted) return;
+
     setState(() {
       isGenerating = true;
     });
 
     LoadingDialog.show(
       context,
-      message: "Reading PDF and generating UPSC quiz...",
+      message: "Generating Questions...\nInitializing...",
     );
 
     try {
-      final questions = await quizController.generateQuiz(
+      final quizModel = await quizController.generateQuiz(
         selectedPdf!,
+        questionCount: selectedQuestionCount,
+        onProgress: (msg) {
+          LoadingDialog.updateMessage(msg);
+        },
       );
 
       if (!mounted) return;
@@ -153,7 +202,7 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(
           builder: (_) => QuizPage(
-            questions: questions,
+            questions: quizModel.questions,
             sourceName: selectedPdf!.name,
           ),
         ),
@@ -163,12 +212,27 @@ class _HomePageState extends State<HomePage> {
 
       LoadingDialog.hide(context);
 
-      final errorMsg = e.toString().replaceAll("Exception: ", "");
+      final state = quizController.state;
+      final errorMsg =
+          state.message ?? e.toString().replaceAll("Exception: ", "");
+      final isApiKeyError = state.isApiKeyError;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            errorMsg,
-          ),
+          content: Text(errorMsg),
+          action: isApiKeyError
+              ? SnackBarAction(
+                  label: "Settings",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SettingsPage(),
+                      ),
+                    );
+                  },
+                )
+              : null,
         ),
       );
     } finally {
@@ -183,38 +247,51 @@ class _HomePageState extends State<HomePage> {
   Widget buildActionCard({
     required IconData icon,
     required String title,
+    String? subtitle,
     required Color color,
     required VoidCallback onTap,
   }) {
     return Expanded(
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
         child: Ink(
-          padding: const EdgeInsets.symmetric(
-            vertical: 18,
-          ),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
+            color: color.withValues(alpha: 0.1),
             border: Border.all(
-              color: color.withValues(alpha: 0.25),
+              color: color.withValues(alpha: 0.3),
             ),
           ),
           child: Column(
             children: [
               Icon(
                 icon,
+                size: 32,
                 color: color,
-                size: 30,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  fontSize: 15,
                 ),
               ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -230,25 +307,48 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("QuizForge AI"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.dashboard_customize_outlined),
+            tooltip: "Dashboard",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const QuizForgeDashboardPage(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SettingsPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const SizedBox(height: 12),
             const Icon(
               Icons.auto_awesome,
-              size: 90,
+              size: 70,
               color: Colors.deepPurple,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             const Text(
-              "AI Powered UPSC Quiz Generator",
+              "Smart Quiz Generator",
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
             const Text(
@@ -310,7 +410,38 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Number of Questions:",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [10, 25, 50, 100, 150].map((count) {
+                final isSelected = selectedQuestionCount == count;
+                return ChoiceChip(
+                  label: Text("$count Questions"),
+                  selected: isSelected,
+                  onSelected: isGenerating
+                      ? null
+                      : (selected) {
+                          if (selected) {
+                            setState(() {
+                              selectedQuestionCount = count;
+                            });
+                          }
+                        },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 58,
@@ -326,7 +457,9 @@ class _HomePageState extends State<HomePage> {
                       )
                     : const Icon(Icons.smart_toy),
                 label: Text(
-                  isGenerating ? "Generating..." : "Generate AI Quiz",
+                  isGenerating
+                      ? "Generating..."
+                      : "Generate $selectedQuestionCount AI Questions",
                 ),
               ),
             ),
@@ -350,8 +483,95 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 30),
+
+            // Main UPSC PYQ Feature Card
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+                side: BorderSide(
+                  color: Colors.deepPurple.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              color: Colors.deepPurple.withValues(alpha: 0.05),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(22),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PyqDashboardPage(),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor:
+                            Colors.deepPurple.withValues(alpha: 0.15),
+                        child: const Icon(
+                          Icons.history_edu,
+                          size: 32,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "UPSC PYQ",
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Official Previous Year Questions",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.deepPurple,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
             Row(
               children: [
+                buildActionCard(
+                  icon: Icons.extension,
+                  title: "Plugin Hub",
+                  subtitle:
+                      "${PluginRegistry().enabledModules.length} Modules Active",
+                  color: Colors.deepPurple,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ModuleExplorerPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
                 buildActionCard(
                   icon: Icons.history,
                   title: "History",
@@ -365,7 +585,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 buildActionCard(
                   icon: Icons.library_books,
                   title: "PDF Library",

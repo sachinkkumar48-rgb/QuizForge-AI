@@ -1,0 +1,22 @@
+name: titan_domain
+description: Core domain entities, value objects, and business specifications for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_ai:
+    path: ../titan_ai
+  titan_storage:
+    path: ../titan_storage
+  titan_network:
+    path: ../titan_network
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0
