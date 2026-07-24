@@ -1,0 +1,41 @@
+name: titan_sync
+description: Provider-agnostic offline-first cloud synchronization engine for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_storage:
+    path: ../titan_storage
+  titan_identity:
+    path: ../titan_identity
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_revision:
+    path: ../titan_revision
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_planner:
+    path: ../titan_planner
+  titan_knowledge_graph:
+    path: ../titan_knowledge_graph
+  titan_analytics:
+    path: ../titan_analytics
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true

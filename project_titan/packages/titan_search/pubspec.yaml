@@ -1,0 +1,41 @@
+name: titan_search
+description: Knowledge Graph-powered offline-first semantic search engine for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_storage:
+    path: ../titan_storage
+  titan_knowledge_graph:
+    path: ../titan_knowledge_graph
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_planner:
+    path: ../titan_planner
+  titan_revision:
+    path: ../titan_revision
+  titan_pdf:
+    path: ../titan_pdf
+  titan_content:
+    path: ../titan_content
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true
