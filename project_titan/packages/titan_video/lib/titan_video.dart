@@ -1,0 +1,33 @@
+/// Professional Video Learning Engine package for Project TITAN built on top of titan_learning_content.
+library titan_video;
+
+export 'src/engine/video_playback_engine.dart';
+export 'src/integration/video_engine_integrator.dart';
+export 'src/models/video_models.dart';
+export 'src/repository/video_repository.dart';
+export 'src/repository/video_repository_impl.dart';
+export 'src/use_cases/complete_video_use_case.dart';
+export 'src/use_cases/continue_watching_use_case.dart';
+export 'src/use_cases/generate_video_summary_use_case.dart';
+export 'src/use_cases/get_subtitles_use_case.dart';
+export 'src/use_cases/get_transcript_use_case.dart';
+export 'src/use_cases/pause_video_use_case.dart';
+export 'src/use_cases/play_video_use_case.dart';
+export 'src/use_cases/resume_video_use_case.dart';
+export 'src/use_cases/save_playback_use_case.dart';
+export 'src/use_cases/seek_video_use_case.dart';
+export 'src/use_cases/toggle_bookmark_use_case.dart';
+export 'src/widgets/ai_quick_actions.dart';
+export 'src/widgets/bookmark_timeline.dart';
+export 'src/widgets/chapter_list.dart';
+export 'src/widgets/continue_watching_widget.dart';
+export 'src/widgets/lesson_completion_dialog.dart';
+export 'src/widgets/playback_controls.dart';
+export 'src/widgets/playback_speed_selector.dart';
+export 'src/widgets/playback_timeline.dart';
+export 'src/widgets/subtitle_panel.dart';
+export 'src/widgets/transcript_panel.dart';
+export 'src/widgets/video_notes_panel.dart';
+export 'src/widgets/video_player_card.dart';
+export 'src/widgets/video_progress_card.dart';
+export 'src/widgets/video_statistics_card.dart';

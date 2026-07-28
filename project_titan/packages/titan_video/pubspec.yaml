@@ -1,0 +1,51 @@
+name: titan_video
+description: Professional Video Learning Engine for Project TITAN built on top of titan_learning_content.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_storage:
+    path: ../titan_storage
+  titan_learning_content:
+    path: ../titan_learning_content
+  titan_academy:
+    path: ../titan_academy
+  titan_identity:
+    path: ../titan_identity
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_dashboard:
+    path: ../titan_dashboard
+  titan_planner:
+    path: ../titan_planner
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_revision:
+    path: ../titan_revision
+  titan_knowledge_graph:
+    path: ../titan_knowledge_graph
+  titan_ai_mentor:
+    path: ../titan_ai_mentor
+  titan_search:
+    path: ../titan_search
+  titan_analytics:
+    path: ../titan_analytics
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true
