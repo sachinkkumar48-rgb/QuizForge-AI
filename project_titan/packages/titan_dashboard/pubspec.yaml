@@ -1,0 +1,64 @@
+name: titan_dashboard
+description: Analytics Dashboard 2.0 executive intelligence aggregation package for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_storage:
+    path: ../titan_storage
+  titan_identity:
+    path: ../titan_identity
+  titan_analytics:
+    path: ../titan_analytics
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_revision:
+    path: ../titan_revision
+  titan_planner:
+    path: ../titan_planner
+  titan_search:
+    path: ../titan_search
+  titan_knowledge_graph:
+    path: ../titan_knowledge_graph
+  titan_ai_mentor:
+    path: ../titan_ai_mentor
+  titan_content:
+    path: ../titan_content
+  titan_pdf:
+    path: ../titan_pdf
+  titan_learning_journey:
+    path: ../titan_learning_journey
+  titan_ai_tutor:
+    path: ../titan_ai_tutor
+  titan_academy:
+    path: ../titan_academy
+  titan_learning_content:
+    path: ../titan_learning_content
+  titan_video:
+    path: ../titan_video
+  titan_live:
+    path: ../titan_live
+  titan_smart_assessment:
+    path: ../titan_smart_assessment
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true
