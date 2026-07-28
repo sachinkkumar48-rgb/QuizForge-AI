@@ -1,0 +1,41 @@
+name: titan_kmp
+description: Administrative Knowledge Management Platform (KMP) Master Package for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.9
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_security:
+    path: ../titan_security
+  titan_dashboard:
+    path: ../titan_dashboard
+  titan_course_management:
+    path: ../titan_course_management
+  titan_content_authoring:
+    path: ../titan_content_authoring
+  titan_question_bank:
+    path: ../titan_question_bank
+  titan_media:
+    path: ../titan_media
+  titan_publishing:
+    path: ../titan_publishing
+  titan_ingestion_pipeline:
+    path: ../titan_ingestion_pipeline
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
