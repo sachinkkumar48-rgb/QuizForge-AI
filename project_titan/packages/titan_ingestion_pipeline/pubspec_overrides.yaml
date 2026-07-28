@@ -1,0 +1,70 @@
+# melos_managed_dependency_overrides: titan_academy,titan_ai,titan_ai_mentor,titan_ai_tutor,titan_analytics,titan_content,titan_content_authoring,titan_core,titan_dashboard,titan_domain,titan_identity,titan_knowledge_graph,titan_learning_content,titan_learning_journey,titan_learning_profile,titan_live,titan_network,titan_notes,titan_pdf,titan_planner,titan_question_bank,titan_quiz,titan_quiz_ai,titan_recommendation,titan_revision,titan_search,titan_security,titan_smart_assessment,titan_storage,titan_video,titan_course_management,titan_kmp,titan_media,titan_publishing
+dependency_overrides:
+  titan_academy:
+    path: ..\\titan_academy
+  titan_ai:
+    path: ..\\titan_ai
+  titan_ai_mentor:
+    path: ..\\titan_ai_mentor
+  titan_ai_tutor:
+    path: ..\\titan_ai_tutor
+  titan_analytics:
+    path: ..\\titan_analytics
+  titan_content:
+    path: ..\\titan_content
+  titan_content_authoring:
+    path: ..\\titan_content_authoring
+  titan_core:
+    path: ..\\titan_core
+  titan_course_management:
+    path: ..\\titan_course_management
+  titan_dashboard:
+    path: ..\\titan_dashboard
+  titan_domain:
+    path: ..\\titan_domain
+  titan_identity:
+    path: ..\\titan_identity
+  titan_kmp:
+    path: ..\\titan_kmp
+  titan_knowledge_graph:
+    path: ..\\titan_knowledge_graph
+  titan_learning_content:
+    path: ..\\titan_learning_content
+  titan_learning_journey:
+    path: ..\\titan_learning_journey
+  titan_learning_profile:
+    path: ..\\titan_learning_profile
+  titan_live:
+    path: ..\\titan_live
+  titan_media:
+    path: ..\\titan_media
+  titan_network:
+    path: ..\\titan_network
+  titan_notes:
+    path: ..\\titan_notes
+  titan_pdf:
+    path: ..\\titan_pdf
+  titan_planner:
+    path: ..\\titan_planner
+  titan_publishing:
+    path: ..\\titan_publishing
+  titan_question_bank:
+    path: ..\\titan_question_bank
+  titan_quiz:
+    path: ..\\titan_quiz
+  titan_quiz_ai:
+    path: ..\\titan_quiz_ai
+  titan_recommendation:
+    path: ..\\titan_recommendation
+  titan_revision:
+    path: ..\\titan_revision
+  titan_search:
+    path: ..\\titan_search
+  titan_security:
+    path: ..\\titan_security
+  titan_smart_assessment:
+    path: ..\\titan_smart_assessment
+  titan_storage:
+    path: ..\\titan_storage
+  titan_video:
+    path: ..\\titan_video
