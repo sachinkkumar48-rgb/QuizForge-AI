@@ -1,0 +1,31 @@
+name: titan_publishing
+description: Content Versioning and Publishing State Machine for Knowledge Management Platform (KMP) in Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.9
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_security:
+    path: ../titan_security
+  titan_storage:
+    path: ../titan_storage
+  titan_content_authoring:
+    path: ../titan_content_authoring
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
