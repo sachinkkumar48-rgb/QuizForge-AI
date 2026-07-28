@@ -1,0 +1,29 @@
+name: titan_content_authoring
+description: Multi-format Content Authoring System for Knowledge Management Platform (KMP) in Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.9
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_learning_content:
+    path: ../titan_learning_content
+  titan_notes:
+    path: ../titan_notes
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

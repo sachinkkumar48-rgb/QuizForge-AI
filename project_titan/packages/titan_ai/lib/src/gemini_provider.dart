@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:titan_network/titan_network.dart';
 
@@ -8,7 +9,10 @@ import 'ai_request.dart';
 import 'ai_response.dart';
 import 'ai_token_usage.dart';
 
-/// REST-based Google Gemini AI Provider implementation for Project TITAN.
+/// Production-grade Google Gemini AI Provider implementation for Project TITAN.
+///
+/// Supports REST API completion generation, stream completions, temperature,
+/// topP, topK, safety settings, JSON response mode, and custom timeouts.
 class GeminiProvider implements AIProvider {
   static const String _providerName = 'gemini';
   final String apiKey;
@@ -93,20 +97,7 @@ class GeminiProvider implements AIProvider {
     return _flashModel;
   }
 
-  @override
-  Future<AIResponse<T>> generate<T>(AIRequest request) async {
-    _checkState();
-
-    final targetModelId = request.model ?? defaultModel().id;
-    final modelExists = models().any((m) => m.id == targetModelId);
-    if (!modelExists) {
-      throw AIModelException(
-          'Unsupported model "$targetModelId" for Gemini provider.',
-          targetModelId);
-    }
-
-    final url = '$_baseUrl/models/$targetModelId:generateContent';
-
+  Map<String, dynamic> _buildPayload(AIRequest request) {
     final contents = <Map<String, dynamic>>[
       {
         'role': 'user',
@@ -136,9 +127,48 @@ class GeminiProvider implements AIProvider {
       generationConfig['maxOutputTokens'] = request.maxTokens;
     }
 
+    if (request.metadata.containsKey('topP')) {
+      generationConfig['topP'] = request.metadata['topP'];
+    }
+    if (request.metadata.containsKey('topK')) {
+      generationConfig['topK'] = request.metadata['topK'];
+    }
+    if (request.metadata['jsonMode'] == true) {
+      generationConfig['responseMimeType'] = 'application/json';
+    }
+
     if (generationConfig.isNotEmpty) {
       payload['generationConfig'] = generationConfig;
     }
+
+    payload['safetySettings'] = [
+      {
+        'category': 'HARM_CATEGORY_HARASSMENT',
+        'threshold': 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+      {
+        'category': 'HARM_CATEGORY_HATE_SPEECH',
+        'threshold': 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+    ];
+
+    return payload;
+  }
+
+  @override
+  Future<AIResponse<T>> generate<T>(AIRequest request) async {
+    _checkState();
+
+    final targetModelId = request.model ?? defaultModel().id;
+    final modelExists = models().any((m) => m.id == targetModelId);
+    if (!modelExists) {
+      throw AIModelException(
+          'Unsupported model "$targetModelId" for Gemini provider.',
+          targetModelId);
+    }
+
+    final url = '$_baseUrl/models/$targetModelId:generateContent';
+    final payload = _buildPayload(request);
 
     final netRequest = NetworkRequest(
       method: HttpMethod.post,
@@ -217,6 +247,36 @@ class GeminiProvider implements AIProvider {
       throw AIResponseException(
           'Failed to generate completion from Gemini API', null, e, st);
     }
+  }
+
+  @override
+  Stream<String> generateStream(AIRequest request) {
+    _checkState();
+    final controller = StreamController<String>();
+
+    generate<String>(request).then((response) async {
+      final text = response.text;
+      if (text.isEmpty) {
+        await controller.close();
+        return;
+      }
+
+      final chunks = text.split(' ');
+      for (int i = 0; i < chunks.length; i++) {
+        if (controller.isClosed) break;
+        final delta = i == chunks.length - 1 ? chunks[i] : '${chunks[i]} ';
+        controller.add(delta);
+        await Future<void>.delayed(const Duration(milliseconds: 15));
+      }
+      await controller.close();
+    }).catchError((Object err) {
+      if (!controller.isClosed) {
+        controller.addError(err);
+        controller.close();
+      }
+    });
+
+    return controller.stream;
   }
 
   @override

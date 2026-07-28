@@ -4,7 +4,7 @@ description: A new Flutter project.
 
 publish_to: 'none'
 
-version: 1.6.0+7
+version: 2.0.0-beta.1+100
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -23,6 +23,14 @@ dependencies:
     path: ./project_titan/packages/titan_quiz
   titan_quiz_ai:
     path: ./project_titan/packages/titan_quiz_ai
+  titan_ai_mentor:
+    path: ./project_titan/packages/titan_ai_mentor
+  titan_dashboard:
+    path: ./project_titan/packages/titan_dashboard
+  titan_security:
+    path: ./project_titan/packages/titan_security
+
+
 
   # Existing packages
   file_picker: ^10.2.0

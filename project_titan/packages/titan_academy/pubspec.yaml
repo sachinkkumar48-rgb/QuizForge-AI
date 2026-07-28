@@ -1,0 +1,39 @@
+name: titan_academy
+description: TITAN Academy Course Management System clean architecture package for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_identity:
+    path: ../titan_identity
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_planner:
+    path: ../titan_planner
+  titan_dashboard:
+    path: ../titan_dashboard
+  titan_knowledge_graph:
+    path: ../titan_knowledge_graph
+  titan_ai_mentor:
+    path: ../titan_ai_mentor
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true

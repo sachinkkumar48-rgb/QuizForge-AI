@@ -1,0 +1,46 @@
+name: titan_ai_tutor
+description: AI Tutor Engine package for Project TITAN providing adaptive teaching, Socratic questioning, misconception detection, and personalized learning pathways.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.9.1
+  titan_ai:
+    path: ../titan_ai
+  titan_ai_mentor:
+    path: ../titan_ai_mentor
+  titan_analytics:
+    path: ../titan_analytics
+  titan_core:
+    path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
+  titan_knowledge_graph:
+    path: ../titan_knowledge_graph
+  titan_learning_content:
+    path: ../titan_learning_content
+  titan_learning_profile:
+    path: ../titan_learning_profile
+  titan_live:
+    path: ../titan_live
+  titan_notes:
+    path: ../titan_notes
+  titan_planner:
+    path: ../titan_planner
+  titan_recommendation:
+    path: ../titan_recommendation
+  titan_search:
+    path: ../titan_search
+  titan_video:
+    path: ../titan_video
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0

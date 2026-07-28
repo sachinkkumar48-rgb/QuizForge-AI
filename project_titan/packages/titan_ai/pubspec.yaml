@@ -12,6 +12,10 @@ dependencies:
     path: ../titan_core
   titan_network:
     path: ../titan_network
+  titan_storage:
+    path: ../titan_storage
+  titan_security:
+    path: ../titan_security
 
 dev_dependencies:
   lints: ^3.0.0

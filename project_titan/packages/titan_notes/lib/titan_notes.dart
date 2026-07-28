@@ -1,0 +1,31 @@
+/// Smart Notes Engine package for Project TITAN.
+library titan_notes;
+
+export 'src/engine/smart_notes_engine.dart';
+export 'src/integration/notes_engine_integrator.dart';
+export 'src/models/notes_models.dart';
+export 'src/repository/notes_repository.dart';
+export 'src/repository/notes_repository_impl.dart';
+export 'src/use_cases/add_note_bookmark_use_case.dart';
+export 'src/use_cases/convert_note_to_flashcards_use_case.dart';
+export 'src/use_cases/create_note_use_case.dart';
+export 'src/use_cases/delete_note_use_case.dart';
+export 'src/use_cases/enhance_note_with_ai_use_case.dart';
+export 'src/use_cases/generate_note_summary_use_case.dart';
+export 'src/use_cases/get_note_version_history_use_case.dart';
+export 'src/use_cases/get_notes_by_content_use_case.dart';
+export 'src/use_cases/link_note_to_knowledge_node_use_case.dart';
+export 'src/use_cases/organize_notes_use_case.dart';
+export 'src/use_cases/update_note_use_case.dart';
+export 'src/widgets/ai_assistant_panel.dart';
+export 'src/widgets/annotation_panel.dart';
+export 'src/widgets/bookmark_panel.dart';
+export 'src/widgets/flashcard_generator_card.dart';
+export 'src/widgets/highlight_panel.dart';
+export 'src/widgets/note_editor.dart';
+export 'src/widgets/note_summary_card.dart';
+export 'src/widgets/note_tag_chip.dart';
+export 'src/widgets/note_timeline.dart';
+export 'src/widgets/rich_text_toolbar.dart';
+export 'src/widgets/smart_note_card.dart';
+export 'src/widgets/version_history_dialog.dart';

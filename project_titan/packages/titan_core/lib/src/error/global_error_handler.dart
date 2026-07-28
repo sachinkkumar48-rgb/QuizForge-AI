@@ -7,6 +7,9 @@ import 'error_reporter.dart';
 import 'titan_error.dart';
 import 'titan_error_type.dart';
 
+/// Alias for TitanErrorHandler.
+typedef GlobalErrorHandler = TitanErrorHandler;
+
 /// Central global error handler classifying framework, asynchronous, and uncaught exceptions.
 class TitanErrorHandler {
   final TitanLogger logger;

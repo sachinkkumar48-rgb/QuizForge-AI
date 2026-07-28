@@ -24,6 +24,28 @@ class AIRequestException extends AIException {
   const AIRequestException(super.message, [super.cause, super.stackTrace]);
 }
 
+/// Thrown when network connectivity or socket errors occur during AI requests.
+class AINetworkException extends AIException {
+  const AINetworkException(super.message, [super.cause, super.stackTrace]);
+}
+
+/// Thrown when safety validation (prompt injection, XSS, credential leaks) fails.
+class AISafetyException extends AIException {
+  final String? flaggedCategory;
+
+  const AISafetyException(
+    super.message, [
+    this.flaggedCategory,
+    super.cause,
+    super.stackTrace,
+  ]);
+}
+
+/// Thrown when a requested feature or provider operation is unsupported.
+class AIUnsupportedException extends AIException {
+  const AIUnsupportedException(super.message, [super.cause, super.stackTrace]);
+}
+
 /// Thrown when an AI provider returns an error response or unparseable output.
 class AIResponseException extends AIException {
   final int? statusCode;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:test/test.dart';
 import 'package:titan_ai/titan_ai.dart';
 import 'package:titan_core/titan_core.dart';
@@ -46,6 +47,11 @@ class _MockAIProvider implements AIProvider {
       provider: name,
       finishReason: 'STOP',
     );
+  }
+
+  @override
+  Stream<String> generateStream(AIRequest request) async* {
+    yield 'Completion for: ${request.prompt}';
   }
 
   @override

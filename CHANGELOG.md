@@ -1,3 +1,17 @@
+## [v2.0.0-beta.1] - 2026-07-25
+
+### Added
+- Implemented `titan_security` package with SecretManager, EncryptionService, CertificateValidator, SecureApiKeyManager, PermissionManager.
+- Added 8 production beta feature flags (`video_classes`, `live_classes`, `marketplace`, `voice_mentor`, `ai_tutor`, `gamification`, `multiplayer`, `teacher_portal`).
+- Added performance optimization suite (`StartupOptimizer`, `MemoryManager`, `LazyLoader`, `BackgroundWorker`, `TitanCacheOptimizer`).
+- Added central reliability telemetry (`GlobalErrorHandler`, `CrashReport`, `HealthMonitor`, `TitanLogger`).
+
+### Optimization
+- Startup latency, memory consumption, deferred lazy loading, isolate background processing, and TTL multi-tier caching.
+
+### Security
+- AES encryption, secure key storage, PII sanitization in logger, and certificate validation hooks.
+
 # Project TITAN & QuizForge AI Changelog
 
 All notable changes to Project TITAN and QuizForge AI are documented in this file in accordance with [Semantic Versioning](https://semver.org/).

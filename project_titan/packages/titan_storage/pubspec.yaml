@@ -12,6 +12,8 @@ dependencies:
   meta: ^1.11.0
   titan_core:
     path: ../titan_core
+  titan_domain:
+    path: ../titan_domain
 
 dev_dependencies:
   lints: ^3.0.0

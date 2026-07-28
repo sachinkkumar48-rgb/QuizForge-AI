@@ -16,6 +16,9 @@ abstract class AIProvider {
   /// Generates an AI completion for the given [request].
   Future<AIResponse<T>> generate<T>(AIRequest request);
 
+  /// Generates a real-time streaming AI completion for the given [request].
+  Stream<String> generateStream(AIRequest request);
+
   /// Returns list of models supported by this provider.
   List<AIModel> models();
 

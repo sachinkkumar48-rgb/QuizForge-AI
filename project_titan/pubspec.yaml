@@ -1,6 +1,6 @@
 name: project_titan_workspace
 description: Root workspace management package for Project TITAN monorepo.
-version: 1.0.0
+version: 3.0.0-beta+300
 publish_to: none
 
 environment:

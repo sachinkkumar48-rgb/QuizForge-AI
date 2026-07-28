@@ -11,6 +11,8 @@ build/
 coverage/
 .melos_tool/
 melos_tool/
+**/pubspec_overrides.yaml
+pubspec_overrides.yaml
 
 # Package pubspec.lock files in monorepo
 packages/**/pubspec.lock

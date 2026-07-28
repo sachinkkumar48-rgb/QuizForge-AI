@@ -15,7 +15,7 @@ scripts:
     description: Run dart analyze across all packages in the monorepo.
 
   test:
-    exec: dart test
+    exec: flutter test
     description: Run unit tests across all packages in the monorepo.
 
   format:

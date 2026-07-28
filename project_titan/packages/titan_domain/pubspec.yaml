@@ -10,13 +10,9 @@ dependencies:
   meta: ^1.11.0
   titan_core:
     path: ../titan_core
-  titan_ai:
-    path: ../titan_ai
-  titan_storage:
-    path: ../titan_storage
-  titan_network:
-    path: ../titan_network
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   lints: ^3.0.0
   test: ^1.24.0
