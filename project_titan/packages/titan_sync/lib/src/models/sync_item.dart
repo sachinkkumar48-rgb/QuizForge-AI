@@ -18,6 +18,9 @@ class SyncItem {
   final int retryCount;
   final String? lastError;
 
+  /// Alias for [id].
+  String get syncId => id;
+
   SyncItem({
     required this.id,
     required this.entityId,

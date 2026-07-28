@@ -1,21 +1,27 @@
 import 'dart:async';
 
+import '../models/sync_result.dart';
 import 'sync_manager.dart';
+import 'sync_orchestrator.dart';
 
-/// Background service for scheduling periodic and event-driven cloud synchronization.
+/// Background worker scheduling startup, shutdown, periodic, network recovery,
+/// and event-driven cloud synchronization for TITAN.
 class BackgroundSyncService {
-  final SyncManager _syncManager;
+  final SyncManager? _syncManager;
+  final SyncOrchestrator? _orchestrator;
   final Duration interval;
 
   Timer? _timer;
   bool _isRunning = false;
 
   BackgroundSyncService({
-    required SyncManager syncManager,
+    SyncManager? syncManager,
+    SyncOrchestrator? orchestrator,
     this.interval = const Duration(minutes: 15),
-  }) : _syncManager = syncManager;
+  })  : _syncManager = syncManager,
+        _orchestrator = orchestrator;
 
-  /// Returns true if periodic sync is actively scheduled.
+  /// Returns true if periodic sync timer is active.
   bool get isRunning => _isRunning;
 
   /// Starts periodic background sync scheduling.
@@ -24,7 +30,7 @@ class BackgroundSyncService {
     _isRunning = true;
     _timer?.cancel();
     _timer = Timer.periodic(interval, (_) async {
-      await _syncManager.syncNow();
+      await triggerNow();
     });
   }
 
@@ -35,8 +41,31 @@ class BackgroundSyncService {
     _isRunning = false;
   }
 
-  /// Immediately triggers a background sync run.
-  Future<void> triggerNow() async {
-    await _syncManager.syncNow();
+  /// Triggers startup sync when app initializes.
+  Future<SyncResult> onStartup() async {
+    start();
+    return await triggerNow();
+  }
+
+  /// Triggers shutdown sync before app closes or goes to background.
+  Future<SyncResult> onShutdown() async {
+    stop();
+    return await triggerNow();
+  }
+
+  /// Triggers sync when network connectivity is restored.
+  Future<SyncResult> onNetworkRestored() async {
+    _orchestrator?.setOnlineStatus(true);
+    return await triggerNow();
+  }
+
+  /// Immediately triggers a sync run.
+  Future<SyncResult> triggerNow() async {
+    if (_orchestrator != null) {
+      return await _orchestrator.synchronize();
+    } else if (_syncManager != null) {
+      return await _syncManager.syncNow();
+    }
+    return SyncResult.empty();
   }
 }

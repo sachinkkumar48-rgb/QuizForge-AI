@@ -119,5 +119,45 @@ void main() {
 
       expect(selectedStrategy, ConflictStrategy.merge);
     });
+
+    testWidgets('OfflineBanner displays offline message when offline',
+        (tester) async {
+      var retryClicked = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: OfflineBanner(
+              isOffline: true,
+              onRetry: () => retryClicked = true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('Working Offline'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+
+      await tester.tap(find.text('Retry'));
+      expect(retryClicked, isTrue);
+    });
+
+    testWidgets('RetryButton displays syncing state or retry button',
+        (tester) async {
+      var clicked = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: RetryButton(
+              isSyncing: false,
+              onPressed: () => clicked = true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Retry Sync'), findsOneWidget);
+      await tester.tap(find.text('Retry Sync'));
+      expect(clicked, isTrue);
+    });
   });
 }
