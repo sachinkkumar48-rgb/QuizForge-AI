@@ -1,0 +1,49 @@
+# Docker Compose Configuration File for QuizForge AI
+# Specifies the multi-container Docker application setup.
+version: '3.9'
+
+# Define the logical networks that containers will use to communicate.
+networks:
+  # A dedicated bridge network for communication between the services.
+  titan-network:
+    driver: bridge
+
+# Define the persistent volumes to store data beyond container lifecycles.
+volumes:
+  # A named volume used to persist application or server data.
+  titan-data:
+
+# Define the container services that make up the application stack.
+services:
+  # Nginx service acting as the reverse proxy / web server.
+  nginx:
+    image: nginx:alpine
+    container_name: titan-nginx
+    # Restart policy: always restart unless explicitly stopped.
+    restart: unless-stopped
+    # Expose Nginx ports to the host system.
+    ports:
+      - "80:80"
+      - "443:443"
+    # Attach Nginx container to the titan-network.
+    networks:
+      - titan-network
+    # Mount the named titan-data volume to the Nginx container (placeholder path).
+    volumes:
+      - titan-data:/usr/share/nginx/html
+
+  # Backend service representing the core application logic (placeholder).
+  backend:
+    # Using a lightweight alpine image as a placeholder for the backend service.
+    image: alpine:latest
+    container_name: titan-backend
+    # Restart policy: always restart unless explicitly stopped.
+    restart: unless-stopped
+    # Command placeholder keeping the alpine container running for demonstration.
+    command: sh -c "while true; do sleep 3600; done"
+    # Attach Backend container to the titan-network.
+    networks:
+      - titan-network
+    # Mount the named titan-data volume to the backend (placeholder path).
+    volumes:
+      - titan-data:/app/data
