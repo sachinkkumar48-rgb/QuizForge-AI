@@ -6,11 +6,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1.quiz import router as quiz_router
+from app.api.router import api_router
 from app.core.logging import RequestIDAndLoggingMiddleware, logger
 from app.core.settings import settings
 from app.identity.exceptions import IdentityException
-from app.identity.router import router as auth_router
 from app.services.gemini_service import GeminiServiceException
 
 app = FastAPI(
@@ -106,5 +105,4 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-app.include_router(quiz_router, prefix=settings.API_V1_STR + "/quiz")
-app.include_router(auth_router, prefix=settings.API_V1_STR + "/auth")
+app.include_router(api_router)
