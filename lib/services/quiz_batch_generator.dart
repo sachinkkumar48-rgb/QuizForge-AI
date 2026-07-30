@@ -1,15 +1,13 @@
+import '../core/network/api_client.dart' hide QuizQuestion;
 import '../models/quiz_model.dart';
-import 'ai_service.dart';
 
 class QuizBatchGenerator {
+  final ApiClient _apiClient;
+
+  QuizBatchGenerator({ApiClient? apiClient})
+      : _apiClient = apiClient ?? ApiClient();
+
   /// Divide requested question count into batches of max 20.
-  ///
-  /// For example:
-  /// - 10 -> [10] (1 request)
-  /// - 25 -> [20, 5] (2 requests)
-  /// - 50 -> [20, 20, 10] (3 requests)
-  /// - 100 -> [20, 20, 20, 20, 20] (5 requests)
-  /// - 150 -> [20, 20, 20, 20, 20, 20, 20, 10] (8 requests)
   static List<int> calculateBatchSizes(int totalCount) {
     if (totalCount <= 0) return [];
     final List<int> batches = [];
@@ -23,7 +21,7 @@ class QuizBatchGenerator {
   }
 
   /// Generates a single [QuizModel] by dividing [questionCount] into batches
-  /// of max 20 questions, calling Gemini for each batch, retrying failed batches once,
+  /// of max 20 questions, calling FastAPI ApiClient for each batch, retrying failed batches once,
   /// deduplicating questions while preserving order, and emitting progress.
   Future<QuizModel> generateInBatches(
     String text, {
@@ -50,13 +48,50 @@ class QuizBatchGenerator {
       // Retry failed batches once (up to 2 total attempts)
       for (int attempt = 1; attempt <= 2; attempt++) {
         try {
-          batchQuestions = await AiService.generateQuizBatch(
-            text,
-            batchSize: batchSize,
-            startIndex: currentIndex,
+          final request = QuizGenerateRequest(
+            text: text,
+            questions: batchSize,
+            difficulty: 'medium',
+            language: 'en',
           );
+
+          final response = await _apiClient.generateQuiz(request);
+
+          batchQuestions = response.quiz.map((apiQ) {
+            String answerText;
+            if (apiQ.answer >= 0 && apiQ.answer < apiQ.options.length) {
+              answerText = apiQ.options[apiQ.answer];
+            } else {
+              answerText = apiQ.options.isNotEmpty ? apiQ.options.first : '';
+            }
+
+            return QuizQuestion(
+              question: apiQ.question,
+              options: apiQ.options,
+              answer: answerText,
+              explanation: apiQ.explanation,
+              subject: 'General Studies',
+              difficulty: 'Medium',
+            );
+          }).toList();
+
           lastException = null;
           break;
+        } on BackendUnavailableException catch (e) {
+          lastException = e;
+          if (attempt < 2) {
+            await Future.delayed(const Duration(milliseconds: 500));
+          }
+        } on ApiException catch (e) {
+          lastException = e;
+          if (attempt < 2) {
+            await Future.delayed(const Duration(milliseconds: 500));
+          }
+        } on ParsingException catch (e) {
+          lastException = e;
+          if (attempt < 2) {
+            await Future.delayed(const Duration(milliseconds: 500));
+          }
         } catch (e) {
           lastException = e;
           if (attempt < 2) {

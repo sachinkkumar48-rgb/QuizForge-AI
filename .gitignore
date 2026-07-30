@@ -51,3 +51,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# Ignore build folders everywhere
+**/build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Python environment files
+.env

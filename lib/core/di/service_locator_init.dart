@@ -11,14 +11,22 @@ import '../../repositories/titan_quiz_repository.dart';
 import '../../services/knowledge_integration_service.dart';
 import '../../services/quiz_batch_generator.dart';
 import '../../services/quiz_generation_adapter.dart';
+import '../network/api_client.dart';
 
 /// Initializes dependency injection for QuizForge AI using Project TITAN's [TitanServiceLocator].
 void setupServiceLocator() {
   final locator = TitanServiceLocator.instance;
 
+  if (!locator.isRegistered<ApiClient>()) {
+    locator.registerLazySingleton<ApiClient>(
+      () => ApiClient(),
+      allowOverride: true,
+    );
+  }
+
   if (!locator.isRegistered<QuizBatchGenerator>()) {
     locator.registerLazySingleton<QuizBatchGenerator>(
-      () => QuizBatchGenerator(),
+      () => QuizBatchGenerator(apiClient: locator.get<ApiClient>()),
       allowOverride: true,
     );
   }
@@ -40,6 +48,7 @@ void setupServiceLocator() {
   if (!locator.isRegistered<TitanQuizRepository>()) {
     locator.registerLazySingleton<TitanQuizRepository>(
       () => TitanQuizRepositoryImpl(
+        apiClient: locator.get<ApiClient>(),
         batchGenerator: locator.get<QuizBatchGenerator>(),
         integrationService: locator.get<KnowledgeIntegrationService>(),
         generationAdapter: locator.get<QuizGenerationAdapter>(),
@@ -51,6 +60,7 @@ void setupServiceLocator() {
   if (!locator.isRegistered<QuizRepository>()) {
     locator.registerLazySingleton<QuizRepository>(
       () => QuizRepository(
+        apiClient: locator.get<ApiClient>(),
         batchGenerator: locator.get<QuizBatchGenerator>(),
         integrationService: locator.get<KnowledgeIntegrationService>(),
         generationAdapter: locator.get<QuizGenerationAdapter>(),

@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
+import '../core/network/api_client.dart' hide QuizQuestion;
 import '../core/utils/text_chunk_service.dart';
 import '../models/quiz_model.dart';
 import '../models/quiz_source.dart';
@@ -21,23 +22,28 @@ abstract class TitanQuizRepository {
 }
 
 /// Concrete implementation of [TitanQuizRepository] integrating Knowledge Engine,
-/// PDF text ingestion, prompt adaptation, caching, batch generation, and metadata management.
+/// PDF text ingestion, prompt adaptation, caching, batch generation via FastAPI ApiClient, and metadata management.
 class TitanQuizRepositoryImpl implements TitanQuizRepository {
+  final ApiClient _apiClient;
   final QuizBatchGenerator _batchGenerator;
   final KnowledgeIntegrationService _integrationService;
   final QuizGenerationAdapter _generationAdapter;
   final QuizSourceRepository _quizSourceRepository;
 
   TitanQuizRepositoryImpl({
+    ApiClient? apiClient,
     QuizBatchGenerator? batchGenerator,
     KnowledgeIntegrationService? integrationService,
     QuizGenerationAdapter? generationAdapter,
     QuizSourceRepository? quizSourceRepository,
-  })  : _batchGenerator = batchGenerator ?? QuizBatchGenerator(),
+  })  : _apiClient = apiClient ?? ApiClient(),
+        _batchGenerator = batchGenerator ?? QuizBatchGenerator(apiClient: apiClient),
         _integrationService =
             integrationService ?? KnowledgeIntegrationService(),
         _generationAdapter = generationAdapter ?? const QuizGenerationAdapter(),
         _quizSourceRepository = quizSourceRepository ?? QuizSourceRepository();
+
+  ApiClient get apiClient => _apiClient;
 
   @override
   Future<QuizModel> generateQuiz(
@@ -99,12 +105,20 @@ class TitanQuizRepositoryImpl implements TitanQuizRepository {
           ? cleanedText.substring(0, maxCharacters)
           : cleanedText;
 
-      // Step 8 - Generate quiz in batches
-      quizModel = await _batchGenerator.generateInBatches(
-        inputText,
-        questionCount: questionCount,
-        onProgress: onProgress,
-      );
+      // Step 8 - Generate quiz in batches using ApiClient
+      try {
+        quizModel = await _batchGenerator.generateInBatches(
+          inputText,
+          questionCount: questionCount,
+          onProgress: onProgress,
+        );
+      } on BackendUnavailableException catch (e) {
+        throw Exception("Backend service unavailable: ${e.message}");
+      } on ApiException catch (e) {
+        throw Exception("Backend API error (${e.statusCode}): ${e.message}");
+      } on ParsingException catch (e) {
+        throw Exception("Invalid response format from server: ${e.message}");
+      }
 
       questions = quizModel.questions;
 
