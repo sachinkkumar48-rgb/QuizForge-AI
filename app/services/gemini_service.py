@@ -1,17 +1,19 @@
 """
 Gemini service integration for Project TITAN.
+Concrete implementation of abstract AIService.
 """
 import json
-import os
 import time
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
 
+from app.core.logging import logger
 from app.core.settings import settings
 from app.schemas.quiz import QuizQuestion
+from app.services.ai_service import AIService
 
 load_dotenv()
 
@@ -60,8 +62,8 @@ class GeminiInvalidJSONException(GeminiServiceException):
         super().__init__(message, status_code=500)
 
 
-class GeminiService:
-    """Service class for interacting with Google Gemini API."""
+class GeminiService(AIService):
+    """Service class for interacting with Google Gemini API, implementing AIService."""
 
     def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
         self.api_key = api_key or settings.GEMINI_API_KEY
@@ -69,6 +71,7 @@ class GeminiService:
 
     def _get_client(self) -> genai.Client:
         if not self.api_key or self.api_key.strip() == "" or self.api_key == "your_gemini_api_key_here":
+            logger.error("Gemini API key missing or unconfigured.")
             raise GeminiAPIKeyMissingException("GEMINI_API_KEY environment variable is missing or unconfigured.")
         return genai.Client(api_key=self.api_key)
 
@@ -81,6 +84,35 @@ class GeminiService:
         if cleaned.endswith("```"):
             cleaned = cleaned[:-3]
         return cleaned.strip()
+
+    def health_check(self) -> Dict[str, Any]:
+        """
+        Verifies that GeminiService is correctly configured without making unnecessary network requests.
+        """
+        try:
+            if not self.api_key or self.api_key.strip() == "" or self.api_key == "your_gemini_api_key_here":
+                return {
+                    "status": "unhealthy",
+                    "provider": "gemini",
+                    "model": self.model,
+                    "configured": False,
+                    "error": "GEMINI_API_KEY environment variable is missing or unconfigured.",
+                }
+            self._get_client()
+            return {
+                "status": "healthy",
+                "provider": "gemini",
+                "model": self.model,
+                "configured": True,
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "provider": "gemini",
+                "model": self.model,
+                "configured": False,
+                "error": str(e),
+            }
 
     def generate_quiz(
         self,
@@ -95,6 +127,7 @@ class GeminiService:
         Returns:
             Tuple of (List of QuizQuestions, processing_time_ms)
         """
+        logger.info(f"Starting quiz generation via Gemini provider. Questions={questions}, Difficulty={difficulty}, Language={language}")
         start_time = time.time()
         client = self._get_client()
 
@@ -135,17 +168,21 @@ Context Text:
                 contents=prompt,
                 config=config,
             )
-        except GeminiServiceException:
+        except GeminiServiceException as e:
+            logger.error(f"Gemini service exception: {e.message}")
             raise
         except APIError as e:
             err_msg = str(e)
+            logger.error(f"Gemini API returned error: {err_msg}")
             if "API_KEY_INVALID" in err_msg or "API key not valid" in err_msg or getattr(e, "code", None) in (401, 403):
                 raise GeminiAPIKeyMissingException(f"Invalid Gemini API Key: {err_msg}")
             raise GeminiUnavailableException(f"Gemini API error: {err_msg}")
         except TimeoutError:
+            logger.error("Gemini API request timed out.")
             raise GeminiTimeoutException("Gemini API request timed out.")
         except Exception as e:
             err_msg = str(e)
+            logger.error(f"Failed to communicate with Gemini API: {err_msg}")
             if "API_KEY_INVALID" in err_msg or "API key not valid" in err_msg:
                 raise GeminiAPIKeyMissingException(f"Invalid Gemini API Key: {err_msg}")
             raise GeminiUnavailableException(f"Failed to communicate with Gemini API: {err_msg}")
@@ -153,6 +190,7 @@ Context Text:
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         if not response or not response.text or not response.text.strip():
+            logger.error("Gemini API returned an empty response.")
             raise GeminiEmptyResponseException("Gemini API returned an empty response.")
 
         cleaned_json = self._clean_json_text(response.text)
@@ -160,9 +198,11 @@ Context Text:
         try:
             data = json.loads(cleaned_json)
         except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse Gemini response JSON: {e}")
             raise GeminiInvalidJSONException(f"Failed to parse Gemini response as JSON: {e}")
 
         if not isinstance(data, dict) or "quiz" not in data or not isinstance(data["quiz"], list):
+            logger.error("Gemini JSON payload missing 'quiz' array.")
             raise GeminiInvalidJSONException("Gemini JSON response missing required 'quiz' list key.")
 
         quiz_questions: List[QuizQuestion] = []
@@ -170,6 +210,8 @@ Context Text:
             for item in data["quiz"]:
                 quiz_questions.append(QuizQuestion(**item))
         except Exception as e:
+            logger.error(f"Gemini quiz items failed schema validation: {e}")
             raise GeminiInvalidJSONException(f"Gemini quiz items failed schema validation: {e}")
 
+        logger.info(f"Quiz generation completed successfully in {elapsed_ms}ms. Questions generated: {len(quiz_questions)}")
         return quiz_questions, elapsed_ms
