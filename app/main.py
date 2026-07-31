@@ -11,6 +11,7 @@ from app.core.logging import RequestIDAndLoggingMiddleware, logger
 from app.core.settings import settings
 from app.identity.exceptions import IdentityException
 from app.services.gemini_service import GeminiServiceException
+from app.services.quiz_generation_service import QuizGenerationServiceException
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,10 +21,11 @@ app = FastAPI(
 
 # CORS Middleware
 if settings.CORS_ORIGINS:
+    allow_credentials = "*" not in settings.CORS_ORIGINS
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=True,
+        allow_credentials=allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -67,6 +69,21 @@ async def identity_exception_handler(request: Request, exc: IdentityException):
 
 @app.exception_handler(GeminiServiceException)
 async def gemini_exception_handler(request: Request, exc: GeminiServiceException):
+    request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "error": exc.__class__.__name__,
+            "message": exc.message,
+            "request_id": request_id,
+        },
+        headers={"X-Request-ID": request_id},
+    )
+
+
+@app.exception_handler(QuizGenerationServiceException)
+async def quiz_generation_exception_handler(request: Request, exc: QuizGenerationServiceException):
     request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
     return JSONResponse(
         status_code=exc.status_code,

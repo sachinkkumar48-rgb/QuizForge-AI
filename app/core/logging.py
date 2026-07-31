@@ -34,10 +34,22 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_data)
 
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+def setup_logging(level: str | int | None = None) -> logging.Logger:
     """Configures structured JSON logging for the application."""
+    if level is None:
+        try:
+            from app.core.settings import settings
+            level_str = settings.LOG_LEVEL.upper()
+            log_level = getattr(logging, level_str, logging.INFO)
+        except Exception:
+            log_level = logging.INFO
+    elif isinstance(level, str):
+        log_level = getattr(logging, level.upper(), logging.INFO)
+    else:
+        log_level = level
+
     logger = logging.getLogger("titan_api")
-    logger.setLevel(level)
+    logger.setLevel(log_level)
 
     if not logger.handlers:
         handler = logging.StreamHandler()

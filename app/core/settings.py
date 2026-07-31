@@ -4,7 +4,7 @@ Core Settings and Environment Configurations for TITAN FastAPI Backend.
 import os
 from typing import List
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 load_dotenv()
 
@@ -37,6 +37,20 @@ class Settings(BaseModel):
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(
         default_factory=lambda: int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
     )
+
+    @model_validator(mode="after")
+    def validate_production_config(self) -> "Settings":
+        """
+        Validates critical configuration parameters when running in production environment.
+        """
+        if self.APP_ENV.lower() == "production":
+            if self.JWT_SECRET_KEY == "titan-super-secret-jwt-key-change-in-production":
+                raise ValueError("JWT_SECRET_KEY must be explicitly configured in production environment.")
+            if not self.GEMINI_API_KEY or self.GEMINI_API_KEY.strip() == "" or self.GEMINI_API_KEY == "your_gemini_api_key_here":
+                raise ValueError("GEMINI_API_KEY is required in production environment.")
+            if "*" in self.CORS_ORIGINS:
+                raise ValueError("Wildcard CORS_ORIGINS ('*') is not allowed in production environment.")
+        return self
 
 
 settings = Settings()

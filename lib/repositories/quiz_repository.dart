@@ -1,4 +1,3 @@
-import '../core/network/api_client.dart';
 import 'titan_quiz_repository.dart';
 
 /// Legacy [QuizRepository] class extending [TitanQuizRepositoryImpl]

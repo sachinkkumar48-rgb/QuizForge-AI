@@ -1,3 +1,13 @@
+## [v2.5.0-hardening] - 2026-07-31
+
+### Sprint 4.0.0 Production Hardening
+
+- **TITAN-S4.0.0A (Configuration Audit)**: Implemented fail-fast environment validation in `app/core/settings.py`. Enforced explicit `JWT_SECRET_KEY` and `GEMINI_API_KEY` in production mode (`APP_ENV=production`).
+- **TITAN-S4.0.0B (Logging Audit)**: Configured structured JSON logging with dynamic `settings.LOG_LEVEL` binding. Added `_sanitize_log_message()` to sanitize API keys from exception log streams.
+- **TITAN-S4.0.0C (Error Handling Audit)**: Refined provider error HTTP status codes (`503 Service Unavailable`, `504 Gateway Timeout`, `502 Bad Gateway`). Registered `QuizGenerationServiceException` in FastAPI exception handlers.
+- **TITAN-S4.0.0D (Security Audit)**: Enforced secure CORS policy (`allow_credentials` disabled with wildcard origins). Added production startup check to reject wildcard CORS in production environment. Implemented email format input validation.
+- **TITAN-S4.0.0E (Dependency & Code Quality Audit)**: Cleaned unused imports in Flutter repositories. Verified 100% clean static analysis (`flutter analyze lib`) and bytecode compilation (`compileall app`).
+
 ## [v2.0.0-beta.1] - 2026-07-25
 
 ### Added

@@ -1,149 +1,128 @@
-# QuizForge AI: UPSC Quiz Generator
+# QuizForge AI / Project TITAN: Learning Operating System
 
-QuizForge AI is a production-ready, local-first Flutter application that leverages Gemini AI to parse UPSC (Union Public Service Commission) preparation study materials in PDF format and generate high-fidelity, exam-conforming practice quizzes.
+QuizForge AI is an enterprise-grade, production-ready Learning Operating System application built with Flutter and a FastAPI Python backend. It leverages Google Gemini AI to parse UPSC (Union Public Service Commission) preparation study materials and generate high-fidelity, exam-conforming practice quizzes.
 
 ---
 
 ## Technical Architecture
 
-The codebase adheres strictly to **Clean Architecture** and **MVC-like separation patterns**:
+The platform follows **Clean Architecture** and **SOLID design principles**:
 
-1. **Domain Models (`lib/models/`)**: Pure Dart models with zero Flutter imports. Handles data modeling, immutability contracts, and JSON serialization.
-2. **Controller Layer (`lib/controllers/`)**: Encapsulates state mutation and business logic rules. Decoupled from the database and UI layers.
-3. **Repository Layer (`lib/repositories/`)**: Abstract interfaces with concrete implementations (Hive CE) managing offline persistence, metadata updates, and cache structures.
-4. **Service Layer (`lib/services/`)**: Interfaces with external modules, local PDF extraction utilities, Knowledge Intelligence Engine, and the Google Gemini API.
-5. **UI Layer (`lib/pages/` & `lib/widgets/`)**: Responsive, Material 3 layouts presenting loading, empty, and success states dynamically depending on form factors.
+### Flutter Client (`lib/`)
+1. **Domain Models (`lib/models/`)**: Pure Dart models with zero Flutter dependencies handling domain entity contracts.
+2. **Controllers (`lib/controllers/`)**: Encapsulates business logic rules and state management.
+3. **Repositories (`lib/repositories/`)**: Manages offline persistence (Hive CE) and API connectivity.
+4. **Services (`lib/services/`)**: Connects PDF extraction, Knowledge Intelligence Engine, and API services.
+5. **UI Layer (`lib/pages/` & `lib/widgets/`)**: Responsive Material 3 design system.
+
+### FastAPI Backend (`app/`)
+1. **Core Configuration (`app/core/`)**: Managed via Pydantic `Settings` with fail-fast environment validation for production mode (`APP_ENV=production`), structured JSON logging (`JSONFormatter`), and Request ID tracing middleware (`X-Request-ID`).
+2. **Identity & Auth (`app/identity/`)**: JWT Access/Refresh token authentication, password hashing (`passlib`/`bcrypt`), and protected route dependencies (`HTTPBearer`).
+3. **AI Services (`app/services/`)**: Gemini API integration (`google-genai` SDK), PromptBuilder with strategy pattern, ResponseValidator for JSON schema enforcement, and key-redacted error logging.
+4. **API Routes (`app/api/`)**: Versioned REST API endpoints (`/api/v1/auth`, `/api/v1/quiz`).
 
 ---
 
 ## Directory Structure
 
 ```text
-lib/
-├── core/
-│   └── utils/
-│       └── text_chunk_service.dart          # Text preprocessing and cleanup
-├── models/
-│   ├── quiz_analytics.dart                  # Analytics snapshot model
-│   ├── quiz_attempt.dart                    # Complete historical attempt
-│   ├── quiz_model.dart                      # Questions and state models
-│   ├── quiz_session.dart                    # Active session snapshot
-│   └── quiz_source.dart                     # PDF Library entry metadata
-├── repositories/
-│   ├── impl/
-│   │   ├── hive_quiz_history_repository.dart# Persistent quiz history
-│   │   ├── hive_quiz_session_repository.dart# Persistent active sessions
-│   │   └── hive_quiz_source_repository.dart # Persistent PDF source metadata
-│   ├── quiz_history_repository.dart
-│   ├── quiz_session_repository.dart
-│   └── quiz_source_repository.dart
-├── services/
-│   ├── ai_service.dart                      # Gemini 2.5 API connector & retry handler
-│   ├── cache_service.dart                   # Local quiz caching service
-│   ├── knowledge_integration_service.dart   # KIE PDF ingestion bridge
-│   ├── pdf_reader_service.dart              # Syncfusion PDF text extractor
-│   ├── pdf_service.dart                     # File picker service
-│   └── quiz_generation_adapter.dart         # KnowledgeObject to prompt text adapter
-├── themes/
-│   ├── app_colors.dart                      # Color constants
-│   ├── app_text_styles.dart
-│   └── app_theme.dart                       # Global Material 3 configurations
-├── widgets/
-│   ├── analytics_dashboard.dart
-│   ├── loading_dialog.dart
-│   └── question_card.dart
-└── pages/
-    ├── home_page.dart                       # Landing screen & session recovery
-    ├── library_page.dart                    # PDF Library (Search, Sort, CRUD)
-    ├── history_page.dart                    # Historical attempts list
-    ├── attempt_summary_page.dart            # Read-only attempt results
-    ├── quiz_page.dart                       # Interactive quiz runner
-    └── result_page.dart                     # Quiz results & dashboard
+QuizForge-AI/
+├── app/                                    # FastAPI Backend Service
+│   ├── api/                                # REST API routers (v1)
+│   ├── core/                               # Settings, structured logging, middleware
+│   ├── identity/                           # Authentication, JWT tokens, user schemas
+│   ├── schemas/                            # Pydantic data schemas
+│   ├── services/                           # Gemini AI, prompt strategy, response validator
+│   └── main.py                             # FastAPI entry point
+├── lib/                                    # Flutter Client Application
+│   ├── core/                               # AppConfig profiles, network, utils
+│   ├── controllers/                        # Business logic controllers
+│   ├── models/                             # Domain models
+│   ├── repositories/                       # Offline & network repositories
+│   ├── services/                           # PDF extraction & AI integration
+│   └── pages/                              # UI screens & Material 3 widgets
+├── packages/                               # Modular Dart packages (knowledge_engine)
+├── project_titan/                          # TITAN enterprise core packages
+├── .env.example                            # Configuration environment template
+├── Dockerfile                              # Production Docker container definition
+├── requirements.txt                        # Backend Python dependencies
+└── pubspec.yaml                            # Flutter client dependencies
 ```
 
 ---
 
-## Project TITAN - Version 1.0 Foundation Baseline (TDL-010)
+## Production Hardening Baseline (Sprint 4.0.0)
 
-Project TITAN is an enterprise Dart/Flutter architecture providing a modular foundation for QuizForge AI.
+Project TITAN includes production hardening across backend and client layers:
 
-* **Release Version**: `v1.0.0-foundation`
-* **Architecture Report**: [`FOUNDATION_REPORT.md`](file:///c:/Users/acer/StudioProjects/quizforge_upsc/FOUNDATION_REPORT.md)
-* **Release Notes**: [`CHANGELOG.md`](file:///c:/Users/acer/StudioProjects/quizforge_upsc/CHANGELOG.md)
-* **Technical Debt Register**: [`docs/architecture/TECHNICAL_DEBT.md`](file:///c:/Users/acer/StudioProjects/quizforge_upsc/docs/architecture/TECHNICAL_DEBT.md)
-
-### Decision Record Summary
-* **TDL-009**: Knowledge Intelligence Engine (KIE) integration for QuizForge AI.
-* **TDL-010**: Freeze Version 1.0 Foundation Baseline before Sprint 2 (Knowledge Graph Services) to eliminate architectural ambiguity, enforce clean boundaries, and register technical debt.
+* **Configuration Safety (`TITAN-S4.0.0A`)**: Fail-fast startup validation in `app/core/settings.py` rejecting insecure default JWT secrets and missing API keys when running in production mode (`APP_ENV=production`).
+* **Structured Observability (`TITAN-S4.0.0B`)**: Structured JSON logging (`JSONFormatter`) with request ID correlation (`X-Request-ID`), dynamic log levels, and automatic API key sanitization (`_sanitize_log_message`).
+* **RFC Error Handling (`TITAN-S4.0.0C`)**: RFC-standard HTTP status codes (`503 Service Unavailable`, `504 Gateway Timeout`, `502 Bad Gateway`, `422 Unprocessable Entity`), clean user-facing error messages, and traceback isolation.
+* **Production Security Posture (`TITAN-S4.0.0D`)**: Disallowed wildcard CORS credential forwarding, email format regex validation on auth endpoints, and `HTTPBearer` authentication dependencies.
+* **Code Quality & Verification (`TITAN-S4.0.0E`)**: 100% clean static analysis (`flutter analyze lib`) and clean bytecode compilation (`compileall app`).
 
 ---
 
-## Knowledge Engine Integration (TDL-009)
+## Environment Configuration
 
-As per Decision Record **TDL-009**, QuizForge AI consumes knowledge through the **Knowledge Intelligence Engine (KIE)** (`packages/knowledge_engine`) instead of directly passing raw extracted PDF text to Gemini:
+Copy `.env.example` to `.env` in the root directory:
 
-* **KnowledgeIngestionPipeline**: PDF text is normalized, chunked, and transformed into canonical `KnowledgeObject` domain entities.
-* **RepositoryCoordinator**: `KnowledgeObject` instances are stored in the multi-tier knowledge repository.
-* **QuizGenerationAdapter**: Formats canonical knowledge chunks into clean prompt payloads consumed by Gemini without altering existing prompt templates.
-
----
-
-## AI Integration & Preprocessing
-
-* **Gemini 2.5 Flash**: Connects directly to Google's generative models with strict prompt rules specifying question formats, difficulty levels, and domain-appropriate subject tagging.
-* **Pre-processing**: Extracted PDF texts are sanitized, normalized via KIE, truncated to 15,000 characters to manage LLM attention and token usage, and hashed to generate content fingerprints.
-* **Response validation**: Responses are parsed, and formatting anomalies (such as markdown code blocks) are stripped and cleaned to prevent decoding crashes.
-
----
-
-## Local Storage & Cache Policies
-
-* **Hive CE**: Lightweight, fast key-value storage box engines.
-* **Caching**: Quizzes generated via Gemini are cached under their SHA-256 fingerprint ID. Selecting the same PDF loads cached questions instantly, ensuring offline operability and avoiding API call overheads.
-* **Session Recovery**: Progress is auto-saved on every interaction (answering questions, bookmarking, navigation, and 30s timers). Unfinished sessions can be resumed or discarded from the Home Page.
-
----
-
-## Setup & Running
-
-### Prerequisites
-* Flutter SDK (>=3.0.0 <4.0.0)
-* Gemini API Key
-
-### Configuration
-Create a `.env` file in the root directory:
 ```env
+# AI Provider Credentials
 GEMINI_API_KEY=your_actual_gemini_api_key_here
+
+# Backend Settings
+APP_ENV=development
+LOG_LEVEL=INFO
+HOST=0.0.0.0
+PORT=8000
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:8000
+JWT_SECRET_KEY=titan-super-secret-jwt-key-change-in-production
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
-### Running the Application
+---
+
+## Running the Application
+
+### 1. Backend Service (FastAPI)
+
+```bash
+# Activate virtual environment
+.\.venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run backend development server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Backend endpoints available at:
+* API Health Probe: `http://localhost:8000/health`
+* Readiness Probe: `http://localhost:8000/ready`
+* OpenAPI Documentation: `http://localhost:8000/docs`
+
+### 2. Flutter Client
+
 ```bash
 # Fetch dependencies
 flutter pub get
 
-# Run in debug mode
+# Run application in debug mode
 flutter run
-```
-
-### Running Analysis & Tests
-```bash
-# Run static analysis
-flutter analyze
-
-# Run unit, integration, and UI smoke tests
-flutter test
-```
-
-### Building Release Bundle
-```bash
-# Build Android APK
-flutter build apk --release
 ```
 
 ---
 
-## Known Limitations
+## Running Quality Assurance & Verification
 
-1. **Free Tier Quota**: The application relies on free-tier Gemini API keys. Heavy usage will trigger a `429 (Too Many Requests)` warning, which is intercepted and displayed gracefully in the UI.
-2. **Text Extraction boundaries**: Scanned images (non-searchable PDFs) will return empty extracted text. The app displays a clear warning prompting the user for text-based PDFs.
+```bash
+# Backend Bytecode & Verification Tests
+python -m compileall app
+python -c "import tests.test_jwt_auth as t1, tests.test_observability as t2; t1.test_register_and_login_jwt_flow(); t1.test_invalid_jwt_returns_401(); t2.test_health_endpoint()"
 
+# Flutter Static Analysis
+flutter analyze lib
+```

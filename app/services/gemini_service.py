@@ -39,14 +39,14 @@ class GeminiUnavailableException(GeminiServiceException):
     """Raised when Gemini API is unavailable or returns an error."""
 
     def __init__(self, message: str = "Gemini API service is currently unavailable."):
-        super().__init__(message, status_code=500)
+        super().__init__(message, status_code=503)
 
 
 class GeminiTimeoutException(GeminiServiceException):
     """Raised when Gemini API request times out."""
 
     def __init__(self, message: str = "Gemini API request timed out."):
-        super().__init__(message, status_code=500)
+        super().__init__(message, status_code=504)
 
 
 class GeminiEmptyResponseException(GeminiServiceException):
@@ -60,7 +60,7 @@ class GeminiInvalidJSONException(GeminiServiceException):
     """Raised when Gemini API response is not valid JSON."""
 
     def __init__(self, message: str = "Gemini API returned an invalid JSON response."):
-        super().__init__(message, status_code=500)
+        super().__init__(message, status_code=502)
 
 
 class GeminiService(AIService):
@@ -75,6 +75,12 @@ class GeminiService(AIService):
         self.model = model or settings.GEMINI_MODEL
         self.prompt_builder = PromptBuilder()
         self.response_validator = ResponseValidator()
+
+    def _sanitize_log_message(self, message: str) -> str:
+        """Sanitizes sensitive information such as API keys from log messages."""
+        if self.api_key and len(self.api_key) > 5 and self.api_key in message:
+            return message.replace(self.api_key, "[REDACTED]")
+        return message
 
     def _get_client(self) -> genai.Client:
         if not self.api_key or self.api_key.strip() == "" or self.api_key == "your_gemini_api_key_here":
@@ -150,19 +156,19 @@ class GeminiService(AIService):
             raise
         except APIError as e:
             err_msg = str(e)
-            logger.error(f"Gemini API returned error: {err_msg}")
+            logger.error(self._sanitize_log_message(f"Gemini API returned error: {err_msg}"))
             if "API_KEY_INVALID" in err_msg or "API key not valid" in err_msg or getattr(e, "code", None) in (401, 403):
-                raise GeminiAPIKeyMissingException(f"Invalid Gemini API Key: {err_msg}")
-            raise GeminiUnavailableException(f"Gemini API error: {err_msg}")
+                raise GeminiAPIKeyMissingException("GEMINI_API_KEY environment variable is missing or invalid.")
+            raise GeminiUnavailableException("Gemini API service is currently unavailable.")
         except TimeoutError:
             logger.error("Gemini API request timed out.")
             raise GeminiTimeoutException("Gemini API request timed out.")
         except Exception as e:
             err_msg = str(e)
-            logger.error(f"Failed to communicate with Gemini API: {err_msg}")
+            logger.error(self._sanitize_log_message(f"Failed to communicate with Gemini API: {err_msg}"))
             if "API_KEY_INVALID" in err_msg or "API key not valid" in err_msg:
-                raise GeminiAPIKeyMissingException(f"Invalid Gemini API Key: {err_msg}")
-            raise GeminiUnavailableException(f"Failed to communicate with Gemini API: {err_msg}")
+                raise GeminiAPIKeyMissingException("GEMINI_API_KEY environment variable is missing or invalid.")
+            raise GeminiUnavailableException("Gemini API service is currently unavailable.")
 
         elapsed_ms = int((time.time() - start_time) * 1000)
 

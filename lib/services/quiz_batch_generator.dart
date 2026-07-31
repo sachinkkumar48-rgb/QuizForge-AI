@@ -33,8 +33,6 @@ class QuizBatchGenerator {
     final List<QuizQuestion> allQuestions = [];
     final Set<String> seenQuestionTexts = {};
 
-    int currentIndex = 1;
-
     for (int i = 0; i < totalBatches; i++) {
       final batchSize = batchSizes[i];
       final batchNumber = i + 1;
@@ -116,8 +114,6 @@ class QuizBatchGenerator {
           allQuestions.add(question);
         }
       }
-
-      currentIndex += batchQuestions.length;
     }
 
     return QuizModel(questions: allQuestions);
