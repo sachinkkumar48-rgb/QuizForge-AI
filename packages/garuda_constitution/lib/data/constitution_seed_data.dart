@@ -1,11 +1,14 @@
-library;
-
+import 'constitution_amendments_data.dart';
+import 'constitution_articles_complete_corpus.dart';
 import 'constitution_articles_part3.dart';
 import 'constitution_articles_part4_to_5.dart';
 import 'constitution_articles_part6_to_10.dart';
 import 'constitution_articles_part11_to_15.dart';
 import 'constitution_articles_part16_to_22.dart';
+import 'constitution_chapters_data.dart';
+import '../domain/entities/amendment_knowledge_object.dart';
 import '../domain/entities/article_knowledge_object.dart';
+import '../domain/entities/chapter_knowledge_object.dart';
 import '../domain/entities/constitution_enums.dart';
 import '../domain/entities/constitution_metadata.dart';
 import '../domain/entities/part_knowledge_object.dart';
@@ -14,7 +17,7 @@ import '../domain/entities/schedule_knowledge_object.dart';
 import '../templates/editorial_templates.dart';
 
 /// Permanent Seeded Official Repository Data for the GARUDA Constitution Library.
-/// Contains Metadata, Preamble, Parts, Schedules, and Articles across all Constitutional Parts.
+/// Contains Metadata, Preamble, Parts, Schedules, Chapters, Amendments, and Articles across all Constitutional Parts.
 class ConstitutionSeedData {
   static final List<ArticleKnowledgeObject> articles = [
     ...ConstitutionArticlesPart3.articles,
@@ -22,7 +25,11 @@ class ConstitutionSeedData {
     ...ConstitutionArticlesPart6To10.articles,
     ...ConstitutionArticlesPart11To15.articles,
     ...ConstitutionArticlesPart16To22.articles,
+    ...ConstitutionArticlesCompleteCorpus.articles,
   ];
+
+  static final List<AmendmentKnowledgeObject> amendments = ConstitutionAmendmentsData.amendments;
+  static final List<ChapterKnowledgeObject> chapters = ConstitutionChaptersData.chapters;
 
   static final ConstitutionMetadata metadata = ConstitutionMetadata(
 

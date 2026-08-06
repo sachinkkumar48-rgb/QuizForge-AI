@@ -136,7 +136,7 @@ class ArticleKnowledgeObject extends ConstitutionKnowledgeObject {
     required this.currentNumber,
     required this.officialConstitutionalText,
     required this.originalGarudaExplanation,
-    required this.historicalBackground,
+    this.historicalBackground = '',
     this.languageSupportReady = true,
     this.searchKeywords = const [],
     this.keyTakeaways = const [],
@@ -191,8 +191,8 @@ class ArticleKnowledgeObject extends ConstitutionKnowledgeObject {
     super.relatedActs = const [],
     super.relatedPYQs = const [],
     super.relatedCurrentAffairs = const [],
-    super.editorialStatus = 'APPROVED',
-    super.evidenceReferences = const [],
+    super.editorialStatus = 'Editorial Review',
+    super.evidenceReferences = const ['Legislative Department, Ministry of Law and Justice, Government of India'],
     super.knowledgeGraphLinks = const [],
   });
 

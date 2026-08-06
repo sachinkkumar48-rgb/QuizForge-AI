@@ -1,7 +1,9 @@
 library;
 
 import '../data/constitution_seed_data.dart';
+import '../domain/entities/amendment_knowledge_object.dart';
 import '../domain/entities/article_knowledge_object.dart';
+import '../domain/entities/chapter_knowledge_object.dart';
 import '../domain/entities/constitution_knowledge_object.dart';
 import '../domain/entities/constitution_metadata.dart';
 import '../domain/entities/part_knowledge_object.dart';
@@ -16,9 +18,14 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
   final List<PartKnowledgeObject> _partsList;
   final List<ScheduleKnowledgeObject> _schedulesList;
   final List<ArticleKnowledgeObject> _articlesList;
+  final List<AmendmentKnowledgeObject> _amendmentsList;
+  final List<ChapterKnowledgeObject> _chaptersList;
+
   final Map<String, PartKnowledgeObject> _partsMap = {};
   final Map<String, ScheduleKnowledgeObject> _schedulesMap = {};
   final Map<String, ArticleKnowledgeObject> _articlesMap = {};
+  final Map<String, AmendmentKnowledgeObject> _amendmentsMap = {};
+  final Map<String, ChapterKnowledgeObject> _chaptersMap = {};
   final Map<String, ConstitutionKnowledgeObject> _allObjectsMap = {};
 
   InMemoryConstitutionRepository({
@@ -27,11 +34,15 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
     List<PartKnowledgeObject>? parts,
     List<ScheduleKnowledgeObject>? schedules,
     List<ArticleKnowledgeObject>? articles,
+    List<AmendmentKnowledgeObject>? amendments,
+    List<ChapterKnowledgeObject>? chapters,
   })  : _metadata = metadata ?? ConstitutionSeedData.metadata,
         _preamble = preamble ?? ConstitutionSeedData.preamble,
         _partsList = parts ?? ConstitutionSeedData.parts,
         _schedulesList = schedules ?? ConstitutionSeedData.schedules,
-        _articlesList = articles ?? ConstitutionSeedData.articles {
+        _articlesList = articles ?? ConstitutionSeedData.articles,
+        _amendmentsList = amendments ?? ConstitutionSeedData.amendments,
+        _chaptersList = chapters ?? ConstitutionSeedData.chapters {
     for (final p in _partsList) {
       _partsMap[p.objectId] = p;
       _allObjectsMap[p.objectId] = p;
@@ -46,6 +57,17 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
       _articlesMap[a.objectId] = a;
       _articlesMap[a.articleNumber.toUpperCase()] = a;
       _allObjectsMap[a.objectId] = a;
+    }
+
+    for (final amd in _amendmentsList) {
+      _amendmentsMap[amd.objectId] = amd;
+      _amendmentsMap[amd.amendmentNumber.toUpperCase()] = amd;
+      _allObjectsMap[amd.objectId] = amd;
+    }
+
+    for (final ch in _chaptersList) {
+      _chaptersMap[ch.objectId] = ch;
+      _allObjectsMap[ch.objectId] = ch;
     }
 
     _allObjectsMap[_preamble.objectId] = _preamble;
@@ -67,14 +89,18 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
   Future<List<ArticleKnowledgeObject>> getArticles() async => _articlesList;
 
   @override
+  Future<List<AmendmentKnowledgeObject>> getAmendments() async => _amendmentsList;
+
+  @override
+  Future<List<ChapterKnowledgeObject>> getChapters() async => _chaptersList;
+
+  @override
   Future<PartKnowledgeObject?> findPart(String idOrNumber) async {
     final clean = idOrNumber.trim().toUpperCase();
 
-    // Direct objectId match
     if (_partsMap.containsKey(clean)) return _partsMap[clean];
     if (_partsMap.containsKey('KO-PART-$clean')) return _partsMap['KO-PART-$clean'];
 
-    // Match part number, title, or alias
     for (final p in _partsList) {
       if (p.partNumber.toUpperCase() == clean ||
           p.title.toUpperCase().contains('PART $clean:') ||
@@ -90,11 +116,9 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
   Future<ScheduleKnowledgeObject?> findSchedule(String idOrNumber) async {
     final clean = idOrNumber.trim().toUpperCase();
 
-    // Direct objectId match
     if (_schedulesMap.containsKey(clean)) return _schedulesMap[clean];
     if (_schedulesMap.containsKey('KO-SCHED-$clean')) return _schedulesMap['KO-SCHED-$clean'];
 
-    // Match schedule number, title, or alias
     for (final s in _schedulesList) {
       if (s.scheduleNumber.toUpperCase() == clean ||
           s.title.toUpperCase().contains('SCHEDULE $clean:') ||
@@ -125,6 +149,42 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
           a.objectId.toUpperCase() == 'KO-ART-$clean' ||
           a.aliases.any((alias) => alias.toUpperCase() == clean || alias.toUpperCase() == raw.toUpperCase())) {
         return a;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<AmendmentKnowledgeObject?> findAmendment(String idOrNumber) async {
+    final raw = idOrNumber.trim().toUpperCase();
+    if (raw.isEmpty) return null;
+
+    if (_amendmentsMap.containsKey(raw)) return _amendmentsMap[raw];
+    if (_amendmentsMap.containsKey('KO-AMD-$raw')) return _amendmentsMap['KO-AMD-$raw'];
+
+    final cleanNum = raw.replaceAll(RegExp(r'^(AMENDMENT|AMD|THE CONSTITUTION|ST|ND|RD|TH)\s*', caseSensitive: false), '').trim();
+
+    for (final amd in _amendmentsList) {
+      if (amd.amendmentNumber.toUpperCase() == raw ||
+          amd.objectId.toUpperCase() == raw ||
+          amd.objectId == 'KO-AMD-$cleanNum' ||
+          amd.title.toUpperCase().contains(raw)) {
+        return amd;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<ChapterKnowledgeObject?> findChapter(String idOrNumber) async {
+    final raw = idOrNumber.trim().toUpperCase();
+    if (raw.isEmpty) return null;
+
+    if (_chaptersMap.containsKey(raw)) return _chaptersMap[raw];
+
+    for (final ch in _chaptersList) {
+      if (ch.objectId.toUpperCase() == raw || ch.chapterNumber.toUpperCase() == raw || ch.title.toUpperCase().contains(raw)) {
+        return ch;
       }
     }
     return null;
@@ -185,13 +245,17 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
       final inAmendments = obj.relatedAmendments.any((a) => a.toLowerCase().contains(q));
       final inCases = obj.relatedCases.any((c) => c.toLowerCase().contains(q));
 
-      bool inPartOrSchedOrArt = false;
+      bool inSpecific = false;
       if (obj is PartKnowledgeObject) {
-        inPartOrSchedOrArt = obj.partNumber.toLowerCase() == q || 'part ${obj.partNumber.toLowerCase()}' == q;
+        inSpecific = obj.partNumber.toLowerCase() == q || 'part ${obj.partNumber.toLowerCase()}' == q;
       } else if (obj is ScheduleKnowledgeObject) {
-        inPartOrSchedOrArt = obj.scheduleNumber.toLowerCase() == q || 'schedule ${obj.scheduleNumber.toLowerCase()}' == q;
+        inSpecific = obj.scheduleNumber.toLowerCase() == q || 'schedule ${obj.scheduleNumber.toLowerCase()}' == q;
+      } else if (obj is AmendmentKnowledgeObject) {
+        inSpecific = obj.amendmentNumber.toLowerCase().contains(q) || obj.reason.toLowerCase().contains(q) || obj.historicalContext.toLowerCase().contains(q);
+      } else if (obj is ChapterKnowledgeObject) {
+        inSpecific = obj.chapterNumber.toLowerCase().contains(q) || obj.partNumber.toLowerCase().contains(q);
       } else if (obj is ArticleKnowledgeObject) {
-        inPartOrSchedOrArt = obj.articleNumber.toLowerCase() == q ||
+        inSpecific = obj.articleNumber.toLowerCase() == q ||
             'article ${obj.articleNumber.toLowerCase()}' == q ||
             obj.searchKeywords.any((k) => k.toLowerCase().contains(q)) ||
             obj.originalGarudaExplanation.toLowerCase().contains(q) ||
@@ -207,8 +271,7 @@ class InMemoryConstitutionRepository implements ConstitutionRepository {
             obj.pyqIds.any((p) => p.toLowerCase().contains(q));
       }
 
-      return inId || inTitle || inOfficial || inDesc || inKeywords || inArticles || inAmendments || inCases || inPartOrSchedOrArt;
+      return inId || inTitle || inOfficial || inDesc || inKeywords || inArticles || inAmendments || inCases || inSpecific;
     }).toList();
   }
 }
-

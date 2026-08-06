@@ -1,7 +1,9 @@
 library;
 
 import 'package:meta/meta.dart';
+import '../domain/entities/amendment_knowledge_object.dart';
 import '../domain/entities/article_knowledge_object.dart';
+import '../domain/entities/chapter_knowledge_object.dart';
 import '../domain/entities/constitution_knowledge_object.dart';
 import '../domain/entities/part_knowledge_object.dart';
 import '../domain/entities/schedule_knowledge_object.dart';
@@ -42,7 +44,7 @@ class ConstitutionValidationResult {
 }
 
 /// Comprehensive Validation Engine for Constitution Knowledge Objects.
-/// Validates ID uniqueness, structural metadata completeness, cross-links, and reference integrity.
+/// Validates ID uniqueness, structural metadata completeness, cross-links, Amendments, Chapters, and reference integrity.
 class ConstitutionValidator {
   static Future<ConstitutionValidationResult> validateRepository(
       ConstitutionRepository repository) async {
@@ -52,18 +54,23 @@ class ConstitutionValidator {
     final parts = await repository.getParts();
     final schedules = await repository.getSchedules();
     final articles = await repository.getArticles();
+    final amendments = await repository.getAmendments();
+    final chapters = await repository.getChapters();
 
     final allObjects = <ConstitutionKnowledgeObject>[
       preamble,
       ...parts,
       ...schedules,
       ...articles,
+      ...amendments,
+      ...chapters,
     ];
 
     final seenIds = <String>{};
     final seenPartNumbers = <String>{};
     final seenScheduleNumbers = <String>{};
     final seenArticleNumbers = <String>{};
+    final seenAmendmentNumbers = <String>{};
 
     for (final obj in allObjects) {
       // 1. Unique ID check
@@ -106,7 +113,7 @@ class ConstitutionValidator {
         ));
       }
 
-      // 3. Duplicate Part / Schedule / Article Number Checks
+      // 3. Duplicate Number Checks
       if (obj is PartKnowledgeObject) {
         if (seenPartNumbers.contains(obj.partNumber)) {
           errors.add(ConstitutionValidationError(
@@ -126,6 +133,24 @@ class ConstitutionValidator {
           ));
         } else {
           seenScheduleNumbers.add(obj.scheduleNumber);
+        }
+      } else if (obj is AmendmentKnowledgeObject) {
+        if (seenAmendmentNumbers.contains(obj.amendmentNumber)) {
+          errors.add(ConstitutionValidationError(
+            code: 'DUPLICATE_AMENDMENT_NUMBER',
+            message: 'Duplicate Amendment number "${obj.amendmentNumber}" detected.',
+            objectId: obj.objectId,
+          ));
+        } else {
+          seenAmendmentNumbers.add(obj.amendmentNumber);
+        }
+      } else if (obj is ChapterKnowledgeObject) {
+        if (obj.chapterNumber.isEmpty) {
+          errors.add(ConstitutionValidationError(
+            code: 'EMPTY_CHAPTER_NUMBER',
+            message: 'Chapter number cannot be empty.',
+            objectId: obj.objectId,
+          ));
         }
       } else if (obj is ArticleKnowledgeObject) {
         if (seenArticleNumbers.contains(obj.articleNumber)) {
@@ -244,4 +269,3 @@ class ConstitutionValidator {
     return ConstitutionValidationResult.success();
   }
 }
-

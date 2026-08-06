@@ -1,10 +1,15 @@
+export 'data/constitution_amendments_data.dart';
+export 'data/constitution_articles_complete_corpus.dart';
 export 'data/constitution_articles_part3.dart';
 export 'data/constitution_articles_part4_to_5.dart';
 export 'data/constitution_articles_part6_to_10.dart';
 export 'data/constitution_articles_part11_to_15.dart';
 export 'data/constitution_articles_part16_to_22.dart';
+export 'data/constitution_chapters_data.dart';
 export 'data/constitution_seed_data.dart';
+export 'domain/entities/amendment_knowledge_object.dart';
 export 'domain/entities/article_knowledge_object.dart';
+export 'domain/entities/chapter_knowledge_object.dart';
 export 'domain/entities/constitution_enums.dart';
 export 'domain/entities/constitution_knowledge_object.dart';
 export 'domain/entities/constitution_metadata.dart';

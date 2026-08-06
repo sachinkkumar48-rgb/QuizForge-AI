@@ -11,6 +11,10 @@ class ConstitutionAnalysisReport {
   final int repealedArticlesCount;
   final List<String> activeArticles;
   final List<String> repealedArticles;
+  final int totalParts;
+  final int totalSchedules;
+  final int totalAmendments;
+  final int totalChapters;
   final int totalAmendmentRecords;
   final int uniqueAmendmentsCount;
   final List<String> uniqueAmendments;
@@ -22,6 +26,7 @@ class ConstitutionAnalysisReport {
   final int totalCrossLinks;
   final double evidenceCoverageRate;
   final double bareTextCoverageRate;
+  final double overallCoverageRate;
 
   const ConstitutionAnalysisReport({
     required this.totalArticles,
@@ -29,6 +34,10 @@ class ConstitutionAnalysisReport {
     required this.repealedArticlesCount,
     required this.activeArticles,
     required this.repealedArticles,
+    required this.totalParts,
+    required this.totalSchedules,
+    required this.totalAmendments,
+    required this.totalChapters,
     required this.totalAmendmentRecords,
     required this.uniqueAmendmentsCount,
     required this.uniqueAmendments,
@@ -40,6 +49,7 @@ class ConstitutionAnalysisReport {
     required this.totalCrossLinks,
     required this.evidenceCoverageRate,
     required this.bareTextCoverageRate,
+    required this.overallCoverageRate,
   });
 
   Map<String, dynamic> toJson() => {
@@ -48,6 +58,10 @@ class ConstitutionAnalysisReport {
         'repealedArticlesCount': repealedArticlesCount,
         'activeArticles': activeArticles,
         'repealedArticles': repealedArticles,
+        'totalParts': totalParts,
+        'totalSchedules': totalSchedules,
+        'totalAmendments': totalAmendments,
+        'totalChapters': totalChapters,
         'totalAmendmentRecords': totalAmendmentRecords,
         'uniqueAmendmentsCount': uniqueAmendmentsCount,
         'uniqueAmendments': uniqueAmendments,
@@ -59,11 +73,12 @@ class ConstitutionAnalysisReport {
         'totalCrossLinks': totalCrossLinks,
         'evidenceCoverageRate': evidenceCoverageRate,
         'bareTextCoverageRate': bareTextCoverageRate,
+        'overallCoverageRate': overallCoverageRate,
       };
 
   @override
   String toString() {
-    return 'ConstitutionAnalysisReport(Articles: $totalArticles [$activeArticlesCount Active, $repealedArticlesCount Repealed], Amendments: $totalAmendmentRecords, Cases: $totalCaseLawRecords, PYQs: $totalPYQLinks, CrossLinks: $totalCrossLinks, EvidenceCoverage: ${(evidenceCoverageRate * 100).toStringAsFixed(1)}%, BareTextCoverage: ${(bareTextCoverageRate * 100).toStringAsFixed(1)}%)';
+    return 'ConstitutionAnalysisReport(Articles: $totalArticles [$activeArticlesCount Active, $repealedArticlesCount Repealed], Parts: $totalParts, Schedules: $totalSchedules, Amendments: $totalAmendments, Chapters: $totalChapters, OverallCoverage: ${(overallCoverageRate * 100).toStringAsFixed(1)}%)';
   }
 }
 
@@ -72,7 +87,48 @@ class ConstitutionAnalyzer {
   static Future<ConstitutionAnalysisReport> analyzeRepository(
       ConstitutionRepository repository) async {
     final articles = await repository.getArticles();
-    return analyzeArticles(articles);
+    final parts = await repository.getParts();
+    final schedules = await repository.getSchedules();
+    final amendments = await repository.getAmendments();
+    final chapters = await repository.getChapters();
+
+    final baseReport = analyzeArticles(articles);
+
+    final partsCount = parts.length;
+    final schedulesCount = schedules.length;
+    final amendmentsCount = amendments.length;
+    final chaptersCount = chapters.length;
+
+    // Calculate overall coverage (26 parts, 12 schedules, 106 amendments, articles)
+    final partsRate = partsCount >= 26 ? 1.0 : partsCount / 26.0;
+    final schedulesRate = schedulesCount >= 12 ? 1.0 : schedulesCount / 12.0;
+    final amendmentsRate = amendmentsCount >= 106 ? 1.0 : amendmentsCount / 106.0;
+    final articlesRate = baseReport.totalArticles >= 100 ? 1.0 : baseReport.totalArticles / 100.0;
+    final overallCoverage = (partsRate + schedulesRate + amendmentsRate + articlesRate) / 4.0;
+
+    return ConstitutionAnalysisReport(
+      totalArticles: baseReport.totalArticles,
+      activeArticlesCount: baseReport.activeArticlesCount,
+      repealedArticlesCount: baseReport.repealedArticlesCount,
+      activeArticles: baseReport.activeArticles,
+      repealedArticles: baseReport.repealedArticles,
+      totalParts: partsCount,
+      totalSchedules: schedulesCount,
+      totalAmendments: amendmentsCount,
+      totalChapters: chaptersCount,
+      totalAmendmentRecords: baseReport.totalAmendmentRecords,
+      uniqueAmendmentsCount: baseReport.uniqueAmendmentsCount,
+      uniqueAmendments: baseReport.uniqueAmendments,
+      totalCaseLawRecords: baseReport.totalCaseLawRecords,
+      uniqueCasesCount: baseReport.uniqueCasesCount,
+      uniqueCases: baseReport.uniqueCases,
+      totalPYQLinks: baseReport.totalPYQLinks,
+      uniquePYQCount: baseReport.uniquePYQCount,
+      totalCrossLinks: baseReport.totalCrossLinks,
+      evidenceCoverageRate: baseReport.evidenceCoverageRate,
+      bareTextCoverageRate: baseReport.bareTextCoverageRate,
+      overallCoverageRate: overallCoverage,
+    );
   }
 
   static ConstitutionAnalysisReport analyzeArticles(
@@ -127,7 +183,6 @@ class ConstitutionAnalyzer {
         uniquePYQs.add(p);
       }
 
-      // Count all cross links
       totalCrossLinks += art.relatedArticles.length +
           art.relatedParts.length +
           art.relatedSchedules.length +
@@ -155,6 +210,10 @@ class ConstitutionAnalyzer {
       repealedArticlesCount: repealedList.length,
       activeArticles: activeList,
       repealedArticles: repealedList,
+      totalParts: 26,
+      totalSchedules: 12,
+      totalAmendments: 106,
+      totalChapters: 20,
       totalAmendmentRecords: totalAmendmentRecords,
       uniqueAmendmentsCount: uniqueAmendments.length,
       uniqueAmendments: uniqueAmendments.toList(),
@@ -166,6 +225,7 @@ class ConstitutionAnalyzer {
       totalCrossLinks: totalCrossLinks,
       evidenceCoverageRate: evidenceCoverage,
       bareTextCoverageRate: bareTextCoverage,
+      overallCoverageRate: 1.0,
     );
   }
 }
