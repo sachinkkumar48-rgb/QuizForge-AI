@@ -45,14 +45,29 @@ export 'services/editorial_workflow_service.dart';
 export 'datasets/upsc_cse_polity_dataset.dart';
 export 'datasets/upsc_master_corpus_1995_2025.dart';
 
-// Ingestion Layer
+// Ingestion Layer (TITAN-KO-007.5 Mass PYQ Pipeline)
+export 'ingestion/answer_keys/official_answer_key_merger.dart';
+export 'ingestion/batch_importer.dart';
 export 'ingestion/csv_ingestion.dart';
 export 'ingestion/duplicate_detector.dart';
 export 'ingestion/json_ingestion.dart';
 export 'ingestion/manual_entry_ingestion.dart';
+export 'ingestion/ocr/ocr_pipeline_architecture.dart';
 export 'ingestion/ocr_pipeline_stub.dart';
 export 'ingestion/official_paper_ingestion.dart';
+export 'ingestion/parser/metadata_extractor.dart';
+export 'ingestion/parser/official_paper_parser.dart';
+export 'ingestion/parser/option_extractor.dart';
+export 'ingestion/parser/question_extractor.dart';
+export 'ingestion/parser/question_normalizer.dart';
+export 'ingestion/pdf/official_paper_loader.dart';
 export 'ingestion/pdf_import_stub.dart';
+export 'ingestion/progress/import_progress_tracker.dart';
+export 'ingestion/progress/resume_manager.dart';
+export 'ingestion/pyq_mass_ingestion_service.dart';
+export 'ingestion/reporting/coverage_report.dart';
+export 'ingestion/reporting/import_report.dart';
+export 'ingestion/validation/pyq_ingestion_validator.dart';
 
 // Search Layer
 export 'search/pyq_search_engine.dart';
