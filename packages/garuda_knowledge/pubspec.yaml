@@ -1,0 +1,29 @@
+name: garuda_knowledge
+description: GARUDA Unified Knowledge Engine Foundation Package for Project TITAN. Single source of truth for all knowledge assets.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  meta: ^1.11.0
+  crypto: ^3.0.6
+  garuda_constitution:
+    path: ../garuda_constitution
+  garuda_case_law:
+    path: ../garuda_case_law
+  garuda_doctrine:
+    path: ../garuda_doctrine
+  garuda_pyq:
+    path: ../garuda_pyq
+  garuda_graph:
+    path: ../garuda_graph
+  garuda_evidence:
+    path: ../garuda_evidence
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.24.0
