@@ -15,6 +15,10 @@ dependencies:
     sdk: flutter
 
   # TITAN Packages
+  garuda_acts:
+    path: ./packages/garuda_acts
+  garuda_pyq:
+    path: ./packages/garuda_pyq
   knowledge_engine:
     path: ./packages/knowledge_engine
   titan_core:
@@ -63,3 +67,6 @@ flutter:
     - assets/datasets/upsc/prelims/gs1/2025/
     - assets/datasets/upsc/prelims/gs1/2024/
     - assets/datasets/bpsc/70th/
+    - assets/content/
+    - assets/content/polity/
+    - assets/content/polity/fundamental_rights/

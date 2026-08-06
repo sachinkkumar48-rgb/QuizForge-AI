@@ -1,0 +1,16 @@
+name: garuda_acts
+description: Central Acts Library package for Project TITAN. Permanent structured Central Acts knowledge repository containing Metadata, Chapters, Sections, Schedules, Amendments, Rules, Notifications, and Inter-Domain Relationships.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  meta: ^1.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.24.0
