@@ -1,0 +1,16 @@
+name: garuda_constitution
+description: GARUDA Constitution Library Foundation Package for Project TITAN. Permanent structured constitutional knowledge repository containing Metadata, Preamble, Parts I-XXII, and Schedules I-XII.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  meta: ^1.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.24.0
