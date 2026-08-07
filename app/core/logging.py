@@ -12,8 +12,56 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
 
+SENSITIVE_KEYS = {
+    "password",
+    "secret",
+    "access_token",
+    "refresh_token",
+    "authorization",
+    "api_key",
+    "jwt_secret_key",
+    "gemini_api_key",
+}
+
+
+def sanitize_value(key: str, value: any) -> any:
+    """Sanitizes sensitive values from log extra parameters."""
+    if isinstance(key, str) and any(sk in key.lower() for sk in SENSITIVE_KEYS):
+        return "***REDACTED***"
+    if isinstance(value, dict):
+        return {k: sanitize_value(k, v) for k, v in value.items()}
+    return value
+
+
+RESERVED_ATTRS = {
+    "args",
+    "asctime",
+    "created",
+    "exc_info",
+    "exc_text",
+    "filename",
+    "funcName",
+    "levelname",
+    "levelno",
+    "lineno",
+    "module",
+    "msecs",
+    "message",
+    "msg",
+    "name",
+    "pathname",
+    "process",
+    "processName",
+    "relativeCreated",
+    "stack_info",
+    "thread",
+    "threadName",
+    "taskName",
+}
+
+
 class JSONFormatter(logging.Formatter):
-    """Formats log records as structured JSON strings."""
+    """Formats log records as structured JSON strings with sensitive data redacting."""
 
     def format(self, record: logging.LogRecord) -> str:
         log_data = {
@@ -23,15 +71,16 @@ class JSONFormatter(logging.Formatter):
             "logger": record.name,
         }
 
-        # Include custom contextual attributes if present
-        for key in ("request_id", "method", "path", "status_code", "duration_ms", "client_ip"):
-            if hasattr(record, key):
-                log_data[key] = getattr(record, key)
+        # Include all custom contextual attributes, sanitizing sensitive keys
+        for key, val in record.__dict__.items():
+            if key not in RESERVED_ATTRS and not key.startswith("_"):
+                log_data[key] = sanitize_value(key, val)
 
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
 
         return json.dumps(log_data)
+
 
 
 def setup_logging(level: str | int | None = None) -> logging.Logger:
@@ -100,7 +149,11 @@ class RequestIDAndLoggingMiddleware(BaseHTTPMiddleware):
         duration_ms = round((time.time() - start_time) * 1000, 2)
         response.headers["X-Request-ID"] = request_id
 
-        logger.info(
+        # Log health and readiness probes at DEBUG level for successful checks to reduce log noise
+        is_probe = request.url.path in ("/health", "/ready")
+        log_func = logger.debug if (is_probe and response.status_code < 400) else logger.info
+
+        log_func(
             f"HTTP {request.method} {request.url.path} -> {response.status_code} ({duration_ms}ms)",
             extra={
                 "request_id": request_id,
@@ -113,3 +166,4 @@ class RequestIDAndLoggingMiddleware(BaseHTTPMiddleware):
         )
 
         return response
+

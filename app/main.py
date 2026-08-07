@@ -55,6 +55,16 @@ def read_root():
 @app.exception_handler(IdentityException)
 async def identity_exception_handler(request: Request, exc: IdentityException):
     request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
+    log_func = logger.warning if exc.status_code < 500 else logger.error
+    log_func(
+        f"IdentityException ({exc.__class__.__name__}): {exc.message}",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": exc.status_code,
+        },
+    )
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -70,6 +80,16 @@ async def identity_exception_handler(request: Request, exc: IdentityException):
 @app.exception_handler(GeminiServiceException)
 async def gemini_exception_handler(request: Request, exc: GeminiServiceException):
     request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
+    log_func = logger.warning if exc.status_code < 500 else logger.error
+    log_func(
+        f"GeminiServiceException ({exc.__class__.__name__}): {exc.message}",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": exc.status_code,
+        },
+    )
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -85,6 +105,16 @@ async def gemini_exception_handler(request: Request, exc: GeminiServiceException
 @app.exception_handler(QuizGenerationServiceException)
 async def quiz_generation_exception_handler(request: Request, exc: QuizGenerationServiceException):
     request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
+    log_func = logger.warning if exc.status_code < 500 else logger.error
+    log_func(
+        f"QuizGenerationServiceException ({exc.__class__.__name__}): {exc.message}",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": exc.status_code,
+        },
+    )
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -123,3 +153,4 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(api_router)
+

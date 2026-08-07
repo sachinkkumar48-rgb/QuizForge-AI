@@ -1,0 +1,19 @@
+name: garuda_graph
+description: GARUDA Knowledge Graph & Knowledge Linking Engine for Project TITAN.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  meta: ^1.11.0
+  crypto: ^3.0.6
+  garuda_evidence:
+    path: ../garuda_evidence
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.24.0

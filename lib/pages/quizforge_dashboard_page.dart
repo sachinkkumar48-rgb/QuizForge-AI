@@ -219,8 +219,10 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
     );
   }
 
+  Widget? _quickActionGrid;
+
   Widget _buildQuickActionGrid() {
-    return QuickActionCardWidget(
+    return _quickActionGrid ??= QuickActionCardWidget(
       onGenerateQuizTap: () => _navigateTo(const HomePage()),
       onPyqTap: () => _navigateTo(const PyqDashboardPage()),
       onAiCoachTap: () => _navigateTo(const AIMentorPanelPage()),

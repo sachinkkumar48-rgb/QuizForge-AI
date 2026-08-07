@@ -1,0 +1,100 @@
+{
+  "id": "POL.FR.002",
+  "title": "Articles 12 & 13: Definition of State & Judicial Review",
+  "subject": "Indian Polity",
+  "estimatedTime": "20 Minutes",
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "story",
+      "mentorMessage": "Let's begin by understanding who can violate your Fundamental Rights. Would an autonomous government corporation count?",
+      "mentorMessageObj": {
+        "mentorName": "SARTHI",
+        "message": "Let's begin by understanding who can violate your Fundamental Rights. Would an autonomous government corporation count?"
+      },
+      "reflectionQuestion": "If a government-funded university bans a student seminar, is that an action by 'the State'?",
+      "story": {
+        "storyTitle": "Who is the State?",
+        "storyContent": "Imagine a public electricity corporation abruptly cutting power to a citizen's shop because of a social media post criticizing local administration.\n\nThe corporation claims it is an autonomous corporate entity, not the government itself.\n\nArticle 12 resolves this by defining 'State' broadly to include not just Parliament and State Legislatures, but also local authorities and statutory/non-statutory bodies acting as instrumentalities of the State.",
+        "reflectionQuestion": "If a government-funded university bans a student seminar, is that an action by 'the State'?"
+      }
+    },
+    {
+      "id": "step-2",
+      "type": "concept",
+      "mentorMessage": "Article 12 establishes the boundary of against whom Fundamental Rights can be enforced.",
+      "mentorHint": "Remember that Fundamental Rights primarily protect individuals against State action, not private individuals.",
+      "concept": {
+        "title": "Article 12: Definition of State",
+        "explanation": "Article 12 defines 'the State' for Part III of the Constitution. It includes:\n1. Government and Parliament of India.\n2. Government and Legislature of each of the States.\n3. All local authorities (Municipalities, Panchayats, District Boards, Improvement Trusts).\n4. Other authorities within India or under control of GoI.\n\nThrough landmark judgments (e.g. Ajay Hasia v. Khalid Mujib), bodies like LIC, ONGC, and SAIL are included if they function as agencies or instrumentalities of the State.",
+        "keyPoint": "The definition of 'State' is inclusive and extends to statutory and non-statutory corporations acting as State instrumentalities.",
+        "upscTip": "Judiciary in its judicial capacity is generally NOT included under Article 12, but IS included when performing administrative tasks."
+      }
+    },
+    {
+      "id": "step-3",
+      "type": "concept",
+      "mentorMessage": "Article 13 acts as the constitutional guardian, granting power of Judicial Review to strike down unconstitutional laws.",
+      "mentorHint": "Article 13 provides the bedrock for the Doctrine of Eclipse and Doctrine of Severability.",
+      "concept": {
+        "title": "Article 13: Laws Inconsistent with Fundamental Rights",
+        "explanation": "Article 13 declares that all laws inconsistent with or in derogation of Fundamental Rights shall be void.\n\nKey Provisions:\n• Article 13(1): Pre-constitutional laws inconsistent with FRs become dormant to the extent of inconsistency (Doctrine of Eclipse).\n• Article 13(2): Post-constitutional laws violating FRs are void ab initio.\n• Article 13(3): 'Law' includes Acts, Ordinances, Orders, Bye-laws, Rules, Regulations, Notifications, and Customs having force of law.\n• Article 13(4): Added by 24th Amendment 1971, stating Art 368 amendments are not 'laws' under Art 13. However, Kesavananda Bharati (1973) held that amendments violating the 'Basic Structure' are still subject to judicial review.",
+        "keyPoint": "Article 13 explicitly secures the paramountcy of Fundamental Rights over ordinary legislation.",
+        "upscTip": "The exact term 'Judicial Review' is NOT explicitly mentioned in Article 13, but the power is implicitly derived from Article 13 read with Articles 32 and 226."
+      }
+    },
+    {
+      "id": "step-4",
+      "type": "example",
+      "mentorMessage": "Notice how courts apply the Doctrine of Severability to save valid provisions of a law.",
+      "example": {
+        "scenario": "Parliament passes a law containing 10 sections. Section 5 unconstitutionally restricts freedom of speech under Article 19, while the remaining 9 sections are constitutionally valid.",
+        "explanation": "Under Article 13, the court strikes down ONLY Section 5 using the Doctrine of Severability, leaving the remaining 9 sections operative because Section 5 is separate and independent.",
+        "takeaway": "Courts invalidate only the unconstitutional portion of a law unless the valid and invalid parts are inextricably linked."
+      }
+    },
+    {
+      "id": "step-5",
+      "type": "quiz",
+      "mentorMessage": "Test your grasp of Articles 12 & 13 with this standard UPSC question.",
+      "mentorHint": "Recall the distinction between pre-constitutional and post-constitutional laws under Article 13.",
+      "quiz": {
+        "question": "Which of the following statements regarding Articles 12 and 13 of the Indian Constitution is/are CORRECT?\n1. Article 12 explicitly includes private individuals under the definition of State.\n2. Article 13 provides the constitutional foundation for Judicial Review in India.\n3. Pre-constitutional laws inconsistent with Fundamental Rights are completely wiped out under the Doctrine of Eclipse.",
+        "options": [
+          "1 and 2 only",
+          "2 only",
+          "2 and 3 only",
+          "1, 2 and 3"
+        ],
+        "correctIndex": 1,
+        "explanation": "Correct Answer: 2 only\n\n• Statement 1 is INCORRECT: Article 12 does not cover purely private individuals or private contracts.\n• Statement 2 is CORRECT: Article 13 provides the constitutional foundation for Judicial Review by rendering inconsistent laws void.\n• Statement 3 is INCORRECT: Under the Doctrine of Eclipse, pre-constitutional laws are shadowed/dormant, not dead, and become enforceable again if the shadow is removed by constitutional amendment."
+      }
+    },
+    {
+      "id": "step-6",
+      "type": "revision",
+      "mentorMessage": "Here is your high-yield revision summary for Articles 12 & 13.",
+      "revision": {
+        "title": "Summary: Articles 12 & 13",
+        "keyPoints": [
+          "Article 12 defines 'State' (Government, Parliament, State Legislatures, Local Authorities, and State Instrumentalities like LIC/ONGC).",
+          "Judiciary is excluded from Article 12 in its judicial capacity, but included in administrative functions.",
+          "Article 13 empowers courts (Art 32 & 226) to exercise Judicial Review and strike down inconsistent laws.",
+          "Doctrine of Eclipse applies to pre-constitutional laws (Art 13(1)); Doctrine of Severability isolates unconstitutional clauses.",
+          "Constitutional amendments under Article 368 cannot violate the Basic Structure of the Constitution (Kesavananda Bharati 1973)."
+        ]
+      }
+    },
+    {
+      "id": "step-7",
+      "type": "completion",
+      "mentorMessage": "In the next lesson we'll explore Right to Equality (Articles 14 to 18).",
+      "completion": {
+        "title": "Lesson Completed!",
+        "subtitle": "Excellent! You have mastered Articles 12 & 13 (Definition of State & Judicial Review).",
+        "progressPercentage": 100,
+        "buttonText": "Back to Learning Journey"
+      }
+    }
+  ]
+}

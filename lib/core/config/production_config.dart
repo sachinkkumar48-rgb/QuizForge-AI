@@ -3,7 +3,7 @@ import 'app_config.dart';
 /// Production environment configuration profile for Project TITAN.
 class ProductionConfig extends AppConfig {
   const ProductionConfig({
-    super.apiBaseUrl = 'http://161.118.179.119:8000',
+    super.apiBaseUrl = AppConfig.defaultApiBaseUrl,
     super.requestTimeout = const Duration(seconds: 15),
     super.maxRetries = 3,
     super.initialRetryDelay = const Duration(milliseconds: 250),

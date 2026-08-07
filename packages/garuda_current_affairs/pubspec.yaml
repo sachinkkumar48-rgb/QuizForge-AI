@@ -1,0 +1,38 @@
+name: garuda_current_affairs
+description: GARUDA Current Affairs Intelligence Engine for Project TITAN. Converts official government sources into permanent, interconnected Knowledge Objects with automated knowledge linking, UPSC intelligence scoring, timelines, digests, search, and editorial production integration.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  garuda_acts:
+    path: ../garuda_acts
+  garuda_case_law:
+    path: ../garuda_case_law
+  garuda_constitution:
+    path: ../garuda_constitution
+  garuda_doctrine:
+    path: ../garuda_doctrine
+  garuda_editor:
+    path: ../garuda_editor
+  garuda_evidence:
+    path: ../garuda_evidence
+  garuda_graph:
+    path: ../garuda_graph
+  garuda_pyq:
+    path: ../garuda_pyq
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true

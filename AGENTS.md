@@ -56,6 +56,8 @@ Every completed task:
 * Preserve backward compatibility.
 * Small focused functions.
 * Environment variables for secrets.
+* Always use verified native tools and avoid invoking unconfigured or denied MCP tools.
+
 
 # Testing
 

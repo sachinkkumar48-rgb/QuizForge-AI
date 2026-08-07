@@ -1,0 +1,65 @@
+groups:
+  - name: titan_production_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) * 100 > 1.0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP 5xx error rate detected on Project TITAN backend"
+          description: "HTTP 5xx error rate is currently {{ $value }}%, exceeding the 1.0% threshold."
+
+      - alert: HighP95Latency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High P95 response latency on Project TITAN backend"
+          description: "P95 request latency is {{ $value }}s, exceeding the 500ms threshold."
+
+      - alert: ContainerDown
+        expr: up{job="titan_backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Project TITAN Backend container instance is unreachable"
+          description: "Titan backend target container has been unreachable for > 1 minute."
+
+      - alert: HealthCheckFailed
+        expr: probe_success{job="titan_health_checks"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Titan Backend /health liveness probe failed"
+          description: "Liveness endpoint /health returned non-200 status code."
+
+      - alert: ReadinessCheckFailed
+        expr: probe_success{job="titan_readiness_checks"} == 0
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Titan Backend /ready readiness probe failed"
+          description: "Readiness endpoint /ready returned non-200 status code."
+
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes{container_name="titan_backend"} / container_spec_memory_limit_bytes{container_name="titan_backend"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory utilization on titan_backend container"
+          description: "Memory usage is at {{ $value }}%, exceeding 85% of allocated cap."
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{container_name="titan_backend"}[5m]) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU utilization on titan_backend container"
+          description: "CPU usage is at {{ $value }}%, exceeding 90% of allocated quota."

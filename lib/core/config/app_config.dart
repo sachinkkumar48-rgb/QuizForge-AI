@@ -24,9 +24,15 @@ class AppConfig {
   /// Feature flags map for toggling dynamic application capabilities.
   final Map<String, bool> featureFlags;
 
+  /// Default backend base URL for Project TITAN, configurable via `--dart-define=API_BASE_URL=...`.
+  static const String defaultApiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://161.118.179.119:8000',
+  );
+
   const AppConfig({
     this.environment = Environment.development,
-    this.apiBaseUrl = 'http://161.118.179.119:8000',
+    this.apiBaseUrl = defaultApiBaseUrl,
     this.requestTimeout = const Duration(seconds: 30),
     this.maxRetries = 3,
     this.initialRetryDelay = const Duration(milliseconds: 500),

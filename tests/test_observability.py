@@ -38,7 +38,8 @@ def test_root_endpoint():
     assert "X-Request-ID" in response.headers
 
 
-def test_auth_placeholder_endpoints():
+def test_auth_endpoints_observability():
+    """Verify auth endpoints attach X-Request-ID header during API lifecycle."""
     endpoints = [
         ("POST", "/api/v1/auth/register"),
         ("POST", "/api/v1/auth/login"),
@@ -53,9 +54,22 @@ def test_auth_placeholder_endpoints():
         else:
             response = client.get(path)
 
-        assert response.status_code == 501
-        data = response.json()
-        assert data["success"] is False
-        assert data["error"] == "NotImplemented"
-        assert data["message"] == "Endpoint not implemented yet."
         assert "X-Request-ID" in response.headers
+
+
+def test_sensitive_data_sanitization_in_logging():
+    from app.core.logging import JSONFormatter, sanitize_value
+    import logging
+
+    assert sanitize_value("password", "SecretPassword123!") == "***REDACTED***"
+    assert sanitize_value("access_token", "jwt.token.val") == "***REDACTED***"
+    assert sanitize_value("safe_field", "normal_value") == "normal_value"
+
+    formatter = JSONFormatter()
+    record = logging.LogRecord("titan_api", logging.INFO, "", 0, "Test log message", (), None)
+    setattr(record, "password", "SuperSecret123")
+    formatted = formatter.format(record)
+    assert "***REDACTED***" in formatted
+    assert "SuperSecret123" not in formatted
+
+

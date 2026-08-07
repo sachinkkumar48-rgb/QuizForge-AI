@@ -17,5 +17,8 @@ export 'providers/custom_backend_sync_provider.dart';
 
 export 'engine/sync_queue.dart';
 export 'engine/sync_engine.dart';
+export 'engine/cloud_sync_engine.dart';
 
 export 'ui/sync_settings_page.dart';
+export 'ui/sync_widgets.dart';
+export 'ui/cloud_sync_widgets.dart';

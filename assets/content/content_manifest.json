@@ -1,0 +1,103 @@
+{
+  "version": "1.0.0",
+  "subject": "Indian Polity",
+  "module": "Fundamental Rights",
+  "lessons": [
+    {
+      "id": "POL.FR.001",
+      "title": "Why Fundamental Rights?",
+      "subject": "Indian Polity",
+      "estimatedTime": "15 Minutes",
+      "difficulty": "Beginner",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.001.json"
+    },
+    {
+      "id": "POL.FR.002",
+      "title": "Articles 12 & 13: Definition of State & Judicial Review",
+      "subject": "Indian Polity",
+      "estimatedTime": "20 Minutes",
+      "difficulty": "Intermediate",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.002.json"
+    },
+    {
+      "id": "POL.FR.003",
+      "title": "Article 14: Equality Before Law & Equal Protection",
+      "subject": "Indian Polity",
+      "estimatedTime": "15 Minutes",
+      "difficulty": "Intermediate",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.003.json"
+    },
+    {
+      "id": "POL.FR.004",
+      "title": "Article 15: Prohibition of Discrimination & Social Reservations",
+      "subject": "Indian Polity",
+      "estimatedTime": "20 Minutes",
+      "difficulty": "Intermediate",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.004.json"
+    },
+    {
+      "id": "POL.FR.005",
+      "title": "Article 16: Equality of Opportunity in Public Employment",
+      "subject": "Indian Polity",
+      "estimatedTime": "20 Minutes",
+      "difficulty": "Intermediate",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.005.json"
+    },
+    {
+      "id": "POL.FR.006",
+      "title": "Articles 17 & 18: Abolition of Untouchability & Titles",
+      "subject": "Indian Polity",
+      "estimatedTime": "15 Minutes",
+      "difficulty": "Beginner",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.006.json"
+    },
+    {
+      "id": "POL.FR.007",
+      "title": "Article 19: Six Basic Freedoms & Reasonable Restrictions",
+      "subject": "Indian Polity",
+      "estimatedTime": "25 Minutes",
+      "difficulty": "Advanced",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.007.json"
+    },
+    {
+      "id": "POL.FR.008",
+      "title": "Articles 20 & 21: Protection of Life, Personal Liberty & Education",
+      "subject": "Indian Polity",
+      "estimatedTime": "25 Minutes",
+      "difficulty": "Advanced",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.008.json"
+    },
+    {
+      "id": "POL.FR.009",
+      "title": "Article 22: Protection Against Arbitrary Arrest & Preventive Detention",
+      "subject": "Indian Polity",
+      "estimatedTime": "20 Minutes",
+      "difficulty": "Advanced",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.009.json"
+    },
+    {
+      "id": "POL.FR.010",
+      "title": "Articles 23 & 24: Right Against Exploitation & Child Labour",
+      "subject": "Indian Polity",
+      "estimatedTime": "15 Minutes",
+      "difficulty": "Beginner",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.010.json"
+    },
+    {
+      "id": "POL.FR.011",
+      "title": "Articles 25 to 28: Right to Freedom of Religion",
+      "subject": "Indian Polity",
+      "estimatedTime": "20 Minutes",
+      "difficulty": "Intermediate",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.011.json"
+    },
+    {
+      "id": "POL.FR.012",
+      "title": "Articles 29 to 32: Cultural/Educational Rights & Writs Jurisdiction",
+      "subject": "Indian Polity",
+      "estimatedTime": "30 Minutes",
+      "difficulty": "Advanced",
+      "assetPath": "assets/content/polity/fundamental_rights/POL.FR.012.json"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# Pyrefly Language Server Configuration - Project TITAN (QuizForge-AI)
+[project]
+name = "QuizForge-AI"
+version = "0.1.0"
+
+[environment]
+python-path = ".venv/Scripts/python.exe"
+venv-path = "."
+venv = ".venv"
+search-paths = [
+    ".venv/Lib/site-packages",
+    ".",
+    "app"
+]
+
+[analysis]
+auto-search-paths = true
+extra-paths = [
+    ".venv/Lib/site-packages",
+    ".",
+    "app"
+]
+python-version = "3.14"
+
+[imports]
+search-paths = [
+    ".venv/Lib/site-packages",
+    ".",
+    "app"
+]
+disable-missing-imports = false

@@ -46,6 +46,7 @@ class _HistoryPageState extends State<HistoryPage> {
       final attempts = await _repository.getAttempts();
       setState(() {
         _allAttempts = attempts;
+        _invalidateFilterCache();
         _isLoading = false;
       });
     } catch (e) {
@@ -129,7 +130,17 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
+  List<QuizAttempt>? _cachedFilteredAttempts;
+
+  void _invalidateFilterCache() {
+    _cachedFilteredAttempts = null;
+  }
+
   List<QuizAttempt> get _filteredAttempts {
+    if (_cachedFilteredAttempts != null) {
+      return _cachedFilteredAttempts!;
+    }
+
     var list = _allAttempts.where((attempt) {
       return attempt.sourceName
           .toLowerCase()
@@ -152,6 +163,7 @@ class _HistoryPageState extends State<HistoryPage> {
             (a, b) => a.analytics.accuracy.compareTo(b.analytics.accuracy));
         break;
     }
+    _cachedFilteredAttempts = list;
     return list;
   }
 
@@ -219,6 +231,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     onChanged: (val) {
                       setState(() {
                         _searchQuery = val;
+                        _invalidateFilterCache();
                       });
                     },
                     decoration: InputDecoration(
@@ -231,6 +244,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                 _searchController.clear();
                                 setState(() {
                                   _searchQuery = "";
+                                  _invalidateFilterCache();
                                 });
                               },
                             )
@@ -249,6 +263,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       if (val != null) {
                         setState(() {
                           _sortBy = val;
+                          _invalidateFilterCache();
                         });
                       }
                     },

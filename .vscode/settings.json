@@ -1,0 +1,44 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}",
+    "${workspaceFolder}/app",
+    "${workspaceFolder}/.venv/Lib/site-packages"
+  ],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "pyrefly.pythonPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "pyrefly.venvPath": "${workspaceFolder}",
+  "pyrefly.venv": ".venv",
+  "pyrefly.projectRoots": [
+    "${workspaceFolder}"
+  ],
+  "pyrefly.searchPaths": [
+    "${workspaceFolder}/.venv/Lib/site-packages",
+    "${workspaceFolder}",
+    "${workspaceFolder}/app"
+  ],
+  "pyrefly.analysis.extraPaths": [
+    "${workspaceFolder}/.venv/Lib/site-packages",
+    "${workspaceFolder}",
+    "${workspaceFolder}/app"
+  ],
+  "pyrefly.disableMissingImports": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/__pycache__": false,
+    "**/.pytest_cache": false
+  }
+}

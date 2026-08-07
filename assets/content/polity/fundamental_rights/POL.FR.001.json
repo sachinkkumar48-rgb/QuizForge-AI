@@ -1,0 +1,100 @@
+{
+  "id": "POL.FR.001",
+  "title": "Why Fundamental Rights?",
+  "subject": "Indian Polity",
+  "estimatedTime": "15 Minutes",
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "story",
+      "mentorMessage": "Let's begin with a simple question. Would you feel secure living in such a country?",
+      "mentorMessageObj": {
+        "mentorName": "SARTHI",
+        "message": "Let's begin with a simple question. Would you feel secure living in such a country?"
+      },
+      "reflectionQuestion": "Which of these restrictions worries you the most?",
+      "story": {
+        "storyTitle": "Life Without Fundamental Rights",
+        "storyContent": "Imagine a country where:\n\n• You cannot criticize the government.\n• Peaceful protests are banned.\n• People are arrested without being told why.",
+        "reflectionQuestion": "Which of these restrictions worries you the most?"
+      }
+    },
+    {
+      "id": "step-2",
+      "type": "concept",
+      "mentorMessage": "This foundational concept forms the bedrock of Indian Constitutional law.",
+      "mentorHint": "Remember that justiciable means protected directly by court enforcement.",
+      "concept": {
+        "title": "What are Fundamental Rights?",
+        "explanation": "Fundamental Rights are basic human rights guaranteed by the Constitution to every person in India. They protect individuals against arbitrary state power and ensure everyone lives with freedom and dignity. They are called \"fundamental\" because they are essential for moral and intellectual growth and are protected by law.",
+        "keyPoint": "Fundamental Rights act as an essential shield restricting arbitrary interference by the State.",
+        "upscTip": "Fundamental Rights are justiciable in courts (under Article 32 & Article 226), meaning citizens can directly approach the judiciary if these rights are violated."
+      }
+    },
+    {
+      "id": "step-3",
+      "type": "concept",
+      "mentorMessage": "Understanding the historical freedom struggle helps explain why these rights exist.",
+      "mentorHint": "Part III is often referred to as the Magna Carta of India.",
+      "concept": {
+        "title": "Why were Fundamental Rights included?",
+        "explanation": "The leaders of India's freedom struggle experienced firsthand the injustice of colonial rule, where basic freedoms were routinely suppressed. To ensure independent India never faced tyranny, the framers embedded Fundamental Rights into Part III of the Constitution.\n\nThese rights protect citizens against arbitrary State action, establish political democracy, and preserve human dignity for all individuals regardless of religion, race, caste, sex, or place of birth.",
+        "keyPoint": "They promote political democracy and establish a government of laws, not of arbitrary men.",
+        "upscTip": "Part III is often referred to as the \"Magna Carta of India\" because it guarantees comprehensive civil liberties."
+      }
+    },
+    {
+      "id": "step-4",
+      "type": "example",
+      "mentorMessage": "Notice how real-world policy criticism is legally protected under Article 19.",
+      "example": {
+        "scenario": "Suppose a university student writes an editorial in a newspaper criticizing a newly passed economic policy of the government.",
+        "explanation": "Because of Article 19(1)(a), the police cannot arrest the student simply for expressing a peaceful political opinion. Fundamental Rights ensure that citizens can voice constructive criticism without fear of arbitrary punishment.",
+        "takeaway": "Peaceful dissent is protected by law and is a vital pillar of Indian democracy."
+      }
+    },
+    {
+      "id": "step-5",
+      "type": "quiz",
+      "mentorMessage": "Think about the Part of the Constitution that protects citizens' rights.",
+      "mentorHint": "Think about the Part of the Constitution that protects citizens' rights.",
+      "quiz": {
+        "question": "Fundamental Rights are contained in which Part of the Indian Constitution?",
+        "options": [
+          "Part II",
+          "Part III",
+          "Part IV",
+          "Part IVA"
+        ],
+        "correctIndex": 1,
+        "explanation": "Correct Answer: Part III\n\n• Part II: Covers Citizenship (Articles 5 to 11).\n• Part III: Guarantees Fundamental Rights (Articles 12 to 35).\n• Part IV: Contains Directive Principles of State Policy (Articles 36 to 51).\n• Part IVA: Specifies Fundamental Duties (Article 51A)."
+      }
+    },
+    {
+      "id": "step-6",
+      "type": "revision",
+      "mentorMessage": "Here is your high-yield summary of 5 key takeaways for rapid revision.",
+      "revision": {
+        "title": "Summary: Why Fundamental Rights?",
+        "keyPoints": [
+          "Part III (Articles 12-35) enshrines India's Fundamental Rights.",
+          "They protect citizens against arbitrary action by the State.",
+          "Rooted in the freedom struggle to guarantee human dignity.",
+          "They establish political democracy and the rule of law.",
+          "Rights are justiciable and directly enforceable in court."
+        ]
+      }
+    },
+    {
+      "id": "step-7",
+      "type": "completion",
+      "mentorMessage": "In the next lesson we'll understand Articles 12 and 13.",
+      "completion": {
+        "title": "Congratulations",
+        "subtitle": "Excellent! You have completed your first learning journey.",
+        "progressPercentage": 100,
+        "buttonText": "Continue Learning"
+      }
+    }
+  ]
+}

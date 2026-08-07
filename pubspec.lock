@@ -208,6 +208,20 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  garuda_acts:
+    dependency: "direct main"
+    description:
+      path: "packages/garuda_acts"
+      relative: true
+    source: path
+    version: "0.1.0"
+  garuda_pyq:
+    dependency: "direct main"
+    description:
+      path: "packages/garuda_pyq"
+      relative: true
+    source: path
+    version: "0.1.0"
   hive:
     dependency: "direct main"
     description:

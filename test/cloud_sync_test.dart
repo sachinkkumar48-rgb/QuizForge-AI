@@ -387,9 +387,149 @@ void main() {
     });
   });
 
+  group('SyncManager & Connectivity & Security Infrastructure Tests', () {
+    test('ConnectivityMonitor detects status and emits transition events', () async {
+      final monitor = ConnectivityMonitor();
+      expect(monitor.isOnline, isTrue);
+
+      final futureEvent = monitor.transitionStream.first;
+      monitor.setStatus(ConnectivityStatus.offline);
+
+      final event = await futureEvent;
+      expect(monitor.isOffline, isTrue);
+      expect(event.previousStatus, equals(ConnectivityStatus.online));
+      expect(event.currentStatus, equals(ConnectivityStatus.offline));
+
+      monitor.dispose();
+    });
+
+    test('SyncSecurity scrubs forbidden credential keys from payloads', () {
+      final dirtyPayload = {
+        'title': 'Polity Note',
+        'api_key': 'secret_123',
+        'jwt': 'bearer_token',
+        'password': 'my_password',
+        'content': 'Valid text payload content',
+      };
+
+      final cleanPayload = SyncSecurity.sanitizePayload(dirtyPayload);
+      expect(cleanPayload.containsKey('title'), isTrue);
+      expect(cleanPayload.containsKey('content'), isTrue);
+      expect(cleanPayload.containsKey('api_key'), isFalse);
+      expect(cleanPayload.containsKey('jwt'), isFalse);
+      expect(cleanPayload.containsKey('password'), isFalse);
+    });
+
+    test('RetryPolicy calculates exponential backoff delays', () {
+      const policy = RetryPolicy(
+        initialDelay: Duration(seconds: 1),
+        backoffMultiplier: 2.0,
+        maxRetryCount: 3,
+      );
+
+      expect(policy.getDelayForAttempt(1), equals(const Duration(seconds: 1)));
+      expect(policy.getDelayForAttempt(2), equals(const Duration(seconds: 2)));
+      expect(policy.getDelayForAttempt(3), equals(const Duration(seconds: 4)));
+      expect(policy.shouldRetry(2), isTrue);
+      expect(policy.shouldRetry(3), isFalse);
+    });
+
+    test('SyncManager enqueues operation and handles offline auto-pause', () {
+      final monitor = ConnectivityMonitor();
+      monitor.setStatus(ConnectivityStatus.offline);
+
+      final manager = SyncManager(engine: engine, connectivityMonitor: monitor);
+
+      final op = SyncOperation(
+        operationId: 'op_1',
+        entityType: SyncEntityType.note,
+        entityId: 'n_100',
+        action: SyncAction.create,
+        payload: {'content': 'Offline note edit', 'jwt_secret': '12345'},
+        deviceId: 'dev_mobile_1',
+      );
+
+      manager.queueOperation(op);
+      expect(manager.pendingOperationCount, equals(1));
+      expect(manager.queuedOperations.first.payload.containsKey('jwt_secret'), isFalse);
+
+      manager.dispose();
+      monitor.dispose();
+    });
+  });
+
+  group('CloudSyncManager & Multi-Device Incremental Sync Tests', () {
+    test('DeviceRegistration serializes and updates metadata cleanly', () {
+      final dev = DeviceRegistration(
+        deviceId: 'dev_pixel_9',
+        deviceName: 'Pixel 9 Pro',
+        deviceType: 'Android Mobile',
+      );
+
+      final json = dev.toJson();
+      final restored = DeviceRegistration.fromJson(json);
+      expect(restored.deviceId, equals('dev_pixel_9'));
+      expect(restored.deviceName, equals('Pixel 9 Pro'));
+    });
+
+    test('IncrementalSyncEngine filters deltas updated after timestamp', () {
+      final incEngine = IncrementalSyncEngine();
+      final cutoff = DateTime.utc(2026, 6, 1);
+
+      final oldEntity = SyncEntity<Map<String, dynamic>>(
+        metadata: SyncMetadata(
+          entityId: 'e1',
+          entityType: SyncEntityType.note,
+          version: 1,
+          updatedAt: DateTime.utc(2026, 5, 1),
+          clientDeviceId: 'dev_1',
+        ),
+        payload: {'title': 'Old'},
+      );
+
+      final newEntity = SyncEntity<Map<String, dynamic>>(
+        metadata: SyncMetadata(
+          entityId: 'e2',
+          entityType: SyncEntityType.note,
+          version: 1,
+          updatedAt: DateTime.utc(2026, 6, 15),
+          clientDeviceId: 'dev_1',
+        ),
+        payload: {'title': 'New'},
+      );
+
+      final deltas = incEngine.filterDeltas(
+        localEntities: [oldEntity, newEntity],
+        since: cutoff,
+      );
+
+      expect(deltas.length, equals(1));
+      expect(deltas.first.metadata.entityId, equals('e2'));
+    });
+
+    test('CloudSyncManager executes cloud sync cycle and records history & audit log',
+        () async {
+      final provider = GoogleDriveSyncProvider();
+      final cloudManager = CloudSyncManager();
+      cloudManager.syncManager.engine.registerTarget(
+        BookmarkSyncTarget(repository: bookmarkRepo, deviceId: 'test_dev'),
+      );
+
+      final result = await cloudManager.syncCloud(providerOverride: provider);
+      expect(result.isSuccess, isTrue);
+      expect(cloudManager.syncHistory.length, equals(1));
+      expect(cloudManager.auditLogs.length, equals(1));
+
+      final stats = cloudManager.computeStatistics();
+      expect(stats.successRatePercentage, equals(100.0));
+
+      cloudManager.clearHistory();
+      expect(cloudManager.syncHistory.isEmpty, isTrue);
+    });
+  });
+
   group('Sync UI Widget Integration Tests', () {
-    testWidgets(
-        'SyncSettingsPage renders cloud synchronization dashboard cleanly',
+    testWidgets('SyncSettingsPage renders cloud synchronization dashboard cleanly',
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -402,6 +542,30 @@ void main() {
       expect(find.text('Google Drive'), findsOneWidget);
       expect(find.text('Firebase Firestore'), findsOneWidget);
       expect(find.text('Cloud Providers'), findsOneWidget);
+    });
+
+    testWidgets('CloudSyncStatusCard, DeviceStatusCard, and SyncStatisticsCard render cleanly',
+        (tester) async {
+      final cloudManager = CloudSyncManager();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                CloudSyncStatusCard(manager: cloudManager),
+                DeviceStatusCard(registration: cloudManager.deviceRegistration),
+                SyncStatisticsCard(statistics: cloudManager.computeStatistics()),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cloud Sync Status'), findsOneWidget);
+      expect(find.text('TITAN Workstation'), findsOneWidget);
+      expect(find.text('Sync Statistics'), findsOneWidget);
     });
   });
 }
