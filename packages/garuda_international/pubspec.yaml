@@ -1,0 +1,40 @@
+name: garuda_international
+description: GARUDA International Organisations, Groupings & Global Institutions Knowledge Library for Project TITAN. Structured Knowledge Objects for the UN System, Bretton Woods institutions, trade/economic governance, regional & political groupings, security organisations and climate/environment institutions - every organisation a living Knowledge Object with evidence-backed links to the Constitution, Acts, Cases, Doctrines, Committees, Reports, Schemes, Current Affairs, PYQs, treaties, SDGs and related organisations.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.11.0
+  garuda_acts:
+    path: ../garuda_acts
+  garuda_case_law:
+    path: ../garuda_case_law
+  garuda_constitution:
+    path: ../garuda_constitution
+  garuda_current_affairs:
+    path: ../garuda_current_affairs
+  garuda_doctrine:
+    path: ../garuda_doctrine
+  garuda_editor:
+    path: ../garuda_editor
+  garuda_evidence:
+    path: ../garuda_evidence
+  garuda_graph:
+    path: ../garuda_graph
+  garuda_pyq:
+    path: ../garuda_pyq
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true
