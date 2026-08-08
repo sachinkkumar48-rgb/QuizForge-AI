@@ -146,6 +146,41 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  garuda_doctrine:
+    dependency: "direct main"
+    description:
+      path: "../garuda_doctrine"
+      relative: true
+    source: path
+    version: "0.1.0"
+  garuda_editor:
+    dependency: "direct main"
+    description:
+      path: "../garuda_editor"
+      relative: true
+    source: path
+    version: "0.1.0"
+  garuda_evidence:
+    dependency: "direct main"
+    description:
+      path: "../garuda_evidence"
+      relative: true
+    source: path
+    version: "0.1.0"
+  garuda_graph:
+    dependency: transitive
+    description:
+      path: "../garuda_graph"
+      relative: true
+    source: path
+    version: "0.1.0"
+  garuda_pyq:
+    dependency: transitive
+    description:
+      path: "../garuda_pyq"
+      relative: true
+    source: path
+    version: "0.1.0"
   glob:
     dependency: transitive
     description:

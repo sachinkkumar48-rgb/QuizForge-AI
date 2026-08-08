@@ -12,8 +12,8 @@ void main() {
     test('analyzeRepository computes complete Phase I case statistics', () async {
       final report = await CaseAnalyzer.analyzeRepository(repository);
 
-      expect(report.totalCases, equals(20));
-      expect(report.landmarkPrecedentsCount, equals(13));
+      expect(report.totalCases, equals(49));
+      expect(report.landmarkPrecedentsCount, equals(41));
       expect(report.overruledCasesCount, greaterThanOrEqualTo(5));
 
       expect(report.uniqueArticlesCount, greaterThan(10));
@@ -29,7 +29,7 @@ void main() {
       final report = await CaseAnalyzer.analyzeRepository(repository);
       final json = report.toJson();
 
-      expect(json['totalCases'], equals(20));
+      expect(json['totalCases'], equals(49));
       expect(json['evidenceCoverageRate'], equals(1.0));
       expect(json['uniqueArticlesCount'], greaterThan(10));
     });

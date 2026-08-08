@@ -12,7 +12,7 @@ void main() {
       expect(kesavananda.year, equals(1973));
       expect(kesavananda.bench, contains('13-Judge'));
       expect(kesavananda.ratioDecidendi, isNotEmpty);
-      expect(kesavananda.relatedArticles, contains('368'));
+      expect(kesavananda.relatedArticles, contains('Article 368'));
       expect(kesavananda.pyqIds, isNotEmpty);
     });
 

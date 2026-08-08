@@ -81,7 +81,7 @@ class LandmarkCasesPhase1 {
       ],
       constitutionalSignificance:
           'Established the Basic Structure Doctrine, creating an unalterable core of the Indian Constitution and preserving judicial review against legislative overreach.',
-      relatedArticles: const ['13', '14', '19', '31', '31A', '31B', '31C', '32', '368'],
+      relatedArticles: const ['Article 13', 'Article 14', 'Article 19', 'Article 31', 'Article 31A', 'Article 31B', 'Article 31C', 'Article 32', 'Article 368'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IV', 'KO-PART-XX'],
       relatedSchedules: const ['KO-SCHED-9'],
       relatedAmendments: const ['24th Amendment', '25th Amendment', '29th Amendment', '42nd Amendment'],
@@ -186,7 +186,7 @@ class LandmarkCasesPhase1 {
       ],
       constitutionalSignificance:
           'Led directly to Parliament passing the 24th Amendment Act 1971, setting up the historic showdown in Kesavananda Bharati.',
-      relatedArticles: const ['13', '14', '19', '31', '368'],
+      relatedArticles: const ['Article 13', 'Article 14', 'Article 19', 'Article 31', 'Article 368'],
       relatedParts: const ['KO-PART-III', 'KO-PART-XX'],
       relatedAmendments: const ['1st Amendment', '4th Amendment', '17th Amendment', '24th Amendment'],
       pyqIds: const ['PYQ_UPSC_2018_02', 'PYQ_CDS_2021_05'],
@@ -243,7 +243,7 @@ class LandmarkCasesPhase1 {
       ratioDecidendi: const ['Constituent power under Art 368 is supreme and distinct from ordinary legislative power under Art 13(2).'],
       constitutionalSignificance:
           'Established initial precedent that Parliament can amend any part of the Constitution including Fundamental Rights.',
-      relatedArticles: const ['13', '19', '31', '31A', '31B', '368'],
+      relatedArticles: const ['Article 13', 'Article 19', 'Article 31', 'Article 31A', 'Article 31B', 'Article 368'],
       relatedParts: const ['KO-PART-III', 'KO-PART-XX'],
       relatedSchedules: const ['KO-SCHED-9'],
       relatedAmendments: const ['1st Amendment'],
@@ -286,7 +286,7 @@ class LandmarkCasesPhase1 {
       ratioDecidendi: const ['Reaffirmed Shankari Prasad: Art 368 includes power to amend Part III.'],
       obiterDicta: const ['Justice J.R. Mudholkar referenced "basic features" of Constitution, planting seeds for Basic Structure doctrine.'],
       constitutionalSignificance: 'First judicial mention of "basic features" by Justice Mudholkar.',
-      relatedArticles: const ['13', '31A', '31B', '368'],
+      relatedArticles: const ['Article 13', 'Article 31A', 'Article 31B', 'Article 368'],
       relatedAmendments: const ['17th Amendment'],
       pyqIds: const ['PYQ_UPSC_2017_04'],
       judgmentDate: DateTime(1965, 1, 30),
@@ -329,7 +329,7 @@ class LandmarkCasesPhase1 {
         'Preamble is NOT an integral part of the Constitution.'
       ],
       constitutionalSignificance: 'Led to 9th Constitutional Amendment Act 1960. Preamble holding was overruled in Kesavananda (1973).',
-      relatedArticles: const ['1', '3', '143', '368'],
+      relatedArticles: const ['Article 1', 'Article 3', 'Article 143', 'Article 368'],
       relatedParts: const ['KO-PART-I'],
       relatedAmendments: const ['9th Amendment', '100th Amendment'],
       pyqIds: const ['PYQ_UPSC_2020_08', 'PYQ_CAPF_2019_02'],
@@ -373,7 +373,7 @@ class LandmarkCasesPhase1 {
         'Harmony and balance between Fundamental Rights (Part III) and DPSPs (Part IV) is a basic feature.'
       ],
       constitutionalSignificance: 'Saved Basic Structure Doctrine from 42nd Amendment legislative nullification.',
-      relatedArticles: const ['14', '19', '31C', '32', '368'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 31C', 'Article 32', 'Article 368'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IV', 'KO-PART-XX'],
       relatedAmendments: const ['42nd Amendment'],
       pyqIds: const ['PYQ_UPSC_2020_02', 'PYQ_UPSC_2017_06'],
@@ -417,7 +417,7 @@ class LandmarkCasesPhase1 {
         'Right to travel abroad is part of personal liberty under Art 21.'
       ],
       constitutionalSignificance: 'Transformed Article 21 from passive protection against executive illegal action to active guarantee of substantive human dignity.',
-      relatedArticles: const ['14', '19', '21', '32'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 21', 'Article 32'],
       relatedParts: const ['KO-PART-III'],
       relatedActs: const ['Passports Act 1967'],
       pyqIds: const ['PYQ_UPSC_2021_01', 'PYQ_UPSC_2018_07', 'PYQ_NDA_2020_03'],
@@ -458,7 +458,7 @@ class LandmarkCasesPhase1 {
       ratioDecidendi: const ['Suspension of Art 21 enforcement under Art 359 bars all judicial remedies against illegal detention during Emergency.'],
       obiterDicta: const ['Justice H.R. Khanna: "Life and personal liberty are not creations of the Constitution; law of nature precedes constitutional text."'],
       constitutionalSignificance: 'Darkest hour of Indian judiciary. Led to 44th Amendment Act 1978 making Art 20 and 21 non-suspendable even during Emergency.',
-      relatedArticles: const ['20', '21', '226', '352', '359'],
+      relatedArticles: const ['Article 20', 'Article 21', 'Article 226', 'Article 352', 'Article 359'],
       relatedParts: const ['KO-PART-III', 'KO-PART-XVIII'],
       relatedAmendments: const ['44th Amendment'],
       pyqIds: const ['PYQ_UPSC_2019_06'],
@@ -502,7 +502,7 @@ class LandmarkCasesPhase1 {
         'Federalism and Secularism are basic features of the Constitution.'
       ],
       constitutionalSignificance: 'Drastically reduced misuse of Article 356 by central governments against opposition-ruled states.',
-      relatedArticles: const ['14', '25', '356', '365'],
+      relatedArticles: const ['Article 14', 'Article 25', 'Article 356', 'Article 365'],
       relatedParts: const ['KO-PART-XVIII'],
       relatedReports: const ['Sarkaria Commission Report 1988'],
       pyqIds: const ['PYQ_UPSC_2021_04', 'PYQ_UPSC_2017_02'],
@@ -547,7 +547,7 @@ class LandmarkCasesPhase1 {
         'No reservation in promotions under Art 16(4) (later overridden in part by 77th Amendment Art 16(4A)).'
       ],
       constitutionalSignificance: 'Established definitive framework for affirmative action, OBC reservation, and creamy layer exclusion in India.',
-      relatedArticles: const ['14', '15', '16', '335', '340'],
+      relatedArticles: const ['Article 14', 'Article 15', 'Article 16', 'Article 335', 'Article 340'],
       relatedParts: const ['KO-PART-III'],
       relatedAmendments: const ['77th Amendment', '81st Amendment', '85th Amendment', '103rd Amendment'],
       relatedReports: const ['Mandal Commission Report 1980'],
@@ -591,7 +591,7 @@ class LandmarkCasesPhase1 {
         'In absence of domestic law, international conventions (CEDAW) ratified by India can be read into Fundamental Rights under Art 51(c).'
       ],
       constitutionalSignificance: 'Pioneered judicial law-making in legislative vacuum and led directly to POSH Act 2013.',
-      relatedArticles: const ['14', '15', '19', '21', '51'],
+      relatedArticles: const ['Article 14', 'Article 15', 'Article 19', 'Article 21', 'Article 51'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IVA'],
       relatedActs: const ['Sexual Harassment of Women at Workplace (POSH) Act 2013'],
       pyqIds: const ['PYQ_UPSC_2019_08', 'PYQ_CDS_2020_02'],
@@ -634,7 +634,7 @@ class LandmarkCasesPhase1 {
         'Procedure for eviction under municipal laws must conform to natural justice (notice and hearing).'
       ],
       constitutionalSignificance: 'Expanded Article 21 to include socio-economic right to livelihood and shelter.',
-      relatedArticles: const ['14', '19', '21', '39'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 21', 'Article 39'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IV'],
       pyqIds: const ['PYQ_UPSC_2018_04'],
       judgmentDate: DateTime(1985, 7, 10),
@@ -676,7 +676,7 @@ class LandmarkCasesPhase1 {
         'Beyond 14 years, right to education is subject to economic capacity of the State.'
       ],
       constitutionalSignificance: 'Direct catalyst for the 86th Constitutional Amendment Act 2002 inserting Article 21A.',
-      relatedArticles: const ['14', '19', '21', '21A', '41', '45'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 21', 'Article 21A', 'Article 41', 'Article 45'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IV'],
       relatedAmendments: const ['86th Amendment'],
       pyqIds: const ['PYQ_UPSC_2019_03'],
@@ -720,7 +720,7 @@ class LandmarkCasesPhase1 {
         'Judicial review is a Basic Feature that cannot be abrogated via Ninth Schedule insertion.'
       ],
       constitutionalSignificance: 'Closed the Ninth Schedule loophole used by legislatures to bypass judicial review and basic structure limits.',
-      relatedArticles: const ['14', '19', '21', '31B', '32', '368'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 21', 'Article 31B', 'Article 32', 'Article 368'],
       relatedParts: const ['KO-PART-III', 'KO-PART-XX'],
       relatedSchedules: const ['KO-SCHED-9'],
       pyqIds: const ['PYQ_UPSC_2021_02', 'PYQ_UPSC_2019_01'],
@@ -765,7 +765,7 @@ class LandmarkCasesPhase1 {
       ],
       obiterDicta: const ['Formally overruled ADM Jabalpur (1976), calling it flawed and erroneous.'],
       constitutionalSignificance: 'Pillar judgment founding modern digital rights, data protection framework, and bodily autonomy jurisprudence in India.',
-      relatedArticles: const ['14', '19', '21'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 21'],
       relatedParts: const ['KO-PART-III'],
       relatedActs: const ['Aadhaar Act 2016', 'Digital Personal Data Protection Act 2023'],
       pyqIds: const ['PYQ_UPSC_2021_03', 'PYQ_UPSC_2020_03', 'PYQ_UPSC_2018_01'],
@@ -809,7 +809,7 @@ class LandmarkCasesPhase1 {
         'Constitutional Morality overrides social morality.'
       ],
       constitutionalSignificance: 'Benchmark for Transformative Constitutionalism and LGBTQ+ fundamental rights in India.',
-      relatedArticles: const ['14', '15', '19', '21'],
+      relatedArticles: const ['Article 14', 'Article 15', 'Article 19', 'Article 21'],
       relatedParts: const ['KO-PART-III'],
       relatedActs: const ['Indian Penal Code 1860 (Sec 377)'],
       pyqIds: const ['PYQ_UPSC_2020_07', 'PYQ_CDS_2021_02'],
@@ -853,7 +853,7 @@ class LandmarkCasesPhase1 {
         'Manifest Arbitrariness Test formulated by Justice Nariman to strike down statutory/customary laws.'
       ],
       constitutionalSignificance: 'Formulated Manifest Arbitrariness Test under Article 14 and led to Muslim Women (Protection of Rights on Marriage) Act 2019.',
-      relatedArticles: const ['14', '15', '21', '25', '44'],
+      relatedArticles: const ['Article 14', 'Article 15', 'Article 21', 'Article 25', 'Article 44'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IV'],
       relatedActs: const ['Muslim Women (Protection of Rights on Marriage) Act 2019'],
       pyqIds: const ['PYQ_UPSC_2019_05', 'PYQ_CAPF_2020_01'],
@@ -896,7 +896,7 @@ class LandmarkCasesPhase1 {
         '"Public safety" is broader than "security of State"; speech cannot be restricted outside grounds listed in Art 19(2).'
       ],
       constitutionalSignificance: 'Foundational precedent establishing Freedom of Press in India. Prompted 1st Amendment 1951 adding "public order" to Art 19(2).',
-      relatedArticles: const ['19', '32'],
+      relatedArticles: const ['Article 19', 'Article 32'],
       relatedParts: const ['KO-PART-III'],
       relatedAmendments: const ['1st Amendment'],
       pyqIds: const ['PYQ_UPSC_2018_03', 'PYQ_NDA_2021_01'],
@@ -939,7 +939,7 @@ class LandmarkCasesPhase1 {
         'Articles 19, 21, and 22 are independent, mutually exclusive provisions.'
       ],
       constitutionalSignificance: 'Narrow early constitutional interpretation later completely discarded by Maneka Gandhi (1978).',
-      relatedArticles: const ['14', '19', '21', '22'],
+      relatedArticles: const ['Article 14', 'Article 19', 'Article 21', 'Article 22'],
       relatedParts: const ['KO-PART-III'],
       pyqIds: const ['PYQ_UPSC_2017_05'],
       judgmentDate: DateTime(1950, 5, 19),
@@ -981,7 +981,7 @@ class LandmarkCasesPhase1 {
         'DPSPs under Part IV cannot override Fundamental Rights under Part III; DPSPs must run as subsidiary to Part III.'
       ],
       constitutionalSignificance: 'First case on reservation in educational institutions; prompted 1st Constitutional Amendment Act 1951 inserting Article 15(4).',
-      relatedArticles: const ['14', '15', '29', '46'],
+      relatedArticles: const ['Article 14', 'Article 15', 'Article 29', 'Article 46'],
       relatedParts: const ['KO-PART-III', 'KO-PART-IV'],
       relatedAmendments: const ['1st Amendment'],
       pyqIds: const ['PYQ_UPSC_2020_04', 'PYQ_CAPF_2018_01'],

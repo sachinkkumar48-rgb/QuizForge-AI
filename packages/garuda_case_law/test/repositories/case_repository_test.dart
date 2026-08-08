@@ -9,9 +9,9 @@ void main() {
       repository = InMemoryCaseRepository();
     });
 
-    test('getCases returns all 20 Phase I Landmark Cases', () async {
+    test('getCases returns all Phase I & II Landmark Cases', () async {
       final cases = await repository.getCases();
-      expect(cases.length, equals(20));
+      expect(cases.length, equals(49));
     });
 
     test('findCase retrieves case by ID, objectId, or case name', () async {

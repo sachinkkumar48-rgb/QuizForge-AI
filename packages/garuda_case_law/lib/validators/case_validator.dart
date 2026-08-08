@@ -1,7 +1,6 @@
 library;
 
 import 'package:meta/meta.dart';
-import '../domain/entities/case_knowledge_object.dart';
 import '../repositories/case_repository.dart';
 
 @immutable

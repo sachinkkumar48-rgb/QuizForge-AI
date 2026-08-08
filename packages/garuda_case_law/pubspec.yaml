@@ -10,6 +10,12 @@ dependencies:
   meta: ^1.11.0
   garuda_constitution:
     path: ../garuda_constitution
+  garuda_editor:
+    path: ../garuda_editor
+  garuda_doctrine:
+    path: ../garuda_doctrine
+  garuda_evidence:
+    path: ../garuda_evidence
 
 dev_dependencies:
   flutter_test:
