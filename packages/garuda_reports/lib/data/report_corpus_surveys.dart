@@ -83,9 +83,9 @@ class ReportCorpusSurveys {
       ],
       relatedCurrentAffairsIds: ['ca_nfhs5'],
       relatedPyqIds: [
-        'PYQ_GS1_2023_Q11',
-        'PYQ_GS1_2022_Q09',
-        'PYQ_GS2_2021_Q06'
+        'PYQ_UPSC_CSE_2023_GS1_Q011',
+        'PYQ_UPSC_CSE_2022_GS1_Q009',
+        'PYQ_UPSC_CSE_2021_GS2_Q006'
       ],
       evidenceIds: ['ev_nfhs5_official'],
       keywords: [
@@ -157,7 +157,7 @@ class ReportCorpusSurveys {
       relatedActIds: [],
       relatedSchemeNames: ['PM-KISAN', 'MNREGA', 'Skill India'],
       relatedCurrentAffairsIds: ['ca_plfs_2023'],
-      relatedPyqIds: ['PYQ_GS3_2023_Q05', 'PYQ_GS3_2021_Q08'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS3_Q005', 'PYQ_UPSC_CSE_2021_GS3_Q008'],
       evidenceIds: ['ev_plfs_official'],
       keywords: ['PLFS', 'Labour Force', 'Unemployment', 'NSSO', 'MoSPI'],
     ),
@@ -212,7 +212,7 @@ class ReportCorpusSurveys {
         'Public Distribution System'
       ],
       relatedCurrentAffairsIds: ['ca_hces_2024'],
-      relatedPyqIds: ['PYQ_GS3_2024_Q08', 'PYQ_GS3_2022_Q03'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2024_GS3_Q008', 'PYQ_UPSC_CSE_2022_GS3_Q003'],
       evidenceIds: ['ev_hces_official'],
       keywords: ['HCES', 'Consumption Expenditure', 'NSSO', 'MPCE', 'Poverty'],
     ),
@@ -247,7 +247,7 @@ class ReportCorpusSurveys {
       relatedActIds: ['Factories Act, 1948'],
       relatedSchemeNames: ['Make in India', 'PLI Schemes'],
       relatedCurrentAffairsIds: ['ca_asi_2023'],
-      relatedPyqIds: ['PYQ_GS3_2022_Q04'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2022_GS3_Q004'],
       evidenceIds: ['ev_asi_official'],
       keywords: ['ASI', 'Annual Survey of Industries', 'Manufacturing', 'GVA'],
     ),

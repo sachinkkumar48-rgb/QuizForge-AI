@@ -20,6 +20,8 @@ export 'domain/entities/report_relationship.dart';
 
 // Data Seed Corpus
 export 'data/report_seed_corpus.dart';
+export 'data/report_official_sources.dart';
+export 'data/report_corpus_support.dart';
 
 // Repositories
 export 'repositories/report_repository.dart';

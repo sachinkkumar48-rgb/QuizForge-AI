@@ -25,9 +25,16 @@ class ReportKnowledgeObject {
   final int publicationYear;
   final String edition;
   final PublicationFrequency publicationFrequency;
+  final ReportType reportType;
+  final String reportingPeriod;
+  final String geographicalScope;
+  final bool indiaCoverage;
+  final String publicationDate;
+  final String lastVerifiedDate;
   final String officialUrl;
   final String officialPdfUrl;
   final String executiveSummary;
+  final String policySignificance;
   final List<String> objectives;
   final String methodology;
   final List<String> keyFindings;
@@ -38,6 +45,13 @@ class ReportKnowledgeObject {
   final List<ReportChartMetadata> importantCharts;
   final List<ChapterKnowledgeObject> chapters;
   final String upscRelevance;
+  final RelevanceLevel prelimsRelevance;
+  final RelevanceLevel mainsRelevance;
+  final RelevanceLevel essayRelevance;
+  final RelevanceLevel interviewRelevance;
+  final List<String> themes;
+  final List<String> sectors;
+  final List<String> sdgGoals;
   final List<String> relatedIndexIds;
   final List<String> relatedArticleIds;
   final List<String> relatedActIds;
@@ -47,6 +61,8 @@ class ReportKnowledgeObject {
   final List<String> relatedDoctrineIds;
   final List<String> relatedCurrentAffairsIds;
   final List<String> relatedPyqIds;
+  final List<String> relatedBodies;
+  final List<String> relatedInternationalOrganisations;
   final List<ReportRelationship> relationships;
   final List<String> evidenceIds;
   final List<String> keywords;
@@ -64,9 +80,16 @@ class ReportKnowledgeObject {
     this.publicationYear = 0,
     this.edition = '',
     this.publicationFrequency = PublicationFrequency.annual,
+    this.reportType = ReportType.annualReport,
+    this.reportingPeriod = '',
+    this.geographicalScope = 'India',
+    this.indiaCoverage = true,
+    this.publicationDate = '',
+    this.lastVerifiedDate = '',
     this.officialUrl = '',
     this.officialPdfUrl = '',
     this.executiveSummary = '',
+    this.policySignificance = '',
     this.objectives = const [],
     this.methodology = '',
     this.keyFindings = const [],
@@ -77,6 +100,13 @@ class ReportKnowledgeObject {
     this.importantCharts = const [],
     this.chapters = const [],
     this.upscRelevance = '',
+    this.prelimsRelevance = RelevanceLevel.medium,
+    this.mainsRelevance = RelevanceLevel.medium,
+    this.essayRelevance = RelevanceLevel.medium,
+    this.interviewRelevance = RelevanceLevel.medium,
+    this.themes = const [],
+    this.sectors = const [],
+    this.sdgGoals = const [],
     this.relatedIndexIds = const [],
     this.relatedArticleIds = const [],
     this.relatedActIds = const [],
@@ -86,6 +116,8 @@ class ReportKnowledgeObject {
     this.relatedDoctrineIds = const [],
     this.relatedCurrentAffairsIds = const [],
     this.relatedPyqIds = const [],
+    this.relatedBodies = const [],
+    this.relatedInternationalOrganisations = const [],
     this.relationships = const [],
     this.evidenceIds = const [],
     this.keywords = const [],
@@ -121,13 +153,25 @@ class ReportKnowledgeObject {
         'publicationYear': publicationYear,
         'edition': edition,
         'publicationFrequency': publicationFrequency.name,
+        'reportType': reportType.name,
+        'reportingPeriod': reportingPeriod,
+        'geographicalScope': geographicalScope,
+        'indiaCoverage': indiaCoverage,
+        'publicationDate': publicationDate,
+        'lastVerifiedDate': lastVerifiedDate,
         'publishingMinistry': publishingMinistry,
+        'policySignificance': policySignificance,
+        'themes': themes,
+        'sectors': sectors,
+        'sdgGoals': sdgGoals,
         'relatedIndexIds': relatedIndexIds,
         'relatedActIds': relatedActIds,
         'relatedCommitteeIds': relatedCommitteeIds,
         'relatedSchemeNames': relatedSchemeNames,
         'relatedPyqIds': relatedPyqIds,
         'relatedCurrentAffairsIds': relatedCurrentAffairsIds,
+        'relatedBodies': relatedBodies,
+        'relatedInternationalOrganisations': relatedInternationalOrganisations,
         'officialUrl': officialUrl,
         'officialPdfUrl': officialPdfUrl,
       },
@@ -144,9 +188,16 @@ class ReportKnowledgeObject {
     int? publicationYear,
     String? edition,
     PublicationFrequency? publicationFrequency,
+    ReportType? reportType,
+    String? reportingPeriod,
+    String? geographicalScope,
+    bool? indiaCoverage,
+    String? publicationDate,
+    String? lastVerifiedDate,
     String? officialUrl,
     String? officialPdfUrl,
     String? executiveSummary,
+    String? policySignificance,
     List<String>? objectives,
     String? methodology,
     List<String>? keyFindings,
@@ -157,6 +208,13 @@ class ReportKnowledgeObject {
     List<ReportChartMetadata>? importantCharts,
     List<ChapterKnowledgeObject>? chapters,
     String? upscRelevance,
+    RelevanceLevel? prelimsRelevance,
+    RelevanceLevel? mainsRelevance,
+    RelevanceLevel? essayRelevance,
+    RelevanceLevel? interviewRelevance,
+    List<String>? themes,
+    List<String>? sectors,
+    List<String>? sdgGoals,
     List<String>? relatedIndexIds,
     List<String>? relatedArticleIds,
     List<String>? relatedActIds,
@@ -166,6 +224,8 @@ class ReportKnowledgeObject {
     List<String>? relatedDoctrineIds,
     List<String>? relatedCurrentAffairsIds,
     List<String>? relatedPyqIds,
+    List<String>? relatedBodies,
+    List<String>? relatedInternationalOrganisations,
     List<ReportRelationship>? relationships,
     List<String>? evidenceIds,
     List<String>? keywords,
@@ -184,9 +244,16 @@ class ReportKnowledgeObject {
       publicationYear: publicationYear ?? this.publicationYear,
       edition: edition ?? this.edition,
       publicationFrequency: publicationFrequency ?? this.publicationFrequency,
+      reportType: reportType ?? this.reportType,
+      reportingPeriod: reportingPeriod ?? this.reportingPeriod,
+      geographicalScope: geographicalScope ?? this.geographicalScope,
+      indiaCoverage: indiaCoverage ?? this.indiaCoverage,
+      publicationDate: publicationDate ?? this.publicationDate,
+      lastVerifiedDate: lastVerifiedDate ?? this.lastVerifiedDate,
       officialUrl: officialUrl ?? this.officialUrl,
       officialPdfUrl: officialPdfUrl ?? this.officialPdfUrl,
       executiveSummary: executiveSummary ?? this.executiveSummary,
+      policySignificance: policySignificance ?? this.policySignificance,
       objectives: objectives ?? List.from(this.objectives),
       methodology: methodology ?? this.methodology,
       keyFindings: keyFindings ?? List.from(this.keyFindings),
@@ -198,6 +265,13 @@ class ReportKnowledgeObject {
       importantCharts: importantCharts ?? List.from(this.importantCharts),
       chapters: chapters ?? List.from(this.chapters),
       upscRelevance: upscRelevance ?? this.upscRelevance,
+      prelimsRelevance: prelimsRelevance ?? this.prelimsRelevance,
+      mainsRelevance: mainsRelevance ?? this.mainsRelevance,
+      essayRelevance: essayRelevance ?? this.essayRelevance,
+      interviewRelevance: interviewRelevance ?? this.interviewRelevance,
+      themes: themes ?? List.from(this.themes),
+      sectors: sectors ?? List.from(this.sectors),
+      sdgGoals: sdgGoals ?? List.from(this.sdgGoals),
       relatedIndexIds: relatedIndexIds ?? List.from(this.relatedIndexIds),
       relatedArticleIds: relatedArticleIds ?? List.from(this.relatedArticleIds),
       relatedActIds: relatedActIds ?? List.from(this.relatedActIds),
@@ -211,6 +285,9 @@ class ReportKnowledgeObject {
       relatedCurrentAffairsIds:
           relatedCurrentAffairsIds ?? List.from(this.relatedCurrentAffairsIds),
       relatedPyqIds: relatedPyqIds ?? List.from(this.relatedPyqIds),
+      relatedBodies: relatedBodies ?? List.from(this.relatedBodies),
+      relatedInternationalOrganisations: relatedInternationalOrganisations ??
+          List.from(this.relatedInternationalOrganisations),
       relationships: relationships ?? List.from(this.relationships),
       evidenceIds: evidenceIds ?? List.from(this.evidenceIds),
       keywords: keywords ?? List.from(this.keywords),
@@ -230,9 +307,16 @@ class ReportKnowledgeObject {
         'publicationYear': publicationYear,
         'edition': edition,
         'publicationFrequency': publicationFrequency.name,
+        'reportType': reportType.name,
+        'reportingPeriod': reportingPeriod,
+        'geographicalScope': geographicalScope,
+        'indiaCoverage': indiaCoverage,
+        'publicationDate': publicationDate,
+        'lastVerifiedDate': lastVerifiedDate,
         'officialUrl': officialUrl,
         'officialPdfUrl': officialPdfUrl,
         'executiveSummary': executiveSummary,
+        'policySignificance': policySignificance,
         'objectives': objectives,
         'methodology': methodology,
         'keyFindings': keyFindings,
@@ -244,6 +328,13 @@ class ReportKnowledgeObject {
         'importantCharts': importantCharts.map((c) => c.toJson()).toList(),
         'chapters': chapters.map((c) => c.toJson()).toList(),
         'upscRelevance': upscRelevance,
+        'prelimsRelevance': prelimsRelevance.name,
+        'mainsRelevance': mainsRelevance.name,
+        'essayRelevance': essayRelevance.name,
+        'interviewRelevance': interviewRelevance.name,
+        'themes': themes,
+        'sectors': sectors,
+        'sdgGoals': sdgGoals,
         'relatedIndexIds': relatedIndexIds,
         'relatedArticleIds': relatedArticleIds,
         'relatedActIds': relatedActIds,
@@ -253,6 +344,8 @@ class ReportKnowledgeObject {
         'relatedDoctrineIds': relatedDoctrineIds,
         'relatedCurrentAffairsIds': relatedCurrentAffairsIds,
         'relatedPyqIds': relatedPyqIds,
+        'relatedBodies': relatedBodies,
+        'relatedInternationalOrganisations': relatedInternationalOrganisations,
         'relationships': relationships.map((r) => r.toJson()).toList(),
         'evidenceIds': evidenceIds,
         'keywords': keywords,
@@ -278,9 +371,19 @@ class ReportKnowledgeObject {
           (f) => f.name == json['publicationFrequency'],
           orElse: () => PublicationFrequency.annual,
         ),
+        reportType: ReportType.values.firstWhere(
+          (t) => t.name == json['reportType'],
+          orElse: () => ReportType.annualReport,
+        ),
+        reportingPeriod: json['reportingPeriod'] as String? ?? '',
+        geographicalScope: json['geographicalScope'] as String? ?? 'India',
+        indiaCoverage: json['indiaCoverage'] as bool? ?? true,
+        publicationDate: json['publicationDate'] as String? ?? '',
+        lastVerifiedDate: json['lastVerifiedDate'] as String? ?? '',
         officialUrl: json['officialUrl'] as String? ?? '',
         officialPdfUrl: json['officialPdfUrl'] as String? ?? '',
         executiveSummary: json['executiveSummary'] as String? ?? '',
+        policySignificance: json['policySignificance'] as String? ?? '',
         objectives:
             (json['objectives'] as List?)?.map((e) => e.toString()).toList() ??
                 const [],
@@ -318,6 +421,28 @@ class ReportKnowledgeObject {
                 .toList() ??
             const [],
         upscRelevance: json['upscRelevance'] as String? ?? '',
+        prelimsRelevance: RelevanceLevel.values.firstWhere(
+          (r) => r.name == json['prelimsRelevance'],
+          orElse: () => RelevanceLevel.medium,
+        ),
+        mainsRelevance: RelevanceLevel.values.firstWhere(
+          (r) => r.name == json['mainsRelevance'],
+          orElse: () => RelevanceLevel.medium,
+        ),
+        essayRelevance: RelevanceLevel.values.firstWhere(
+          (r) => r.name == json['essayRelevance'],
+          orElse: () => RelevanceLevel.medium,
+        ),
+        interviewRelevance: RelevanceLevel.values.firstWhere(
+          (r) => r.name == json['interviewRelevance'],
+          orElse: () => RelevanceLevel.medium,
+        ),
+        themes: (json['themes'] as List?)?.map((e) => e.toString()).toList() ??
+            const [],
+        sectors: (json['sectors'] as List?)?.map((e) => e.toString()).toList() ??
+            const [],
+        sdgGoals: (json['sdgGoals'] as List?)?.map((e) => e.toString()).toList() ??
+            const [],
         relatedIndexIds: (json['relatedIndexIds'] as List?)
                 ?.map((e) => e.toString())
                 .toList() ??
@@ -354,6 +479,15 @@ class ReportKnowledgeObject {
                 ?.map((e) => e.toString())
                 .toList() ??
             const [],
+        relatedBodies: (json['relatedBodies'] as List?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
+        relatedInternationalOrganisations:
+            (json['relatedInternationalOrganisations'] as List?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                const [],
         relationships: (json['relationships'] as List?)
                 ?.map((r) => ReportRelationship.fromJson(
                     Map<String, dynamic>.from(r as Map)))

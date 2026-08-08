@@ -81,7 +81,8 @@ void main() {
     test('should generate accurate Corpus Coverage Report', () async {
       final report = await repository.generateCorpusReport();
 
-      expect(report.totalImportedReports, equals(18));
+      expect(report.totalImportedReports,
+          equals(ReportSeedCorpus.expectedReportCorpus));
       expect(report.reportCoveragePercentage, equals(100.0));
       expect(report.totalImportedIndices, equals(9));
       expect(report.indexCoveragePercentage, equals(100.0));

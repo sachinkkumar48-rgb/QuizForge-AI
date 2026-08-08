@@ -16,6 +16,7 @@ class SurveyKnowledgeObject {
   final String shortName;
   final String publishingOrganisation;
   final String publishingMinistry;
+  final String lastVerifiedDate;
   final int surveyYear;
   final String referencePeriod;
   final PublicationFrequency frequency;
@@ -53,6 +54,7 @@ class SurveyKnowledgeObject {
     this.shortName = '',
     this.publishingOrganisation = '',
     this.publishingMinistry = '',
+    this.lastVerifiedDate = '',
     this.surveyYear = 0,
     this.referencePeriod = '',
     this.frequency = PublicationFrequency.annual,
@@ -113,6 +115,7 @@ class SurveyKnowledgeObject {
         'frequency': frequency.name,
         'sampleSize': sampleSize,
         'publishingMinistry': publishingMinistry,
+        'lastVerifiedDate': lastVerifiedDate,
         'relatedReportIds': relatedReportIds,
         'relatedActIds': relatedActIds,
         'relatedCommitteeIds': relatedCommitteeIds,
@@ -131,6 +134,7 @@ class SurveyKnowledgeObject {
     String? shortName,
     String? publishingOrganisation,
     String? publishingMinistry,
+    String? lastVerifiedDate,
     int? surveyYear,
     String? referencePeriod,
     PublicationFrequency? frequency,
@@ -169,6 +173,7 @@ class SurveyKnowledgeObject {
       publishingOrganisation:
           publishingOrganisation ?? this.publishingOrganisation,
       publishingMinistry: publishingMinistry ?? this.publishingMinistry,
+      lastVerifiedDate: lastVerifiedDate ?? this.lastVerifiedDate,
       surveyYear: surveyYear ?? this.surveyYear,
       referencePeriod: referencePeriod ?? this.referencePeriod,
       frequency: frequency ?? this.frequency,
@@ -213,6 +218,7 @@ class SurveyKnowledgeObject {
         'shortName': shortName,
         'publishingOrganisation': publishingOrganisation,
         'publishingMinistry': publishingMinistry,
+        'lastVerifiedDate': lastVerifiedDate,
         'surveyYear': surveyYear,
         'referencePeriod': referencePeriod,
         'frequency': frequency.name,
@@ -253,6 +259,7 @@ class SurveyKnowledgeObject {
         shortName: json['shortName'] as String? ?? '',
         publishingOrganisation: json['publishingOrganisation'] as String? ?? '',
         publishingMinistry: json['publishingMinistry'] as String? ?? '',
+        lastVerifiedDate: json['lastVerifiedDate'] as String? ?? '',
         surveyYear: (json['surveyYear'] as num?)?.toInt() ?? 0,
         referencePeriod: json['referencePeriod'] as String? ?? '',
         frequency: PublicationFrequency.values.firstWhere(

@@ -11,6 +11,8 @@ class ReportSearchQuery {
   final String? title;
   final String? publisher;
   final String? organisation;
+  final String? institution;
+  final String? ministry;
   final String? indicator;
   final String? recommendation;
   final int? year;
@@ -23,11 +25,21 @@ class ReportSearchQuery {
   final String? pyq;
   final ReportCategory? category;
   final ReportObjectType? type;
+  final ReportType? reportType;
+  final String? theme;
+  final String? sector;
+  final bool? indiaRelated;
+  final String? sdg;
+  final String? ranking;
+  final String? body;
+  final String? international;
 
   const ReportSearchQuery({
     this.title,
     this.publisher,
     this.organisation,
+    this.institution,
+    this.ministry,
     this.indicator,
     this.recommendation,
     this.year,
@@ -40,6 +52,14 @@ class ReportSearchQuery {
     this.pyq,
     this.category,
     this.type,
+    this.reportType,
+    this.theme,
+    this.sector,
+    this.indiaRelated,
+    this.sdg,
+    this.ranking,
+    this.body,
+    this.international,
   });
 }
 
@@ -70,6 +90,22 @@ class ReportSearchEngine {
         final match = r.publishingOrganisation.toLowerCase().contains(lower) ||
             r.publishingMinistry.toLowerCase().contains(lower);
         if (!match) return false;
+      }
+
+      if (query.institution != null && query.institution!.isNotEmpty) {
+        if (!r.publishingOrganisation
+            .toLowerCase()
+            .contains(query.institution!.toLowerCase())) {
+          return false;
+        }
+      }
+
+      if (query.ministry != null && query.ministry!.isNotEmpty) {
+        if (!r.publishingMinistry
+            .toLowerCase()
+            .contains(query.ministry!.toLowerCase())) {
+          return false;
+        }
       }
 
       if (query.year != null && r.publicationYear != query.year) {
@@ -158,8 +194,99 @@ class ReportSearchEngine {
         if (!match) return false;
       }
 
+      if (query.reportType != null && r.reportType != query.reportType) {
+        return false;
+      }
+
+      if (query.theme != null && query.theme!.isNotEmpty) {
+        final lower = query.theme!.toLowerCase();
+        final match = r.themes.any((t) => t.toLowerCase().contains(lower));
+        if (!match) return false;
+      }
+
+      if (query.sector != null && query.sector!.isNotEmpty) {
+        final lower = query.sector!.toLowerCase();
+        final match = r.sectors.any((s) => s.toLowerCase().contains(lower));
+        if (!match) return false;
+      }
+
+      if (query.indiaRelated != null && r.indiaCoverage != query.indiaRelated) {
+        return false;
+      }
+
+      if (query.sdg != null && query.sdg!.isNotEmpty) {
+        final lower = query.sdg!.toLowerCase();
+        final match = r.sdgGoals.any((g) => g.toLowerCase().contains(lower)) ||
+            r.keywords.any((k) => k.toLowerCase().contains(lower) && k.contains('SDG')) ||
+            r.themes.any((t) => t.toLowerCase().contains(lower));
+        if (!match) return false;
+      }
+
+      if (query.ranking != null && query.ranking!.isNotEmpty) {
+        final lower = query.ranking!.toLowerCase();
+        final match = r.keyIndicators.any((k) => k.toLowerCase().contains(lower)) ||
+            r.keywords.any((k) => k.toLowerCase().contains(lower)) ||
+            r.themes.any((t) => t.toLowerCase().contains(lower));
+        if (!match) return false;
+      }
+
+      if (query.body != null && query.body!.isNotEmpty) {
+        final lower = query.body!.toLowerCase();
+        final match =
+            r.relatedBodies.any((b) => b.toLowerCase().contains(lower));
+        if (!match) return false;
+      }
+
+      if (query.international != null && query.international!.isNotEmpty) {
+        final lower = query.international!.toLowerCase();
+        final match = r.relatedInternationalOrganisations
+            .any((o) => o.toLowerCase().contains(lower));
+        if (!match) return false;
+      }
+
       return true;
     }).toList();
+  }
+
+  /// Relevance-ranked search: exact title matches and cross-package hits rank
+  /// above keyword-only matches.
+  static List<ReportKnowledgeObject> searchRanked({
+    required List<ReportKnowledgeObject> reports,
+    required ReportSearchQuery query,
+    int maxResults = 50,
+  }) {
+    final scored = reports
+        .where((r) => search(reports: [r], query: query).isNotEmpty)
+        .map((r) => (report: r, score: _relevanceScore(r, query)))
+        .toList()
+      ..sort((a, b) => b.score.compareTo(a.score));
+    return scored.take(maxResults).map((e) => e.report).toList();
+  }
+
+  static int _relevanceScore(ReportKnowledgeObject r, ReportSearchQuery q) {
+    var score = 0;
+
+    if (q.title != null && q.title!.trim().isNotEmpty) {
+      final lower = q.title!.toLowerCase().trim();
+      if (r.officialTitle.toLowerCase() == lower) score += 40;
+      if (r.shortName.toLowerCase() == lower) score += 20;
+      if (r.officialTitle.toLowerCase().contains(lower)) score += 5;
+    }
+
+    if (q.keyword != null && q.keyword!.trim().isNotEmpty) {
+      final lower = q.keyword!.toLowerCase().trim();
+      if (r.officialTitle.toLowerCase() == lower) score += 30;
+      if (r.shortName.toLowerCase() == lower) score += 20;
+      if (r.keywords.any((k) => k.toLowerCase().startsWith(lower))) score += 4;
+    }
+
+    if (q.body != null && r.relatedBodies.isNotEmpty) score += 5;
+    if (q.international != null &&
+        r.relatedInternationalOrganisations.isNotEmpty) {
+      score += 5;
+    }
+
+    return score;
   }
 
   static List<IndexKnowledgeObject> searchIndices({
@@ -279,5 +406,47 @@ class ReportSearchEngine {
     }
 
     return suggestions.take(maxResults).toList();
+  }
+
+  /// Related-report discovery: ranks other reports by shared category, themes,
+  /// sectors, keywords, SDGs and cross-package links with the source report.
+  /// Returns reports most closely related to `report`, excluding itself.
+  static List<ReportKnowledgeObject> findRelatedReports({
+    required ReportKnowledgeObject report,
+    required List<ReportKnowledgeObject> reports,
+    int maxResults = 10,
+  }) {
+    final scored = <(ReportKnowledgeObject, int)>[];
+    for (final candidate in reports) {
+      if (candidate.id == report.id) continue;
+      final score = _relatednessScore(report, candidate);
+      if (score > 0) scored.add((candidate, score));
+    }
+    scored.sort((a, b) => b.$2.compareTo(a.$2));
+    return scored.take(maxResults).map((e) => e.$1).toList();
+  }
+
+  static int _relatednessScore(
+      ReportKnowledgeObject a, ReportKnowledgeObject b) {
+    var score = 0;
+    if (a.category == b.category) score += 5;
+    score += _overlap(a.themes, b.themes) * 3;
+    score += _overlap(a.sectors, b.sectors) * 3;
+    score += _overlap(a.keywords, b.keywords);
+    score += _overlap(a.sdgGoals, b.sdgGoals) * 2;
+    score += _overlap(a.relatedArticleIds, b.relatedArticleIds);
+    score += _overlap(a.relatedActIds, b.relatedActIds);
+    score += _overlap(a.relatedCommitteeIds, b.relatedCommitteeIds);
+    score += _overlap(a.relatedIndexIds, b.relatedIndexIds);
+    score += _overlap(a.relatedBodies, b.relatedBodies);
+    score += _overlap(a.relatedInternationalOrganisations,
+        b.relatedInternationalOrganisations);
+    return score;
+  }
+
+  static int _overlap(List<String> a, List<String> b) {
+    if (a.isEmpty || b.isEmpty) return 0;
+    final setB = b.toSet();
+    return a.where(setB.contains).length;
   }
 }

@@ -45,6 +45,7 @@ class IndexKnowledgeObject {
   final String indexName;
   final String publisher;
   final String publishingMinistry;
+  final String lastVerifiedDate;
   final String methodology;
   final List<String> indicators;
   final String weightage;
@@ -79,6 +80,7 @@ class IndexKnowledgeObject {
     required this.indexName,
     required this.publisher,
     this.publishingMinistry = '',
+    this.lastVerifiedDate = '',
     this.methodology = '',
     this.indicators = const [],
     this.weightage = '',
@@ -140,6 +142,7 @@ class IndexKnowledgeObject {
         'hasStateWiseData': hasStateWiseData,
         'topStates': topStates,
         'publishingMinistry': publishingMinistry,
+        'lastVerifiedDate': lastVerifiedDate,
         'relatedReportIds': relatedReportIds,
         'relatedArticleIds': relatedArticleIds,
         'relatedActIds': relatedActIds,
@@ -159,6 +162,7 @@ class IndexKnowledgeObject {
     String? indexName,
     String? publisher,
     String? publishingMinistry,
+    String? lastVerifiedDate,
     String? methodology,
     List<String>? indicators,
     String? weightage,
@@ -193,6 +197,7 @@ class IndexKnowledgeObject {
       indexName: indexName ?? this.indexName,
       publisher: publisher ?? this.publisher,
       publishingMinistry: publishingMinistry ?? this.publishingMinistry,
+      lastVerifiedDate: lastVerifiedDate ?? this.lastVerifiedDate,
       methodology: methodology ?? this.methodology,
       indicators: indicators ?? List.from(this.indicators),
       weightage: weightage ?? this.weightage,
@@ -233,6 +238,7 @@ class IndexKnowledgeObject {
         'indexName': indexName,
         'publisher': publisher,
         'publishingMinistry': publishingMinistry,
+        'lastVerifiedDate': lastVerifiedDate,
         'methodology': methodology,
         'indicators': indicators,
         'weightage': weightage,
@@ -269,6 +275,7 @@ class IndexKnowledgeObject {
         indexName: json['indexName'] as String? ?? '',
         publisher: json['publisher'] as String? ?? '',
         publishingMinistry: json['publishingMinistry'] as String? ?? '',
+        lastVerifiedDate: json['lastVerifiedDate'] as String? ?? '',
         methodology: json['methodology'] as String? ?? '',
         indicators:
             (json['indicators'] as List?)?.map((e) => e.toString()).toList() ??

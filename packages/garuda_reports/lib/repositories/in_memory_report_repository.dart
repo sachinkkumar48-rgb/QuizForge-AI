@@ -118,6 +118,11 @@ class InMemoryReportRepository implements ReportRepository {
   // ---- Indicators ----
 
   @override
+  Future<void> saveIndicator(IndicatorKnowledgeObject object) async {
+    _indicators[object.id] = object;
+  }
+
+  @override
   Future<IndicatorKnowledgeObject?> getIndicatorById(String id) async {
     return _indicators[id];
   }
@@ -134,6 +139,18 @@ class InMemoryReportRepository implements ReportRepository {
       ReportSearchQuery query) async {
     return ReportSearchEngine.search(
         reports: _reports.values.toList(), query: query);
+  }
+
+  @override
+  Future<List<ReportKnowledgeObject>> getRelatedReports(String reportId,
+      {int maxResults = 10}) async {
+    final report = _reports[reportId];
+    if (report == null) return const [];
+    return ReportSearchEngine.findRelatedReports(
+      report: report,
+      reports: _reports.values.toList(),
+      maxResults: maxResults,
+    );
   }
 
   @override

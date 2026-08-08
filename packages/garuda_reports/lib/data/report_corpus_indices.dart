@@ -67,7 +67,7 @@ class ReportCorpusIndices {
           'SDG India Index is a high-yield UPSC topic (GS2/GS3): India\'s composite score and state-wise SDG performance are frequently asked.',
       relatedReportIds: ['rep_niti_adp_2024'],
       relatedCurrentAffairsIds: ['ca_sdg_india_index'],
-      relatedPyqIds: ['PYQ_GS3_2022_Q08'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2022_GS3_Q008'],
       evidenceIds: ['ev_sdg_index_official'],
       keywords: [
         'SDG India Index',
@@ -133,7 +133,7 @@ class ReportCorpusIndices {
         'Ujjwala Yojana'
       ],
       relatedCurrentAffairsIds: ['ca_mpi_2023'],
-      relatedPyqIds: ['PYQ_GS1_2023_Q13', 'PYQ_GS2_2021_Q06'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS1_Q013', 'PYQ_UPSC_CSE_2021_GS2_Q006'],
       evidenceIds: ['ev_mpi_2023_official'],
       keywords: ['MPI', 'Multidimensional Poverty', 'NITI Aayog', 'Poverty'],
     ),
@@ -183,7 +183,7 @@ class ReportCorpusIndices {
         'Anganwadi Services'
       ],
       relatedCurrentAffairsIds: ['ca_global_hunger', 'ca_ghi_2024'],
-      relatedPyqIds: ['PYQ_GS1_2022_Q11'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2022_GS1_Q011'],
       evidenceIds: ['ev_ghi_2024_official'],
       keywords: [
         'Global Hunger Index',
@@ -240,7 +240,7 @@ class ReportCorpusIndices {
         'Startup India'
       ],
       relatedCurrentAffairsIds: ['ca_gii_2024'],
-      relatedPyqIds: ['PYQ_GS3_2023_Q07', 'PYQ_GS3_2021_Q04'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS3_Q007', 'PYQ_UPSC_CSE_2021_GS3_Q004'],
       evidenceIds: ['ev_gii_2024_official'],
       keywords: ['Global Innovation Index', 'WIPO', 'Innovation', 'Ranking'],
     ),
@@ -273,7 +273,7 @@ class ReportCorpusIndices {
       relatedReportIds: [],
       relatedSchemeNames: ['Ayushman Bharat', 'Samagra Shiksha Abhiyan'],
       relatedCurrentAffairsIds: ['ca_hdr_2024'],
-      relatedPyqIds: ['PYQ_GS1_2022_Q08', 'PYQ_GS2_2020_Q04'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2022_GS1_Q008', 'PYQ_UPSC_CSE_2020_GS2_Q004'],
       evidenceIds: ['ev_hdr_2024_official'],
       keywords: ['Human Development Index', 'UNDP', 'HDI', 'Human Development'],
     ),
@@ -324,7 +324,7 @@ class ReportCorpusIndices {
         'Nari Shakti Vandan Adhiniyam'
       ],
       relatedCurrentAffairsIds: ['ca_ggg_2024', 'ca_women_reservation'],
-      relatedPyqIds: ['PYQ_GS1_2023_Q12', 'PYQ_GS2_2021_Q07'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS1_Q012', 'PYQ_UPSC_CSE_2021_GS2_Q007'],
       evidenceIds: ['ev_ggg_2024_official'],
       keywords: [
         'Global Gender Gap',
@@ -392,7 +392,7 @@ class ReportCorpusIndices {
       relatedSchemeNames: ['Startup India', 'Make in India'],
       relatedDoctrineIds: ['Deregulation', 'Regulatory Impact Assessment'],
       relatedCurrentAffairsIds: ['ca_bready_report'],
-      relatedPyqIds: ['PYQ_GS3_2023_Q06', 'PYQ_GS3_2019_Q03'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS3_Q006', 'PYQ_UPSC_CSE_2019_GS3_Q003'],
       evidenceIds: ['ev_eodb_2020_official'],
       keywords: [
         'Ease of Doing Business',
@@ -439,7 +439,7 @@ class ReportCorpusIndices {
       relatedActIds: ['National Logistics Policy, 2022'],
       relatedSchemeNames: ['PM Gati Shakti', 'National Logistics Policy'],
       relatedCurrentAffairsIds: ['ca_leads_2024'],
-      relatedPyqIds: ['PYQ_GS3_2023_Q09'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS3_Q009'],
       evidenceIds: ['ev_leads_2024_official'],
       keywords: [
         'LEADS',
@@ -490,7 +490,7 @@ class ReportCorpusIndices {
         'National Air Quality Monitoring'
       ],
       relatedCurrentAffairsIds: ['ca_epi_2024'],
-      relatedPyqIds: ['PYQ_GS1_2023_Q15', 'PYQ_GS3_2020_Q18'],
+      relatedPyqIds: ['PYQ_UPSC_CSE_2023_GS1_Q015', 'PYQ_UPSC_CSE_2020_GS3_Q018'],
       evidenceIds: ['ev_epi_2024_official'],
       keywords: [
         'Environmental Performance Index',

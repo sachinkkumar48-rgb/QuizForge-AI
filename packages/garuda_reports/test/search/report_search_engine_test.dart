@@ -79,7 +79,7 @@ void main() {
     });
 
     test('should search by linked Committee', () {
-      const query = ReportSearchQuery(committee: 'comm_15th_fc');
+      const query = ReportSearchQuery(committee: 'comm_fc_15th_2017');
       final results =
           ReportSearchEngine.search(reports: mockReports, query: query);
 

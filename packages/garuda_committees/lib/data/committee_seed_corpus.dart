@@ -285,6 +285,47 @@ class CommitteeSeedCorpus {
       evidenceIds: const ['ev_15th_fc_official'],
       keywords: const ['15th Finance Commission', 'N.K. Singh', 'Article 280', 'Vertical Devolution 41%'],
     ),
+    CommitteeKnowledgeObject(
+      id: 'comm_fc_16th_2026',
+      officialName: 'Sixteenth Finance Commission of India',
+      shortName: '16th Finance Commission',
+      category: CommitteeCategory.constitutional,
+      constitutingAuthority: 'President of India under Article 280',
+      chairperson: const CommitteeMember(
+        name: 'Dr. Arvind Panagariya',
+        designation: 'Former Vice-Chairman, NITI Aayog',
+        role: 'Chairperson',
+      ),
+      yearConstituted: 2022,
+      yearDissolved: 2026,
+      currentStatus: CommitteeStatus.submitted,
+      termsOfReference: const TermsOfReference(
+        id: 'tor_fc16',
+        description:
+            'Recommend tax revenue devolution between Centre and States for the 2026-31 award period.',
+        focusAreas: [
+          'Vertical Devolution',
+          'Horizontal Devolution Formula',
+          'Fiscal Consolidation',
+          'Local Government Grants',
+        ],
+      ),
+      objectives: const [
+        'Recommend the tax devolution share of States for 2026-31',
+        'Suggest measures for fiscal consolidation and local-body financing',
+      ],
+      implementationStatus:
+          'Constituted in November 2022; report submitted to the President for the 2026-31 award period.',
+      relatedMinistries: const ['Ministry of Finance'],
+      relatedArticleIds: const ['Article 280', 'Article 270', 'Article 275'],
+      evidenceIds: const ['ev_16th_fc_official'],
+      keywords: const [
+        '16th Finance Commission',
+        'Arvind Panagariya',
+        'Article 280',
+        'Devolution 2026-31'
+      ],
+    ),
 
     // 7. Balwant Rai Mehta Committee
     CommitteeKnowledgeObject(

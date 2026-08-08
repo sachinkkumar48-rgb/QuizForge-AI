@@ -16,6 +16,33 @@ void main() {
           equals(original.publishingOrganisation));
       expect(restored.relatedArticleIds, equals(original.relatedArticleIds));
       expect(restored.relatedPyqIds, equals(original.relatedPyqIds));
+      expect(restored.lastVerifiedDate, equals(original.lastVerifiedDate));
+    });
+
+    test('lastVerifiedDate survives JSON round-trip across all entity types',
+        () {
+      final report = ReportSeedCorpus.phase1Reports.first;
+      final index = ReportSeedCorpus.phase1Indices.first;
+      final survey = ReportSeedCorpus.phase1Surveys.first;
+      final indicator = ReportSeedCorpus.phase1Indicators.first;
+
+      expect(report.lastVerifiedDate, isNotEmpty);
+      expect(
+        ReportKnowledgeObject.fromJson(report.toJson()).lastVerifiedDate,
+        equals(report.lastVerifiedDate),
+      );
+      expect(
+        IndexKnowledgeObject.fromJson(index.toJson()).lastVerifiedDate,
+        equals(index.lastVerifiedDate),
+      );
+      expect(
+        SurveyKnowledgeObject.fromJson(survey.toJson()).lastVerifiedDate,
+        equals(survey.lastVerifiedDate),
+      );
+      expect(
+        IndicatorKnowledgeObject.fromJson(indicator.toJson()).lastVerifiedDate,
+        equals(indicator.lastVerifiedDate),
+      );
     });
 
     test('should preserve embedded chapters, statistics and recommendations',

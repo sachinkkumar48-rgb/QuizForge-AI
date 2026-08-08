@@ -129,5 +129,43 @@ void main() {
       expect(corpusReport.totalPyqLinks, greaterThan(0));
       expect(corpusReport.totalCurrentAffairsLinks, greaterThan(0));
     });
+
+    test(
+        'whole Phase-I corpus: every record validates, evidence resolves and PYQ references are canonical',
+        () {
+      final pyqFormat = RegExp(r'^PYQ_UPSC_CSE_\d{4}_GS[123]_Q\d{3}$');
+
+      for (final report in ReportSeedCorpus.phase1Reports) {
+        expect(ReportValidator.validate(report).isValid, isTrue,
+            reason: 'report ${report.id} should validate clean');
+        for (final ref in report.relatedPyqIds) {
+          expect(pyqFormat.hasMatch(ref), isTrue,
+              reason: 'report ${report.id} has non-canonical PYQ ref $ref');
+        }
+        expect(
+          ReportCorpusSupport.hasResolvableEvidence(report),
+          isTrue,
+          reason: 'report ${report.id} evidence must resolve to an official URL',
+        );
+      }
+
+      for (final index in ReportSeedCorpus.phase1Indices) {
+        expect(ReportValidator.validateIndex(index).isValid, isTrue,
+            reason: 'index ${index.id} should validate clean');
+        expect(index.lastVerifiedDate, isNotEmpty);
+      }
+
+      for (final survey in ReportSeedCorpus.phase1Surveys) {
+        expect(ReportValidator.validateSurvey(survey).isValid, isTrue,
+            reason: 'survey ${survey.id} should validate clean');
+      }
+
+      for (final indicator in ReportSeedCorpus.phase1Indicators) {
+        expect(ReportValidator.validateIndicator(indicator).isValid, isTrue,
+            reason: 'indicator ${indicator.id} should validate clean');
+      }
+
+      expect(ReportSeedCorpus.corpusEvidenceCoverage, greaterThan(0.99));
+    });
   });
 }

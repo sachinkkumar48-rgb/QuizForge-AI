@@ -202,3 +202,93 @@ extension ReportChartTypeExtension on ReportChartType {
     }
   }
 }
+
+/// Institutional type of a Report, Survey, Index or Budget/Statistical document.
+enum ReportType {
+  annualReport,
+  survey,
+  census,
+  budgetDocument,
+  indexPublication,
+  statisticalPublication,
+  assessmentReport,
+  policyDocument,
+  globalReport,
+  forecast,
+}
+
+extension ReportTypeExtension on ReportType {
+  String get displayName {
+    switch (this) {
+      case ReportType.annualReport:
+        return 'Annual Report';
+      case ReportType.survey:
+        return 'Survey';
+      case ReportType.census:
+        return 'Census / Enumeration';
+      case ReportType.budgetDocument:
+        return 'Budget Document';
+      case ReportType.indexPublication:
+        return 'Index Publication';
+      case ReportType.statisticalPublication:
+        return 'Statistical Publication';
+      case ReportType.assessmentReport:
+        return 'Assessment / Outlook Report';
+      case ReportType.policyDocument:
+        return 'Policy Document';
+      case ReportType.globalReport:
+        return 'Global / Multilateral Report';
+      case ReportType.forecast:
+        return 'Forecast / Outlook';
+    }
+  }
+}
+
+/// Direction of an indicator's movement relative to its previous edition.
+enum IndicatorTrend {
+  improving,
+  worsening,
+  stable,
+  firstEdition,
+  notAvailable,
+}
+
+extension IndicatorTrendExtension on IndicatorTrend {
+  String get displayName {
+    switch (this) {
+      case IndicatorTrend.improving:
+        return 'Improving';
+      case IndicatorTrend.worsening:
+        return 'Worsening';
+      case IndicatorTrend.stable:
+        return 'Stable';
+      case IndicatorTrend.firstEdition:
+        return 'First Edition';
+      case IndicatorTrend.notAvailable:
+        return 'Not Available';
+    }
+  }
+}
+
+/// Relevance level for a specific UPSC exam stage.
+enum RelevanceLevel {
+  high,
+  medium,
+  low,
+  none,
+}
+
+extension RelevanceLevelExtension on RelevanceLevel {
+  String get displayName {
+    switch (this) {
+      case RelevanceLevel.high:
+        return 'High';
+      case RelevanceLevel.medium:
+        return 'Medium';
+      case RelevanceLevel.low:
+        return 'Low';
+      case RelevanceLevel.none:
+        return 'None';
+    }
+  }
+}

@@ -23,7 +23,7 @@ void main() {
         indicators: indicators,
       );
 
-      expect(report.totalReports, equals(18));
+      expect(report.totalReports, equals(ReportSeedCorpus.expectedReportCorpus));
       expect(report.totalIndices, equals(9));
       expect(report.totalSurveys, equals(4));
       expect(report.totalIndicators,
@@ -32,13 +32,13 @@ void main() {
       // Publisher-wise distribution
       expect(report.publisherDistribution, isNotEmpty);
       expect(report.publisherDistribution.values.reduce((a, b) => a + b),
-          equals(18));
+          equals(ReportSeedCorpus.expectedReportCorpus));
 
       // Subject-wise (category) distribution
       expect(report.categoryDistribution.containsKey(ReportCategory.economy),
           isTrue);
       expect(report.categoryDistribution.values.reduce((a, b) => a + b),
-          equals(18));
+          equals(ReportSeedCorpus.expectedReportCorpus));
 
       // Year-wise distribution
       expect(report.yearDistribution, isNotEmpty);
@@ -58,7 +58,7 @@ void main() {
       // Top linked entities
       expect(report.topLinkedArticles.containsKey('Article 280'), isTrue);
       expect(report.topLinkedActs.containsKey('FRBM Act, 2003'), isTrue);
-      expect(report.topLinkedCommittees.containsKey('comm_15th_fc'), isTrue);
+      expect(report.topLinkedCommittees.containsKey('comm_fc_15th_2017'), isTrue);
       expect(report.topLinkedSchemes.containsKey('POSHAN Abhiyaan'), isTrue);
 
       // Index rankings snapshot

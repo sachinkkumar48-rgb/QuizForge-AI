@@ -16,8 +16,14 @@ class ReportEditorialService {
   /// Submits a Report Knowledge Object into the GARUDA Editorial Production Engine.
   void submitToEditorialWorkflow(ReportKnowledgeObject object,
       {int priority = 3}) {
-    final baseKo = object.toGarudaKnowledgeObject();
-    workflowEngine.registerKnowledgeObject(baseKo, priority: priority);
+    workflowEngine.registerKnowledgeObject(object.toGarudaKnowledgeObject(),
+        priority: priority);
+  }
+
+  /// Submits any GARUDA base Knowledge Object (Index, Survey, Indicator, ...)
+  /// into the Editorial Production Engine.
+  void submitKnowledgeObject(KnowledgeObject object, {int priority = 3}) {
+    workflowEngine.registerKnowledgeObject(object, priority: priority);
   }
 
   /// Advances the Report Object to the next sequential stage in the 10-state lifecycle.

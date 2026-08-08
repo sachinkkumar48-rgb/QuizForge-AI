@@ -14,7 +14,13 @@ class IndicatorKnowledgeObject {
   final String definition;
   final String unit;
   final String value;
+  final String previousValue;
+  final IndicatorTrend trend;
+  final int? rank;
+  final String denominatorBasis;
+  final String methodologyNote;
   final String source;
+  final String lastVerifiedDate;
   final int referenceYear;
   final ReportCategory category;
   final String geographicalScope;
@@ -38,7 +44,13 @@ class IndicatorKnowledgeObject {
     this.definition = '',
     this.unit = '',
     this.value = '',
+    this.previousValue = '',
+    this.trend = IndicatorTrend.notAvailable,
+    this.rank,
+    this.denominatorBasis = '',
+    this.methodologyNote = '',
     this.source = '',
+    this.lastVerifiedDate = '',
     this.referenceYear = 0,
     this.category = ReportCategory.statistics,
     this.geographicalScope = 'India',
@@ -67,7 +79,7 @@ class IndicatorKnowledgeObject {
       subtopic: geographicalScope,
       summary: definition,
       content:
-          'Indicator: $name. Value: $value $unit. Source: $source. Year: $referenceYear.',
+          'Indicator: $name. Value: $value $unit. Previous: $previousValue. Trend: ${trend.displayName}. Rank: $rank. Source: $source. Year: $referenceYear.',
       officialSource: source,
       evidenceIds: evidenceIds,
       status: editorialStatus,
@@ -82,7 +94,13 @@ class IndicatorKnowledgeObject {
         ...metadata,
         'category': category.name,
         'value': value,
+        'previousValue': previousValue,
+        'trend': trend.name,
+        'rank': rank,
+        'denominatorBasis': denominatorBasis,
+        'methodologyNote': methodologyNote,
         'unit': unit,
+        'lastVerifiedDate': lastVerifiedDate,
         'referenceYear': referenceYear,
         'geographicalScope': geographicalScope,
         'relatedReportIds': relatedReportIds,
@@ -102,7 +120,13 @@ class IndicatorKnowledgeObject {
     String? definition,
     String? unit,
     String? value,
+    String? previousValue,
+    IndicatorTrend? trend,
+    int? rank,
+    String? denominatorBasis,
+    String? methodologyNote,
     String? source,
+    String? lastVerifiedDate,
     int? referenceYear,
     ReportCategory? category,
     String? geographicalScope,
@@ -126,7 +150,13 @@ class IndicatorKnowledgeObject {
       definition: definition ?? this.definition,
       unit: unit ?? this.unit,
       value: value ?? this.value,
+      previousValue: previousValue ?? this.previousValue,
+      trend: trend ?? this.trend,
+      rank: rank ?? this.rank,
+      denominatorBasis: denominatorBasis ?? this.denominatorBasis,
+      methodologyNote: methodologyNote ?? this.methodologyNote,
       source: source ?? this.source,
+      lastVerifiedDate: lastVerifiedDate ?? this.lastVerifiedDate,
       referenceYear: referenceYear ?? this.referenceYear,
       category: category ?? this.category,
       geographicalScope: geographicalScope ?? this.geographicalScope,
@@ -155,7 +185,13 @@ class IndicatorKnowledgeObject {
         'definition': definition,
         'unit': unit,
         'value': value,
+        'previousValue': previousValue,
+        'trend': trend.name,
+        'rank': rank,
+        'denominatorBasis': denominatorBasis,
+        'methodologyNote': methodologyNote,
         'source': source,
+        'lastVerifiedDate': lastVerifiedDate,
         'referenceYear': referenceYear,
         'category': category.name,
         'geographicalScope': geographicalScope,
@@ -181,7 +217,16 @@ class IndicatorKnowledgeObject {
         definition: json['definition'] as String? ?? '',
         unit: json['unit'] as String? ?? '',
         value: json['value'] as String? ?? '',
+        previousValue: json['previousValue'] as String? ?? '',
+        trend: IndicatorTrend.values.firstWhere(
+          (t) => t.name == json['trend'],
+          orElse: () => IndicatorTrend.notAvailable,
+        ),
+        rank: (json['rank'] as num?)?.toInt(),
+        denominatorBasis: json['denominatorBasis'] as String? ?? '',
+        methodologyNote: json['methodologyNote'] as String? ?? '',
         source: json['source'] as String? ?? '',
+        lastVerifiedDate: json['lastVerifiedDate'] as String? ?? '',
         referenceYear: (json['referenceYear'] as num?)?.toInt() ?? 0,
         category: ReportCategory.values.firstWhere(
           (c) => c.name == json['category'],

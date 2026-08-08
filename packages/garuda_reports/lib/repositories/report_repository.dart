@@ -70,10 +70,13 @@ abstract class ReportRepository {
   Future<List<SurveyKnowledgeObject>> getAllSurveys();
 
   // Indicators
+  Future<void> saveIndicator(IndicatorKnowledgeObject object);
   Future<IndicatorKnowledgeObject?> getIndicatorById(String id);
   Future<List<IndicatorKnowledgeObject>> getAllIndicators();
 
   // Search & Coverage
   Future<List<ReportKnowledgeObject>> searchReports(ReportSearchQuery query);
+  Future<List<ReportKnowledgeObject>> getRelatedReports(String reportId,
+      {int maxResults = 10});
   Future<ReportCorpusReport> generateCorpusReport();
 }

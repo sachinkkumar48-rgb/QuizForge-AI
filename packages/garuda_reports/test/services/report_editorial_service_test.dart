@@ -62,5 +62,15 @@ void main() {
       expect(surveyKo.knowledgeType, equals('SurveyKnowledgeObject'));
       expect(surveyKo.evidenceIds, isNotEmpty);
     });
+
+    test('should submit any base KnowledgeObject into the editorial engine', () {
+      final indicator = ReportSeedCorpus.phase1Indicators.first;
+      final indicatorKo = indicator.toGarudaKnowledgeObject();
+
+      expect(() => editorialService.submitKnowledgeObject(indicatorKo),
+          returnsNormally);
+      expect(indicatorKo.knowledgeType, equals('IndicatorKnowledgeObject'));
+      expect(indicatorKo.metadata['lastVerifiedDate'], isNotEmpty);
+    });
   });
 }
