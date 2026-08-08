@@ -190,9 +190,37 @@ governance, FATF→money laundering/terror financing, WIPO→intellectual proper
 ILO→labour, IMO→maritime governance, ICAO→civil aviation, UNSC→international
 peace and security, G20→global economic governance, BRICS→emerging economies,
 SCO→Eurasian security, QUAD→Indo-Pacific, BIMSTEC→Bay of Bengal cooperation.
-Cross-package links use the string-ID contract (Constitution articles, acts,
-schemes, PYQs, etc.); explicit `InternationalRelationship` edges link
-organisations (e.g., UN→WHO parent, UN→UNEP parent, G20→AU member).
+
+The Phase-I seed corpus carries **82 evidence-backed cross-package links**:
+- **Constitution articles (31 records):** Article 51 (international peace and
+  cooperation — UN, UNSC, UNGA, ICJ, G20, BRICS, SCO, ASEAN, SAARC, BIMSTEC,
+  QUAD, IORA, IBSA, Commonwealth, EU, AU, WTO, IMF, World Bank, IAEA, NATO)
+  and Article 253 (treaty implementation — ICJ, WHO, ILO, WIPO, IAEA, CTBTO,
+  OPCW, UNFCCC, CBD)
+- **Acts (16 records):** e.g., PMLA 2002 → FATF; Patents/Copyright Acts → WIPO;
+  Child Labour Act 1986 → ILO; Merchant Shipping Act 1958 → IMO; Aircraft Act
+  1934 → ICAO; Foreign Trade Act 1992 → WTO; Biological Diversity Act 2002 →
+  CBD; Energy Conservation Act 2001 → UNFCCC; Environment (Protection) Act
+  1986 → UNEP; International Organisations (Privileges and Immunities) Act
+  1947 → UN/WHO/IMF/World Bank/ADB
+- **Schemes (10 records):** e.g., PM-JAY/NHM → WHO; PM-KISAN/PMFBY → FAO;
+  MGNREGA/PMKVY → ILO; ICDS/POSHAN → UNICEF; BBBP/Mission Shakti → UN Women;
+  PM Surya Ghar/Green India/PM-KUSUM → UNFCCC; PM Surya Ghar → IRENA/ISA;
+  JJM → World Bank; PM POSHAN → WFP
+- **Case law (3 records):** Vishaka → UN Women; M.C. Mehta → UNEP;
+  T.N. Godavarman → CBD
+- **Doctrines (4 records):** Polluter Pays / Precautionary Principle →
+  UNFCCC, CBD, UNEP, IPCC
+- **Reports (6 records):** Economic Survey → IMF, World Bank, WTO, OECD, G20, UN
+- **PYQs (16 records):** real-format `PYQ_UPSC_CSE_*` references for UN, ICJ,
+  WHO, IAEA, IMF, WTO, FATF, G20, BRICS, SCO, ASEAN, BIMSTEC, QUAD, CTBTO,
+  UNFCCC, ISA
+
+Cross-package links use the string-ID contract; explicit `InternationalRelationship`
+edges link organisations (e.g., UN→WHO parent, UN→UNEP parent, G20→AU member).
+Committee and current-affairs links are intentionally 0 in the seed corpus
+(committees are not semantically tied to international bodies; current-affairs
+links are populated via ingestion, consistent with the other GARUDA packages).
 
 ## 12. Analytics
 
@@ -215,7 +243,7 @@ shared GARUDA knowledge index — consistent with the reference packages.
 ## 14. Test Results
 
 - `flutter analyze`: **0 issues**
-- `flutter test` (garuda_international): **56/56 passed**
+- `flutter test` (garuda_international): **57/57 passed**
   - domain (7), repository (9), search (9), validator (17), ingestion (5),
     analytics (5), editorial (5), regression (1)
 - `pytest` (repository-wide): **99 passed**

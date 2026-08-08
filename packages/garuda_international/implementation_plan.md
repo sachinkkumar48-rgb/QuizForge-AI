@@ -167,7 +167,7 @@ Implemented and verified.
 | Search engine (relevance-ranked) | ✅ | `search/international_search_engine.dart` |
 | Validator (evidence-gated) | ✅ | `validators/international_validator.dart` |
 | Ingestion pipeline | ✅ | `ingestion/international_ingestion_pipeline.dart` |
-| Relationship mapping | ✅ | evidence-backed cross-links + `InternationalRelationship` edges |
+| Relationship mapping | ✅ | evidence-backed cross-links (31 article, 16 act, 3 case-law, 4 doctrine, 6 report, 10 scheme, 16 PYQ) + `InternationalRelationship` edges |
 | India intelligence | ✅ | `indiaMembership`, `indiaJoiningYear`, `indiaRole`, hosted events, initiatives |
 | UPSC intelligence | ✅ | relevance levels, `prelimsTraps`, `mainsThemes`, `essayThemes`, `interviewAreas` |
 | Analytics engine | ✅ | `analytics/international_analytics_engine.dart` |
