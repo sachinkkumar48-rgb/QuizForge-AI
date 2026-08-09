@@ -54,3 +54,7 @@ export 'search/domain/case_search_filters.dart';
 export 'search/data/case_search_normalizer.dart';
 export 'search/data/case_search_index.dart';
 export 'search/service/case_search_engine.dart';
+
+// Corpus Validation (TITAN-KO-015.0 P7)
+export 'validation/corpus_validation_models.dart';
+export 'validation/corpus_validator.dart';

@@ -38,6 +38,10 @@ Search      search/domain/               (CaseSearchQuery | CaseSearchFilters |
                                          CaseSearchResult | CaseSearchSuggestion)
             search/data/                 (CaseSearchNormalizer | CaseSearchIndex)
             search/service/              (CaseSearchEngine — see P6_CASE_SEARCH_ENGINE.md)
+
+Validation  validation/                  (CorpusValidator orchestrates the existing
+                                         validators + corpus-level & cross-package
+                                         integrity — see P7_CORPUS_VALIDATION.md)
 ```
 
 ## Quick start
