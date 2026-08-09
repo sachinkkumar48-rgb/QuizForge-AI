@@ -1,6 +1,7 @@
 library;
 
 import 'package:meta/meta.dart';
+import '../intelligence/validation/judgment_intelligence_validator.dart';
 import '../repositories/case_repository.dart';
 
 @immutable
@@ -112,6 +113,17 @@ class CaseValidator {
           caseId: c.objectId,
         ));
       }
+
+      // 5. Judgment Intelligence (TITAN-KO-015.0 P4) — evidence-gated.
+      // Only hard errors are surfaced here; quality warnings remain advisory.
+      final intelResult = JudgmentIntelligenceValidator.validate(c);
+      for (final issue in intelResult.errors) {
+        errors.add(CaseValidationError(
+          code: 'INTEL_${issue.code}',
+          message: issue.message,
+          caseId: c.objectId,
+        ));
+      }
     }
 
     if (errors.isNotEmpty) {
@@ -119,5 +131,13 @@ class CaseValidator {
     }
 
     return CaseValidationResult.success();
+  }
+
+  /// Standalone evidence-gated validation of Judgment Intelligence across a
+  /// whole repository. Returns structured issues (errors and warnings).
+  static Future<IntelligenceValidationResult> validateIntelligence(
+      CaseRepository repository) async {
+    final cases = await repository.getCases();
+    return JudgmentIntelligenceValidator.validateRepository(cases);
   }
 }

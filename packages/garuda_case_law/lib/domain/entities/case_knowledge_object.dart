@@ -2,6 +2,7 @@ library;
 
 import 'package:garuda_editor/garuda_editor.dart' show EditorialStatus, KnowledgeObject;
 import 'package:meta/meta.dart';
+import '../../intelligence/domain/judgment_intelligence.dart';
 import 'case_enums.dart';
 import 'precedent_relationship.dart';
 
@@ -211,6 +212,14 @@ class CaseKnowledgeObject {
   /// Evidence IDs resolving against the case-law official-source registry.
   final List<String> evidenceIds;
 
+  // ---------------------------------------------------------------------------
+  // TITAN-KO-015.0 P4 — Judgment Intelligence
+  // ---------------------------------------------------------------------------
+
+  /// Structured Judgment Intelligence (TITAN-KO-015.0 P4), null when not yet
+  /// built. Nullable for backward compatibility: legacy records remain valid.
+  final JudgmentIntelligence? judgmentIntelligence;
+
   const CaseKnowledgeObject({
     required this.objectId,
     required this.caseId,
@@ -309,6 +318,7 @@ class CaseKnowledgeObject {
     this.publicationDate = '',
     this.lastVerifiedDate = '',
     this.evidenceIds = const [],
+    this.judgmentIntelligence,
   });
 
   /// Backwards-compatible alias for UPSC PYQ links.
@@ -413,6 +423,8 @@ class CaseKnowledgeObject {
         'publicationDate': publicationDate,
         'lastVerifiedDate': lastVerifiedDate,
         'evidenceIds': evidenceIds,
+        if (judgmentIntelligence != null)
+          'judgmentIntelligence': judgmentIntelligence!.toJson(),
       };
 
   factory CaseKnowledgeObject.fromJson(Map<String, dynamic> json) =>
@@ -545,6 +557,10 @@ class CaseKnowledgeObject {
         publicationDate: json['publicationDate'] as String? ?? '',
         lastVerifiedDate: json['lastVerifiedDate'] as String? ?? '',
         evidenceIds: (json['evidenceIds'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+        judgmentIntelligence: json['judgmentIntelligence'] == null
+            ? null
+            : JudgmentIntelligence.fromJson(
+                json['judgmentIntelligence'] as Map<String, dynamic>),
       );
 
   /// Returns a copy of this object with the given fields replaced.
@@ -637,6 +653,7 @@ class CaseKnowledgeObject {
     String? publicationDate,
     String? lastVerifiedDate,
     List<String>? evidenceIds,
+    JudgmentIntelligence? judgmentIntelligence,
   }) {
     return CaseKnowledgeObject(
       objectId: objectId ?? this.objectId,
@@ -743,6 +760,8 @@ class CaseKnowledgeObject {
       publicationDate: publicationDate ?? this.publicationDate,
       lastVerifiedDate: lastVerifiedDate ?? this.lastVerifiedDate,
       evidenceIds: evidenceIds ?? this.evidenceIds,
+      judgmentIntelligence:
+          judgmentIntelligence ?? this.judgmentIntelligence,
     );
   }
 
@@ -812,6 +831,8 @@ class CaseKnowledgeObject {
         'interviewRelevance': interviewRelevance.name,
         'legalPrinciple': legalPrinciple,
         'lastVerifiedDate': lastVerifiedDate,
+        if (judgmentIntelligence != null)
+          'judgmentIntelligence': judgmentIntelligence!.toJson(),
       },
     );
   }
