@@ -44,3 +44,13 @@ export 'graph/service/legal_graph_traversal_service.dart';
 export 'graph/validation/legal_graph_validator.dart';
 export 'graph/analytics/legal_graph_analytics.dart';
 export 'graph/integration/garuda_knowledge_graph_bridge.dart';
+
+// Case Law Search Engine (TITAN-KO-015.0 P6)
+export 'search/domain/case_search_enums.dart';
+export 'search/domain/case_search_result.dart';
+export 'search/domain/case_search_suggestion.dart';
+export 'search/domain/case_search_query.dart';
+export 'search/domain/case_search_filters.dart';
+export 'search/data/case_search_normalizer.dart';
+export 'search/data/case_search_index.dart';
+export 'search/service/case_search_engine.dart';

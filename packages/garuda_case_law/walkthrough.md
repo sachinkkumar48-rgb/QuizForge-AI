@@ -33,6 +33,11 @@ Data        landmark_cases_phase1.dart   (20 Phase-I cases, article refs normali
 Infra       repositories/                (CaseRepository + InMemoryCaseRepository)
             validators/case_validator.dart
             analyzer/case_analyzer.dart  (CaseAnalysisReport)
+
+Search      search/domain/               (CaseSearchQuery | CaseSearchFilters |
+                                         CaseSearchResult | CaseSearchSuggestion)
+            search/data/                 (CaseSearchNormalizer | CaseSearchIndex)
+            search/service/              (CaseSearchEngine — see P6_CASE_SEARCH_ENGINE.md)
 ```
 
 ## Quick start
