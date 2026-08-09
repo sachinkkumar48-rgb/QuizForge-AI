@@ -74,3 +74,13 @@ export 'rendering/case_export_service.dart';
 export 'discovery/domain/discovery_reason.dart';
 export 'discovery/domain/related_case_result.dart';
 export 'discovery/service/case_discovery_service.dart';
+
+// Evidence-Bounded Cross-Case Analysis (TITAN-KO-015.0 P10)
+export 'analysis/domain/analysis_enums.dart';
+export 'analysis/domain/structural_observation.dart';
+export 'analysis/domain/case_comparison.dart';
+export 'analysis/domain/chronology.dart';
+export 'analysis/domain/precedent_chain_analysis.dart';
+export 'analysis/domain/doctrine_analysis.dart';
+export 'analysis/domain/case_synthesis.dart';
+export 'analysis/service/cross_case_analysis_service.dart';
