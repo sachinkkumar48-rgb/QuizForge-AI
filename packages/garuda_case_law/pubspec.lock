@@ -168,7 +168,7 @@ packages:
     source: path
     version: "0.1.0"
   garuda_graph:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "../garuda_graph"
       relative: true

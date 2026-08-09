@@ -56,6 +56,9 @@ enum PrecedentRelationshipType {
   followed,
   overruled,
   distinguished,
+  /// Explicitly curated affinity (e.g. the `relatedCases` field of a case
+  /// record). Recorded only where the corpus itself establishes the link.
+  related,
   affirmed,
   reversed,
   applied,

@@ -29,3 +29,18 @@ export 'repositories/in_memory_case_repository.dart';
 
 // Validators
 export 'validators/case_validator.dart';
+
+// Precedent & Doctrine Graph (TITAN-KO-015.0 P5)
+export 'graph/domain/doctrine_relationship_type.dart';
+export 'graph/domain/legal_graph_node_type.dart';
+export 'graph/domain/legal_graph_node_ref.dart';
+export 'graph/domain/legal_graph_edge.dart';
+export 'graph/domain/legal_graph.dart';
+export 'graph/domain/legal_graph_path.dart';
+export 'graph/data/legal_graph_seed.dart';
+export 'graph/service/precedent_graph_service.dart';
+export 'graph/service/doctrine_relationship_service.dart';
+export 'graph/service/legal_graph_traversal_service.dart';
+export 'graph/validation/legal_graph_validator.dart';
+export 'graph/analytics/legal_graph_analytics.dart';
+export 'graph/integration/garuda_knowledge_graph_bridge.dart';

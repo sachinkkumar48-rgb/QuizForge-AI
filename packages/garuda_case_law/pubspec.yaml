@@ -16,6 +16,8 @@ dependencies:
     path: ../garuda_doctrine
   garuda_evidence:
     path: ../garuda_evidence
+  garuda_graph:
+    path: ../garuda_graph
 
 dev_dependencies:
   flutter_test:
