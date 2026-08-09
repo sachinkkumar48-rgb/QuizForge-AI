@@ -58,3 +58,14 @@ export 'search/service/case_search_engine.dart';
 // Corpus Validation (TITAN-KO-015.0 P7)
 export 'validation/corpus_validation_models.dart';
 export 'validation/corpus_validator.dart';
+
+// Export & Rendering (TITAN-KO-015.0 P8)
+export 'rendering/render_format.dart';
+export 'rendering/html_safety.dart';
+export 'rendering/evidence_entry.dart';
+export 'rendering/markdown_case_renderer.dart';
+export 'rendering/html_case_renderer.dart';
+export 'rendering/json_case_renderer.dart';
+export 'rendering/corpus_index_renderer.dart';
+export 'rendering/corpus_statistics_renderer.dart';
+export 'rendering/case_export_service.dart';
