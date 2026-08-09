@@ -69,3 +69,8 @@ export 'rendering/json_case_renderer.dart';
 export 'rendering/corpus_index_renderer.dart';
 export 'rendering/corpus_statistics_renderer.dart';
 export 'rendering/case_export_service.dart';
+
+// Case Discovery & Exploration (TITAN-KO-015.0 P9)
+export 'discovery/domain/discovery_reason.dart';
+export 'discovery/domain/related_case_result.dart';
+export 'discovery/service/case_discovery_service.dart';
