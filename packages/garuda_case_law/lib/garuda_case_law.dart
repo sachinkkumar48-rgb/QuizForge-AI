@@ -90,3 +90,9 @@ export 'explanation/domain/explanation_enums.dart';
 export 'explanation/domain/explanation_section.dart';
 export 'explanation/domain/case_explanation.dart';
 export 'explanation/service/case_explanation_service.dart';
+
+// Evidence-Backed Doctrine Knowledge Products (TITAN-KO-015.0 P12)
+export 'doctrine_product/domain/doctrine_product_enums.dart';
+export 'doctrine_product/domain/doctrine_product_section.dart';
+export 'doctrine_product/domain/doctrine_knowledge_product.dart';
+export 'doctrine_product/service/doctrine_knowledge_product_service.dart';
