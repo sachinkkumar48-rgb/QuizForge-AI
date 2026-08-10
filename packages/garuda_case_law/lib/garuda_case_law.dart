@@ -84,3 +84,9 @@ export 'analysis/domain/precedent_chain_analysis.dart';
 export 'analysis/domain/doctrine_analysis.dart';
 export 'analysis/domain/case_synthesis.dart';
 export 'analysis/service/cross_case_analysis_service.dart';
+
+// Evidence-Backed Case Explanation (TITAN-KO-015.0 P11)
+export 'explanation/domain/explanation_enums.dart';
+export 'explanation/domain/explanation_section.dart';
+export 'explanation/domain/case_explanation.dart';
+export 'explanation/service/case_explanation_service.dart';
