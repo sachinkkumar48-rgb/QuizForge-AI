@@ -112,3 +112,10 @@ export 'topic_product/domain/topic_knowledge_product.dart';
 export 'topic_product/data/topic_syllabus_config.dart';
 export 'topic_product/service/topic_knowledge_product_service.dart';
 export 'topic_product/validation/topic_mapping_validator.dart';
+
+// Evidence-Backed Question-Answer Knowledge Products (TITAN-KO-015.0 P15)
+export 'question_product/domain/question_product_enums.dart';
+export 'question_product/domain/structured_answer.dart';
+export 'question_product/domain/legal_question.dart';
+export 'question_product/domain/question_knowledge_product.dart';
+export 'question_product/service/question_knowledge_product_service.dart';
