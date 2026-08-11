@@ -96,3 +96,9 @@ export 'doctrine_product/domain/doctrine_product_enums.dart';
 export 'doctrine_product/domain/doctrine_product_section.dart';
 export 'doctrine_product/domain/doctrine_knowledge_product.dart';
 export 'doctrine_product/service/doctrine_knowledge_product_service.dart';
+
+// Evidence-Backed Statute / Article Knowledge Products (TITAN-KO-015.0 P13)
+export 'statute_product/domain/statute_product_enums.dart';
+export 'statute_product/domain/statute_product_section.dart';
+export 'statute_product/domain/statute_knowledge_product.dart';
+export 'statute_product/service/statute_knowledge_product_service.dart';
