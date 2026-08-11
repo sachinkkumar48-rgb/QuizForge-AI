@@ -102,3 +102,13 @@ export 'statute_product/domain/statute_product_enums.dart';
 export 'statute_product/domain/statute_product_section.dart';
 export 'statute_product/domain/statute_knowledge_product.dart';
 export 'statute_product/service/statute_knowledge_product_service.dart';
+
+// Evidence-Bounded UPSC Topic Knowledge Products (TITAN-KO-015.0 P14)
+export 'topic_product/domain/topic_product_enums.dart';
+export 'topic_product/domain/topic_product_section.dart';
+export 'topic_product/domain/topic_identity.dart';
+export 'topic_product/domain/topic_membership.dart';
+export 'topic_product/domain/topic_knowledge_product.dart';
+export 'topic_product/data/topic_syllabus_config.dart';
+export 'topic_product/service/topic_knowledge_product_service.dart';
+export 'topic_product/validation/topic_mapping_validator.dart';
