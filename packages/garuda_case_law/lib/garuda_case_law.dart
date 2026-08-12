@@ -119,3 +119,11 @@ export 'question_product/domain/structured_answer.dart';
 export 'question_product/domain/legal_question.dart';
 export 'question_product/domain/question_knowledge_product.dart';
 export 'question_product/service/question_knowledge_product_service.dart';
+
+// Knowledge Product Navigator & Cross-Referencing (TITAN-KO-015.0 P16)
+export 'navigation/domain/knowledge_product_type.dart';
+export 'navigation/domain/navigation_relationship_type.dart';
+export 'navigation/domain/navigation_direction.dart';
+export 'navigation/domain/knowledge_product_reference.dart';
+export 'navigation/domain/knowledge_product_collection.dart';
+export 'navigation/service/knowledge_product_navigator_service.dart';
