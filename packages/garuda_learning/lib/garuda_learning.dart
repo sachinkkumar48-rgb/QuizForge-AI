@@ -1,9 +1,7 @@
-/// GARUDA Learning Objectives & Curriculum Framework Package (TITAN-KO-017.0 P17 & TITAN-KO-018.0 P18).
+/// GARUDA Learning Objectives & Curriculum Framework Package (P17, P18 & P19).
 ///
 /// Deterministic, versioned, evidence-backed curriculum configuration, sequence,
-/// learner progress tracking, and assessment engine organizing P11–P16 Knowledge
-/// Products into structured Learning Objectives, explicit Prerequisite sequences,
-/// deterministic answer evaluation, and objective achievement tracking.
+/// learner progress tracking, assessment engine, and learning session orchestration.
 library;
 
 // P17 Domain Entities
@@ -27,12 +25,25 @@ export 'domain/entities/learner_objective_status.dart';
 export 'domain/entities/learner_progress.dart';
 export 'domain/entities/question_attempt.dart';
 
+// P19 Domain Entities
+export 'domain/entities/learning_session.dart';
+export 'domain/entities/learning_session_state.dart';
+export 'domain/entities/question_selection_policy.dart';
+export 'domain/entities/question_sequencer_policy.dart';
+export 'domain/entities/session_configuration.dart';
+export 'domain/entities/session_progress_summary.dart';
+
 // Evaluators
 export 'evaluation/answer_evaluator.dart';
 export 'evaluation/manual_evaluator.dart';
 export 'evaluation/multiple_choice_evaluator.dart';
 export 'evaluation/short_answer_evaluator.dart';
 export 'evaluation/true_false_evaluator.dart';
+
+// P19 Orchestration Engine
+export 'orchestration/learning_session_orchestrator.dart';
+export 'orchestration/question_selector.dart';
+export 'orchestration/question_sequencer.dart';
 
 // Repositories
 export 'repository/attempt_repository.dart';
