@@ -16,6 +16,7 @@ void main() {
     late Learner learner;
     late String objectiveId;
     late String questionId;
+    late String correctAnswer;
 
     setUp(() {
       learnerRepo = InMemoryLearnerRepository();
@@ -43,7 +44,10 @@ void main() {
       learnerRepo.save(learner);
 
       objectiveId = 'lo_basic_structure_doctrine';
-      questionId = questionService.buildAll().first.questions.first.questionId;
+      final firstQuestion = questionService.buildAll().first.questions.first;
+      questionId = firstQuestion.questionId;
+      // The genuinely correct answer for the selected corpus question.
+      correctAnswer = firstQuestion.answer.answerText;
     });
 
     test('1. Learner profile creation, lookup, and repository round-trip', () {
@@ -57,7 +61,7 @@ void main() {
         learnerId: learner.id,
         questionId: questionId,
         objectiveId: objectiveId,
-        submittedAnswer: 'Kesavananda Bharati v. State of Kerala (1973)',
+        submittedAnswer: correctAnswer,
       );
 
       final attempt = attemptRepo.getAttemptById(result.attemptId);
@@ -73,7 +77,7 @@ void main() {
         learnerId: learner.id,
         questionId: questionId,
         objectiveId: objectiveId,
-        submittedAnswer: 'Kesavananda Bharati v. State of Kerala (1973)',
+        submittedAnswer: correctAnswer,
       );
 
       expect(result.attemptId, isNotEmpty);
@@ -103,7 +107,7 @@ void main() {
           learnerId: learner.id,
           questionId: questionId,
           objectiveId: objectiveId,
-          submittedAnswer: 'Kesavananda Bharati v. State of Kerala (1973)',
+          submittedAnswer: correctAnswer,
         );
 
         final progress = progressRepo.getProgress(learner.id, objectiveId);
@@ -119,9 +123,7 @@ void main() {
         () {
       for (var i = 1; i <= 5; i++) {
         // 4 out of 5 correct = 80%
-        final answer = (i <= 4)
-            ? 'Kesavananda Bharati v. State of Kerala (1973)'
-            : 'Incorrect Case';
+        final answer = (i <= 4) ? correctAnswer : 'Incorrect Case';
 
         assessmentService.submitAttempt(
           learnerId: learner.id,
@@ -145,9 +147,7 @@ void main() {
         () {
       for (var i = 1; i <= 5; i++) {
         // 3 out of 5 correct = 60%
-        final answer = (i <= 3)
-            ? 'Kesavananda Bharati v. State of Kerala (1973)'
-            : 'Incorrect Case';
+        final answer = (i <= 3) ? correctAnswer : 'Incorrect Case';
 
         assessmentService.submitAttempt(
           learnerId: learner.id,
@@ -310,11 +310,11 @@ void main() {
         '13. Attempt history replay yields identical aggregated progress state',
         () {
       final submissionAnswers = [
-        'Kesavananda Bharati v. State of Kerala (1973)',
-        'Kesavananda Bharati v. State of Kerala (1973)',
-        'Kesavananda Bharati v. State of Kerala (1973)',
-        'Kesavananda Bharati v. State of Kerala (1973)',
-        'Kesavananda Bharati v. State of Kerala (1973)',
+        correctAnswer,
+        correctAnswer,
+        correctAnswer,
+        correctAnswer,
+        correctAnswer,
       ];
 
       for (final ans in submissionAnswers) {
@@ -420,7 +420,7 @@ void main() {
           learnerId: learner.id,
           questionId: questionId,
           objectiveId: objectiveId,
-          submittedAnswer: 'Kesavananda Bharati v. State of Kerala (1973)',
+          submittedAnswer: correctAnswer,
           sessionId: session.sessionId,
         );
       }

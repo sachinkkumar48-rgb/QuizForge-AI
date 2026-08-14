@@ -16,6 +16,7 @@ void main() {
     late Learner validLearner;
     late String validObjectiveId;
     late String validQuestionId;
+    late String validCorrectAnswer;
 
     setUp(() {
       learnerRepo = InMemoryLearnerRepository();
@@ -50,7 +51,10 @@ void main() {
 
       // Pick a valid P15 question ID from questionService
       final questionProducts = questionService.buildAll();
-      validQuestionId = questionProducts.first.questions.first.questionId;
+      final firstQuestion = questionProducts.first.questions.first;
+      validQuestionId = firstQuestion.questionId;
+      // The genuinely correct answer for the selected corpus question.
+      validCorrectAnswer = firstQuestion.answer.answerText;
     });
 
     test('Valid attempt submission evaluates, persists, and updates progress',
@@ -147,7 +151,7 @@ void main() {
           learnerId: validLearner.id,
           questionId: validQuestionId,
           objectiveId: validObjectiveId,
-          submittedAnswer: 'Kesavananda Bharati v. State of Kerala (1973)',
+          submittedAnswer: validCorrectAnswer,
         );
       }
 

@@ -37,16 +37,28 @@ class ShortAnswerEvaluator implements AnswerEvaluator {
       );
     }
 
-    final keywords = requiredKeywords ?? _extractKeywords(question);
-    if (keywords.isEmpty) {
-      // Fall back to exact substring match of answerText
-      final exp = question.answer.answerText.trim().toLowerCase();
-      final isExact = sub == exp || sub.contains(exp) || exp.contains(sub);
+    // Canonical answer precedence: a submission matching the recorded
+    // answer text is deterministically correct, independent of keyword
+    // ratio (principle-derived keywords must not dilute an exact answer).
+    final exp = question.answer.answerText.trim().toLowerCase();
+    if (sub == exp || sub.contains(exp) || exp.contains(sub)) {
       return AttemptResult(
         attemptId: attempt.attemptId,
-        isCorrect: isExact,
-        score: isExact ? 1.0 : 0.0,
-        feedback: isExact ? 'Exact answer match.' : 'Answer does not match.',
+        isCorrect: true,
+        score: 1.0,
+        feedback: 'Exact answer match.',
+        evaluatedAt: DateTime.now().toUtc(),
+        evaluationMethod: supportedMethod,
+      );
+    }
+
+    final keywords = requiredKeywords ?? _extractKeywords(question);
+    if (keywords.isEmpty) {
+      return AttemptResult(
+        attemptId: attempt.attemptId,
+        isCorrect: false,
+        score: 0.0,
+        feedback: 'Answer does not match.',
         evaluatedAt: DateTime.now().toUtc(),
         evaluationMethod: supportedMethod,
       );

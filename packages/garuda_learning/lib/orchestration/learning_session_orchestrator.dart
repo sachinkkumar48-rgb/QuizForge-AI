@@ -106,13 +106,17 @@ class LearningSessionOrchestrator {
     final orderedQuestionIds =
         sequencedQuestions.map((q) => q.questionId).toList();
 
-    // 5. Initialize linked P18 AssessmentSession
-    final p18Session = _sessionManager.startSession(
-      learnerId: config.learnerId,
-      objectiveIds: config.objectiveIds,
-      questionIds: orderedQuestionIds,
-      sessionId: 'p18_$id',
-    );
+    // 5. Initialize linked P18 AssessmentSession. When a learning session ID
+    // is recreated, reuse the existing linked P18 session instead of
+    // attempting to start a duplicate (SessionManager rejects duplicate IDs).
+    final p18SessionId = 'p18_$id';
+    final p18Session = _sessionManager.getSession(p18SessionId) ??
+        _sessionManager.startSession(
+          learnerId: config.learnerId,
+          objectiveIds: config.objectiveIds,
+          questionIds: orderedQuestionIds,
+          sessionId: p18SessionId,
+        );
 
     // 6. Instantiate LearningSession
     final session = LearningSession(
