@@ -1,8 +1,8 @@
-/// GARUDA Learning Objectives & Curriculum Framework Package (P17, P18, P19 & P20).
+/// GARUDA Learning Objectives & Curriculum Framework Package (P17, P18, P19, P20 & P21).
 ///
 /// Deterministic, versioned, evidence-backed curriculum configuration, sequence,
 /// learner progress tracking, assessment engine, learning session orchestration,
-/// and spaced repetition review scheduling.
+/// spaced repetition review scheduling, and adaptive learning path recommendation engine.
 library;
 
 // P17 Domain Entities
@@ -40,6 +40,12 @@ export 'domain/entities/review_item.dart';
 export 'domain/entities/review_result.dart';
 export 'domain/entities/review_schedule.dart';
 
+// P21 Domain Entities
+export 'domain/entities/learning_recommendation.dart';
+export 'domain/entities/recommendation_policy.dart';
+export 'domain/entities/recommendation_queue.dart';
+export 'domain/entities/recommendation_type.dart';
+
 // Evaluators
 export 'evaluation/answer_evaluator.dart';
 export 'evaluation/manual_evaluator.dart';
@@ -54,18 +60,22 @@ export 'orchestration/question_sequencer.dart';
 
 // Repositories
 export 'repository/attempt_repository.dart';
+export 'repository/in_memory_recommendation_repository.dart';
 export 'repository/learner_repository.dart';
 export 'repository/progress_repository.dart';
+export 'repository/recommendation_repository.dart';
 export 'repository/review_schedule_repository.dart';
 
 // Data Seed
 export 'data/curriculum_seed_data.dart';
 
 // Services & Engine
+export 'service/adaptive_recommendation_service.dart';
 export 'service/assessment_service.dart';
 export 'service/curriculum_service.dart';
 export 'service/deterministic_sequence_resolver.dart';
 export 'service/progress_tracker.dart';
+export 'service/recommendation_engine.dart';
 export 'service/session_manager.dart';
 export 'service/spaced_repetition_service.dart';
 
