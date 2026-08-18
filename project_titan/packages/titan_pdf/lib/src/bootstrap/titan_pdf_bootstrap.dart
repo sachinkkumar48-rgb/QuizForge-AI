@@ -1,8 +1,8 @@
-import 'package:titan_ai/titan_ai.dart';
+import 'package:titan_ai/titan_ai.dart' hide AIService;
 import 'package:titan_core/titan_core.dart';
 import 'package:titan_domain/titan_domain.dart';
-import 'package:titan_network/titan_network.dart';
-import 'package:titan_storage/titan_storage.dart';
+import 'package:titan_network/titan_network.dart' hide NetworkService;
+import 'package:titan_storage/titan_storage.dart' hide StorageService;
 
 import '../repository/pdf_repository.dart';
 import '../repository/pdf_repository_impl.dart';

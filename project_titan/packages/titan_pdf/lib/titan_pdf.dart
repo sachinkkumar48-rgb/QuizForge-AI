@@ -11,3 +11,4 @@ export 'src/models/pdf_metadata.dart';
 export 'src/models/pdf_status.dart';
 export 'src/repository/pdf_repository.dart';
 export 'src/repository/pdf_repository_impl.dart';
+export 'src/services/pdf_validation_service.dart';
