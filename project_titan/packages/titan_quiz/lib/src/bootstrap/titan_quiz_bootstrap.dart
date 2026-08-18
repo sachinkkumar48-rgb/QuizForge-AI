@@ -1,5 +1,7 @@
 import 'package:titan_core/titan_core.dart';
-import 'package:titan_domain/titan_domain.dart';
+// StorageService resolves to the titan_storage abstraction required by
+// QuizRepositoryImpl; the titan_domain port of the same name is hidden.
+import 'package:titan_domain/titan_domain.dart' hide StorageService;
 import 'package:titan_storage/titan_storage.dart';
 
 import '../repository/quiz_repository.dart';

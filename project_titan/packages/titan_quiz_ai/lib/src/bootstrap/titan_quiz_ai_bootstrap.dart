@@ -1,6 +1,8 @@
 import 'package:titan_ai/titan_ai.dart';
 import 'package:titan_core/titan_core.dart';
-import 'package:titan_domain/titan_domain.dart';
+// AIService resolves to the titan_ai abstraction required by
+// AIQuizGenerationService; the titan_domain port of the same name is hidden.
+import 'package:titan_domain/titan_domain.dart' hide AIService;
 import 'package:titan_pdf/titan_pdf.dart';
 import 'package:titan_quiz/titan_quiz.dart';
 
