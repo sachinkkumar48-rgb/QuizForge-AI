@@ -1,5 +1,5 @@
 import 'package:garuda_learning/garuda_learning.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('LearningSession Domain Model Tests (TITAN-KO-019.0 P19)', () {
