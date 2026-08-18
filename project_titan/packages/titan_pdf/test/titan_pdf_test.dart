@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
-import 'package:titan_ai/titan_ai.dart';
 import 'package:titan_core/titan_core.dart';
-import 'package:titan_network/titan_network.dart';
+import 'package:titan_domain/titan_domain.dart' as domain;
 import 'package:titan_pdf/src/services/pdf_chunk_service.dart';
 import 'package:titan_pdf/src/services/pdf_import_service.dart';
 import 'package:titan_pdf/src/services/pdf_validation_service.dart';
@@ -9,7 +8,9 @@ import 'package:titan_pdf/src/services/token_estimator.dart';
 import 'package:titan_pdf/titan_pdf.dart';
 import 'package:titan_storage/titan_storage.dart';
 
-class _MockAIService implements AIService {
+// Mocks implement the titan_domain ports required by BaseRepository /
+// PdfRepositoryImpl, not the concrete package abstractions.
+class _MockAIService implements domain.AIService {
   bool _initialized = false;
   @override
   bool get isInitialized => _initialized;
@@ -19,11 +20,11 @@ class _MockAIService implements AIService {
   }
 
   @override
-  List<AIModel> availableModels() => const [];
+  List<domain.AIModel> availableModels() => const [];
   @override
-  AIModel defaultModel() => throw UnimplementedError();
+  domain.AIModel defaultModel() => throw UnimplementedError();
   @override
-  Future<AIResponse<T>> generate<T>(AIRequest request) async =>
+  Future<domain.AIResponse<T>> generate<T>(domain.AIRequest request) async =>
       throw UnimplementedError();
   @override
   Future<void> close() async {
@@ -31,7 +32,7 @@ class _MockAIService implements AIService {
   }
 }
 
-class _MockStorageService implements StorageService {
+class _MockStorageService implements domain.StorageService {
   bool _initialized = false;
   final Map<String, dynamic> _store = {};
 
@@ -50,7 +51,7 @@ class _MockStorageService implements StorageService {
   Future<T?> read<T>(StorageKey key) async => _store[key.qualifiedKey] as T?;
 
   @override
-  Future<StorageEntry<T>?> readEntry<T>(StorageKey key) async => null;
+  Future<domain.StorageEntry<T>?> readEntry<T>(StorageKey key) async => null;
 
   @override
   Future<void> write<T>(StorageKey key, T value) async {
@@ -85,7 +86,7 @@ class _MockStorageService implements StorageService {
   }
 }
 
-class _MockNetworkService implements NetworkService {
+class _MockNetworkService implements domain.NetworkService {
   bool _initialized = false;
   @override
   bool get isInitialized => _initialized;
@@ -95,25 +96,32 @@ class _MockNetworkService implements NetworkService {
   }
 
   @override
-  Future<NetworkResponse<T>> get<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> get<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
-  Future<NetworkResponse<T>> post<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> post<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
-  Future<NetworkResponse<T>> put<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> put<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
-  Future<NetworkResponse<T>> patch<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> patch<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
-  Future<NetworkResponse<T>> delete<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> delete<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
-  Future<NetworkResponse<T>> head<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> head<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
-  Future<NetworkResponse<T>> request<T>(NetworkRequest request) async =>
+  Future<domain.NetworkResponse<T>> request<T>(
+          domain.NetworkRequest request) async =>
       throw UnimplementedError();
   @override
   Future<void> close() async {
@@ -297,9 +305,9 @@ Paragraph 3: It imparts constitutional supremacy and was adopted by its people w
         throwsA(isA<TitanMissingDependencyException>()),
       );
 
-      locator.registerSingleton<AIService>(mockAI);
-      locator.registerSingleton<StorageService>(mockStorage);
-      locator.registerSingleton<NetworkService>(mockNetwork);
+      locator.registerSingleton<domain.AIService>(mockAI);
+      locator.registerSingleton<domain.StorageService>(mockStorage);
+      locator.registerSingleton<domain.NetworkService>(mockNetwork);
 
       expect(bootstrap.isInitialized, isFalse);
       await bootstrap.initialize();
