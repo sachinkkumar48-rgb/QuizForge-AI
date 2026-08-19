@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:titan_reader/src/domain/entities/reader_bookmark.dart';
 import 'package:titan_reader/src/pdf/pdf_engine_contracts.dart';
 
 /// In-memory [PdfDocumentEngine] used by widget tests so the UI can be
@@ -45,8 +46,21 @@ class FakeViewerHandle implements PdfViewerHandle {
   int nextMatchCalls = 0;
   int previousMatchCalls = 0;
 
+  /// Scripted selection returned by [captureTextSelection].
+  PdfTextSelectionSnapshot? scriptedSelection;
+  bool clearSelectionCalled = false;
+
+  /// Scripted outline returned by [loadOutline].
+  List<ReaderOutlineEntry> scriptedOutline = const [];
+  final List<String> visitedOutlinePaths = [];
+
+  /// Overlays received via [setAnnotationOverlays].
+  List<PdfAnnotationOverlay> lastOverlays = const [];
+  int overlayUpdateCount = 0;
+
   final List<void Function(int?)> _pageListeners = [];
   final List<VoidCallback> _searchListeners = [];
+  final List<VoidCallback> _selectionListeners = [];
 
   @override
   bool isReady = true;
@@ -134,6 +148,40 @@ class FakeViewerHandle implements PdfViewerHandle {
       _searchListeners.remove(listener);
 
   @override
+  bool get hasTextSelection => scriptedSelection != null;
+
+  @override
+  Future<PdfTextSelectionSnapshot?> captureTextSelection() async =>
+      scriptedSelection;
+
+  @override
+  Future<void> clearTextSelection() async {
+    clearSelectionCalled = true;
+  }
+
+  @override
+  void addSelectionChangedListener(VoidCallback listener) =>
+      _selectionListeners.add(listener);
+
+  @override
+  void removeSelectionChangedListener(VoidCallback listener) =>
+      _selectionListeners.remove(listener);
+
+  @override
+  Future<List<ReaderOutlineEntry>> loadOutline() async => scriptedOutline;
+
+  @override
+  Future<void> goToOutlineEntry(String path) async {
+    visitedOutlinePaths.add(path);
+  }
+
+  @override
+  void setAnnotationOverlays(List<PdfAnnotationOverlay> overlays) {
+    lastOverlays = overlays;
+    overlayUpdateCount++;
+  }
+
+  @override
   void dispose() {}
 
   /// Test hook: simulate the engine reporting a new visible page.
@@ -146,6 +194,13 @@ class FakeViewerHandle implements PdfViewerHandle {
   /// Test hook: simulate the engine's search state changing.
   void fireSearchChanged() {
     for (final listener in List<VoidCallback>.of(_searchListeners)) {
+      listener();
+    }
+  }
+
+  /// Test hook: simulate the engine's text selection changing.
+  void fireSelectionChanged() {
+    for (final listener in List<VoidCallback>.of(_selectionListeners)) {
       listener();
     }
   }

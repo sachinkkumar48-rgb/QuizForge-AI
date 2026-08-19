@@ -1,12 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:titan_storage/titan_storage.dart';
 
+import '../data/annotation_repository.dart';
+import '../data/bookmark_repository.dart';
 import '../data/document_library_repository.dart';
+import '../data/note_repository.dart';
 import '../data/reading_position_repository.dart';
+import '../domain/entities/reader_annotation.dart';
+import '../domain/entities/reader_bookmark.dart';
 import '../domain/entities/reader_document.dart';
+import '../domain/entities/reader_note.dart';
 import '../pdf/pdf_engine_contracts.dart';
 import '../pdf/pdfrx_pdf_engine.dart';
+import '../services/annotation_service.dart';
+import '../services/bookmark_service.dart';
 import '../services/library_service.dart';
+import '../services/note_service.dart';
 import '../services/reading_history_service.dart';
 
 /// Provides the PDF engine abstraction. Overridable in tests with a fake
@@ -81,4 +90,71 @@ final FutureProviderFamily<ReaderDocument?, String> documentByIdProvider =
     }
     return null;
   });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 2: annotations, bookmarks, notes
+// ---------------------------------------------------------------------------
+
+final Provider<AnnotationRepository> annotationRepositoryProvider =
+    Provider<AnnotationRepository>((ref) {
+  return StorageAnnotationRepository(ref.watch(storageServiceProvider));
+});
+
+final Provider<BookmarkRepository> bookmarkRepositoryProvider =
+    Provider<BookmarkRepository>((ref) {
+  return StorageBookmarkRepository(ref.watch(storageServiceProvider));
+});
+
+final Provider<NoteRepository> noteRepositoryProvider =
+    Provider<NoteRepository>((ref) {
+  return StorageNoteRepository(ref.watch(storageServiceProvider));
+});
+
+final Provider<AnnotationService> annotationServiceProvider =
+    Provider<AnnotationService>((ref) {
+  return AnnotationService(repository: ref.watch(annotationRepositoryProvider));
+});
+
+final Provider<BookmarkService> bookmarkServiceProvider =
+    Provider<BookmarkService>((ref) {
+  return BookmarkService(repository: ref.watch(bookmarkRepositoryProvider));
+});
+
+final Provider<NoteService> noteServiceProvider = Provider<NoteService>((ref) {
+  return NoteService(repository: ref.watch(noteRepositoryProvider));
+});
+
+/// Annotations of one document; rebuilds whenever the service mutates.
+/// The reader screen calls [AnnotationService.preload] when opening the
+/// document; this provider reads the service cache reactively.
+final FutureProviderFamily<List<ReaderAnnotation>, String>
+    annotationsForDocumentProvider =
+    FutureProvider.family<List<ReaderAnnotation>, String>((ref, documentId) {
+  final service = ref.watch(annotationServiceProvider);
+  void listener() => ref.invalidateSelf();
+  service.addListener(listener);
+  ref.onDispose(() => service.removeListener(listener));
+  return Future.value(service.annotationsFor(documentId));
+});
+
+/// Bookmarks of one document; rebuilds whenever the service mutates.
+final FutureProviderFamily<List<ReaderBookmark>, String>
+    bookmarksForDocumentProvider =
+    FutureProvider.family<List<ReaderBookmark>, String>((ref, documentId) {
+  final service = ref.watch(bookmarkServiceProvider);
+  void listener() => ref.invalidateSelf();
+  service.addListener(listener);
+  ref.onDispose(() => service.removeListener(listener));
+  return Future.value(service.bookmarksFor(documentId));
+});
+
+/// Notes of one document; rebuilds whenever the service mutates.
+final FutureProviderFamily<List<ReaderNote>, String> notesForDocumentProvider =
+    FutureProvider.family<List<ReaderNote>, String>((ref, documentId) {
+  final service = ref.watch(noteServiceProvider);
+  void listener() => ref.invalidateSelf();
+  service.addListener(listener);
+  ref.onDispose(() => service.removeListener(listener));
+  return Future.value(service.notesFor(documentId));
 });

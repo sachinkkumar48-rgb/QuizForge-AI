@@ -19,8 +19,25 @@
 - `FakePdfEngine` — records `lastHandle`; `buildViewer` records
   `lastFilePath`/`lastSettings` and returns a plain `SizedBox`.
 - `FakeViewerHandle` — scriptable page/search listeners, visited pages,
-  zoom/rotate counters, match lists; test hooks `firePageChanged` and
-  `fireSearchChanged` simulate engine events.
+  zoom/rotate counters, match lists; scriptable text selection
+  (`scriptedSelection`), outline (`scriptedOutline`) and recorded
+  annotation overlays (`lastOverlays`); test hooks `firePageChanged`,
+  `fireSearchChanged` and `fireSelectionChanged` simulate engine events.
+
+## Phase 2 coverage
+
+- `phase2_entities_test.dart` — entity JSON round-trips, wire fallbacks,
+  note matching, normalized-rect clamping/reordering and zoom-invariant
+  scaling.
+- `phase2_repositories_test.dart` — per-document persistence, namespace
+  isolation between annotations/bookmarks/notes and the library, malformed
+  payload handling.
+- `phase2_services_test.dart` — CRUD, color changes, search, durable
+  undo/redo across add/edit/delete, cascade-safe `clearDocument`.
+- `reader_phase2_test.dart` — user flows end to end: selection toolbar
+  actions, highlight/bookmark/note **persistence across a simulated
+  restart** (fresh engine, same storage), outline navigation, panel
+  delete+undo, coordinate stability of restored overlays.
 
 ## Widget-test conventions (learned the hard way)
 
@@ -33,12 +50,14 @@
   anything that can schedule frames continuously.
 - Tooltip finders must be scoped (`find.descendant`) when the same tooltip
   text appears on the AppBar toggle and the search bar.
+- Snackbars raised while a modal bottom sheet is open render **below** the
+  sheet route; dismiss the sheet in tests before tapping snackbar actions.
 
 ## Running
 
 ```powershell
 cd apps/titan_reader
-flutter test                                     # full suite (56 tests)
-flutter analyze                                  # 0 issues
+flutter test                                     # full suite (111 tests)
+dart analyze .                                   # 0 issues
 dart format --set-exit-if-changed lib test       # 0 changed
 ```

@@ -12,10 +12,13 @@ and contain no pdfrx types:
 | Contract | Role |
 | -------- | ---- |
 | `PdfDocumentEngine` | factory: `createHandle()` and `buildViewer(filePath, settings, handle)` |
-| `PdfViewerHandle` | imperative/observable surface: page navigation, zoom, fit, rotation, text search, listeners, `dispose()` |
-| `PdfViewerSettings` | immutable viewer config (`initialPage`, `textSelectionEnabled`) |
+| `PdfViewerHandle` | imperative/observable surface: page navigation, zoom, fit, rotation, text search, text selection, outline, annotation overlays, listeners, `dispose()` |
+| `PdfViewerSettings` | immutable viewer config (`initialPage`, `textSelectionEnabled`, `selectionActions`, `onSelectionAction`) |
 | `PdfSearchMatch` | engine-agnostic match (index, 1-based page, snippet) |
 | `PdfFitMode` | `fitPage` / `fitWidth` |
+| `PdfTextSelectionSnapshot` / `PdfSelectionFragment` | selected text plus per-fragment normalized geometry |
+| `PdfAnnotationOverlay` / `PdfOverlayStyle` | Reader-managed markup to paint on pages |
+| `ReaderOutlineEntry` | engine-agnostic PDF outline node (path-keyed) |
 
 Business code depends only on these contracts. The engine is injected via
 `pdfEngineProvider`, so tests substitute `FakePdfEngine` without platform
@@ -39,6 +42,34 @@ channels.
   searcher only.
 - Deprecated `minScale`/`maxScale` viewer parameters are replaced with
   `PdfViewerSizeDelegateProviderLegacy`.
+- Text selection: `controller.textSelectionDelegate` exposes
+  `getSelectedText()` / `getSelectedTextRanges()`; each range yields
+  fragment bounding rects via `enumerateFragmentBoundingRects()`.
+- Selection bounds are `PdfRect` values in **bottom-left origin, Y-up**
+  page coordinates; the adapter flips Y into the Reader's canonical
+  top-left normalized space at capture time and back at paint time.
+- Outline: `controller.document.loadOutline()` → `PdfOutlineNode` tree;
+  navigation via `controller.goToDest(dest)`.
+- Overlays: painted through `PdfViewerParams.pagePaintCallbacks`, using
+  `PdfRect.toRect(page:, scaledPageSize:)` and forcing repaints with
+  `controller.invalidate()`.
+- Context toolbar: `PdfViewerParams.customizeContextMenuItems`
+  (`PdfViewerContextMenuUpdateMenuItemsFunction`) appends the Reader's
+  selection actions to pdfrx's native menu.
+
+## PDF-native vs Reader-managed annotations
+
+pdfrx 2.4.7's `PdfAnnotation` surface is metadata-only (title/content
+strings); it **cannot create, render or persist PDF-native annotations**.
+Therefore TITAN Reader stores annotations in TITAN storage and paints them
+as overlays. Consequences:
+
+- Annotations survive restarts and sync with the Reader, but are **not
+  embedded into the PDF file** and are invisible to other PDF tools.
+- The normalized-rect model maps cleanly onto PDF highlight/underline/
+  strike-out annotation rects, leaving room for future export/import once
+  an engine supports it.
+- The PDF's native outline is still *read* and surfaced (read-only).
 
 ## Replacing the engine
 
