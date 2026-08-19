@@ -10,12 +10,15 @@ import '../domain/entities/reader_bookmark.dart';
 import '../domain/entities/reader_document.dart';
 import '../domain/entities/reader_note.dart';
 import '../domain/entities/reading_position.dart';
+import '../domain/word_normalizer.dart';
 import '../navigation/reader_routes.dart';
 import '../pdf/pdf_engine_contracts.dart';
+import '../providers/dictionary_providers.dart';
 import '../providers/reader_providers.dart';
 import '../services/library_service.dart';
 import '../widgets/annotations_panel.dart';
 import '../widgets/bookmarks_panel.dart';
+import '../widgets/dictionary_panel.dart';
 import '../widgets/document_search_bar.dart';
 import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
@@ -26,23 +29,33 @@ import '../widgets/notes_panel.dart';
 class ReaderScreen extends ConsumerStatefulWidget {
   final String documentId;
 
+  /// Page to open instead of the persisted reading position; used by
+  /// vocabulary source navigation (`/reader/:documentId?page=N`).
+  final int? initialPageOverride;
+
   /// Checks whether the backing PDF file still exists on disk.
   ///
   /// Injectable so widget tests can avoid real file IO inside the
   /// FakeAsync zone; production uses the default [File.existsSync] check.
   final bool Function(String filePath)? fileExists;
 
-  const ReaderScreen({super.key, required this.documentId, this.fileExists});
+  const ReaderScreen({
+    super.key,
+    required this.documentId,
+    this.initialPageOverride,
+    this.fileExists,
+  });
 
   @override
   ConsumerState<ReaderScreen> createState() => _ReaderScreenState();
 }
 
 /// Action ids offered on the text-selection context toolbar (§19 of the
-/// Phase 2 brief). Dictionary/Grammar remain placeholders until later phases.
+/// Phase 2 brief). Grammar remains a placeholder until a later phase.
 class _SelectionActionIds {
   static const copy = 'copy';
   static const dictionary = 'dictionary';
+  static const saveWord = 'save-word';
   static const grammar = 'grammar';
   static const highlight = 'highlight';
   static const underline = 'underline';
@@ -52,6 +65,7 @@ class _SelectionActionIds {
   static const List<PdfSelectionAction> all = [
     PdfSelectionAction(id: copy, label: 'Copy'),
     PdfSelectionAction(id: dictionary, label: 'Dictionary'),
+    PdfSelectionAction(id: saveWord, label: 'Save Word'),
     PdfSelectionAction(id: grammar, label: 'Grammar'),
     PdfSelectionAction(id: highlight, label: 'Highlight'),
     PdfSelectionAction(id: underline, label: 'Underline'),
@@ -92,12 +106,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     await ref.read(annotationServiceProvider).preload(widget.documentId);
     await ref.read(bookmarkServiceProvider).preload(widget.documentId);
     await ref.read(noteServiceProvider).preload(widget.documentId);
+    // Phase 3: preload saved vocabulary so Save Word never races the load.
+    await ref.read(vocabularyServiceProvider).ensureLoaded();
     if (!mounted) {
       handle.dispose();
       return;
     }
     setState(() {
-      _initialPage = position?.pageNumber ?? 1;
+      _initialPage = widget.initialPageOverride ?? position?.pageNumber ?? 1;
       _page = _initialPage;
       _prepared = true;
     });
@@ -192,7 +208,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       case _SelectionActionIds.copy:
         await _copySelection();
       case _SelectionActionIds.dictionary:
-        _placeholder('Dictionary support arrives in a later phase.');
+        await _dictionaryFromSelection();
+      case _SelectionActionIds.saveWord:
+        await _saveWordFromSelection();
       case _SelectionActionIds.grammar:
         _placeholder('Grammar support arrives in a later phase.');
       case _SelectionActionIds.highlight:
@@ -236,6 +254,70 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     ));
     await handle.clearTextSelection();
     _syncOverlays();
+  }
+
+  /// Opens the dictionary panel for the selected word. Multi-word
+  /// selections are not treated as dictionary words (§14).
+  Future<void> _dictionaryFromSelection() async {
+    final word = await _singleSelectedWord();
+    if (word == null) return;
+    final snapshotPage = _lastSelectionPage;
+    final document =
+        ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+    if (!mounted) return;
+    showDictionaryPanel(
+      context,
+      word: word,
+      documentId: widget.documentId,
+      documentName: document?.title,
+      pageNumber: snapshotPage ?? _page,
+      selectedText: word,
+    );
+  }
+
+  /// Saves the selected word straight to My Vocabulary with source
+  /// tracking, without opening the dictionary panel.
+  Future<void> _saveWordFromSelection() async {
+    final word = await _singleSelectedWord();
+    if (word == null) return;
+    final snapshotPage = _lastSelectionPage;
+    final document =
+        ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+    final service = ref.read(vocabularyServiceProvider);
+    await service.ensureLoaded();
+    final alreadySaved = service.wordForNormalized(word) != null;
+    await service.saveWord(
+      rawWord: word,
+      at: DateTime.now(),
+      sourceDocumentId: widget.documentId,
+      sourceDocumentName: document?.title,
+      sourcePage: snapshotPage ?? _page,
+      selectedText: word,
+    );
+    if (!mounted) return;
+    _placeholder(alreadySaved
+        ? '"$word" is already in My Vocabulary.'
+        : 'Saved "$word" to My Vocabulary.');
+  }
+
+  /// Page of the snapshot captured by the last [_singleSelectedWord] call.
+  int? _lastSelectionPage;
+
+  /// Captures the current selection and returns it when it is exactly one
+  /// word (after normalization); shows a guidance snackbar otherwise.
+  Future<String?> _singleSelectedWord() async {
+    final handle = _handle;
+    if (handle == null) return null;
+    final snapshot = await handle.captureTextSelection();
+    if (snapshot == null || snapshot.text.trim().isEmpty) return null;
+    await handle.clearTextSelection();
+    _lastSelectionPage = snapshot.primaryPageNumber;
+    final word = WordNormalizer.singleWordFrom(snapshot.text);
+    if (word == null) {
+      if (mounted) _placeholder('Select a single word for this action.');
+      return null;
+    }
+    return word;
   }
 
   /// Opens the note editor pre-filled with the current selection.
@@ -444,6 +526,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               isBookmarked ? Icons.bookmark : Icons.bookmark_border,
             ),
             onPressed: _toggleBookmark,
+          ),
+          IconButton(
+            key: const Key('dictionary-panel-button'),
+            tooltip: 'Dictionary',
+            icon: const Icon(Icons.menu_book_outlined),
+            onPressed: () {
+              final document =
+                  ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+              showDictionaryPanel(
+                context,
+                documentId: widget.documentId,
+                documentName: document?.title,
+                pageNumber: page,
+              );
+            },
           ),
           IconButton(
             key: const Key('bookmarks-panel-button'),

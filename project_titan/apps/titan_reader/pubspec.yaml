@@ -30,3 +30,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    # Bundled offline dictionary (WordNet 3.0); see manifest.json for
+    # license/attribution and tools/build_wordnet_dictionary.py for the build.
+    # Directory entries are not recursive: the shard folder is listed too.
+    - assets/dictionary/
+    - assets/dictionary/shards/

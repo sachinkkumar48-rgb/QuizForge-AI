@@ -26,6 +26,12 @@ class LibraryScreen extends ConsumerWidget {
         title: const Text('TITAN Reader'),
         actions: [
           IconButton(
+            key: const Key('vocabulary-button'),
+            tooltip: 'My Vocabulary',
+            icon: const Icon(Icons.menu_book_outlined),
+            onPressed: () => context.go(ReaderRoutes.vocabulary),
+          ),
+          IconButton(
             tooltip: 'Import PDF',
             icon: const Icon(Icons.file_upload_outlined),
             onPressed: () => _importPdf(context, ref),

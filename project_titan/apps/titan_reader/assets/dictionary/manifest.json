@@ -1,0 +1,2781 @@
+{
+  "name": "TITAN Reader bundled dictionary",
+  "version": 1,
+  "source": "WordNet Release 3.0",
+  "sourceUrl": "https://wordnet.princeton.edu/",
+  "sourceVersion": "3.0",
+  "copyright": "WordNet 3.0 Copyright 2006 by Princeton University. All rights reserved.",
+  "licenseSummary": "Free to use, copy, modify and distribute for any purpose and without fee or royalty, provided the copyright notice and disclaimer appear on all copies.",
+  "license": "WordNet Release 3.0\n\nThis software and database is being provided to you, the LICENSEE, by  \nPrinceton University under the following license.  By obtaining, using  \nand/or copying this software and database, you agree that you have  \nread, understood, and will comply with these terms and conditions.:  \n  \nPermission to use, copy, modify and distribute this software and  \ndatabase and its documentation for any purpose and without fee or  \nroyalty is hereby granted, provided that you agree to comply with  \nthe following copyright notice and statements, including the disclaimer,  \nand that the same appear on ALL copies of the software, database and  \ndocumentation, including modifications that you make for internal  \nuse or for distribution.  \n  \nWordNet 3.0 Copyright 2006 by Princeton University.  All rights reserved.  \n  \nTHIS SOFTWARE AND DATABASE IS PROVIDED \"AS IS\" AND PRINCETON  \nUNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR  \nIMPLIED.  BY WAY OF EXAMPLE, BUT NOT LIMITATION, PRINCETON  \nUNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES OF MERCHANT-  \nABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE  \nOF THE LICENSED SOFTWARE, DATABASE OR DOCUMENTATION WILL NOT  \nINFRINGE ANY THIRD PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR  \nOTHER RIGHTS.  \n  \nThe name of Princeton University or Princeton may not be used in  \nadvertising or publicity pertaining to distribution of the software  \nand/or database.  Title to copyright in this software, database and  \nany associated documentation shall at all times remain with  \nPrinceton University and LICENSEE agrees to preserve same.",
+  "attribution": "Definitions, examples, synonyms and antonyms derive from WordNet(R) 3.0, a lexical database created by the Cognitive Science Laboratory at Princeton University.",
+  "pronunciation": "not included; WordNet provides no phonetics",
+  "wordCount": 147306,
+  "shardCount": 553,
+  "shards": [
+    {
+      "shard": "_'",
+      "path": "shards/_'.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "_.",
+      "path": "shards/_..json.gz",
+      "words": 13
+    },
+    {
+      "shard": "_0",
+      "path": "shards/_0.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "_1",
+      "path": "shards/_1.json.gz",
+      "words": 120
+    },
+    {
+      "shard": "_2",
+      "path": "shards/_2.json.gz",
+      "words": 40
+    },
+    {
+      "shard": "_3",
+      "path": "shards/_3.json.gz",
+      "words": 35
+    },
+    {
+      "shard": "_4",
+      "path": "shards/_4.json.gz",
+      "words": 32
+    },
+    {
+      "shard": "_5",
+      "path": "shards/_5.json.gz",
+      "words": 20
+    },
+    {
+      "shard": "_6",
+      "path": "shards/_6.json.gz",
+      "words": 18
+    },
+    {
+      "shard": "_7",
+      "path": "shards/_7.json.gz",
+      "words": 15
+    },
+    {
+      "shard": "_8",
+      "path": "shards/_8.json.gz",
+      "words": 18
+    },
+    {
+      "shard": "_9",
+      "path": "shards/_9.json.gz",
+      "words": 17
+    },
+    {
+      "shard": "_a",
+      "path": "shards/_a.json.gz",
+      "words": 46
+    },
+    {
+      "shard": "_b",
+      "path": "shards/_b.json.gz",
+      "words": 21
+    },
+    {
+      "shard": "_c",
+      "path": "shards/_c.json.gz",
+      "words": 31
+    },
+    {
+      "shard": "_d",
+      "path": "shards/_d.json.gz",
+      "words": 12
+    },
+    {
+      "shard": "_e",
+      "path": "shards/_e.json.gz",
+      "words": 24
+    },
+    {
+      "shard": "_f",
+      "path": "shards/_f.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "_g",
+      "path": "shards/_g.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "_h",
+      "path": "shards/_h.json.gz",
+      "words": 11
+    },
+    {
+      "shard": "_i",
+      "path": "shards/_i.json.gz",
+      "words": 20
+    },
+    {
+      "shard": "_j",
+      "path": "shards/_j.json.gz",
+      "words": 15
+    },
+    {
+      "shard": "_k",
+      "path": "shards/_k.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "_l",
+      "path": "shards/_l.json.gz",
+      "words": 11
+    },
+    {
+      "shard": "_m",
+      "path": "shards/_m.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "_n",
+      "path": "shards/_n.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "_o",
+      "path": "shards/_o.json.gz",
+      "words": 17
+    },
+    {
+      "shard": "_p",
+      "path": "shards/_p.json.gz",
+      "words": 13
+    },
+    {
+      "shard": "_q",
+      "path": "shards/_q.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "_r",
+      "path": "shards/_r.json.gz",
+      "words": 8
+    },
+    {
+      "shard": "_s",
+      "path": "shards/_s.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "_t",
+      "path": "shards/_t.json.gz",
+      "words": 22
+    },
+    {
+      "shard": "_u",
+      "path": "shards/_u.json.gz",
+      "words": 24
+    },
+    {
+      "shard": "_v",
+      "path": "shards/_v.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "_w",
+      "path": "shards/_w.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "_x",
+      "path": "shards/_x.json.gz",
+      "words": 22
+    },
+    {
+      "shard": "_y",
+      "path": "shards/_y.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "_z",
+      "path": "shards/_z.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "aa",
+      "path": "shards/aa.json.gz",
+      "words": 23
+    },
+    {
+      "shard": "ab",
+      "path": "shards/ab.json.gz",
+      "words": 462
+    },
+    {
+      "shard": "ac",
+      "path": "shards/ac.json.gz",
+      "words": 877
+    },
+    {
+      "shard": "ad",
+      "path": "shards/ad.json.gz",
+      "words": 528
+    },
+    {
+      "shard": "ae",
+      "path": "shards/ae.json.gz",
+      "words": 157
+    },
+    {
+      "shard": "af",
+      "path": "shards/af.json.gz",
+      "words": 205
+    },
+    {
+      "shard": "ag",
+      "path": "shards/ag.json.gz",
+      "words": 303
+    },
+    {
+      "shard": "ah",
+      "path": "shards/ah.json.gz",
+      "words": 18
+    },
+    {
+      "shard": "ai",
+      "path": "shards/ai.json.gz",
+      "words": 230
+    },
+    {
+      "shard": "aj",
+      "path": "shards/aj.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "ak",
+      "path": "shards/ak.json.gz",
+      "words": 28
+    },
+    {
+      "shard": "al",
+      "path": "shards/al.json.gz",
+      "words": 1183
+    },
+    {
+      "shard": "am",
+      "path": "shards/am.json.gz",
+      "words": 708
+    },
+    {
+      "shard": "an",
+      "path": "shards/an.json.gz",
+      "words": 1540
+    },
+    {
+      "shard": "ao",
+      "path": "shards/ao.json.gz",
+      "words": 16
+    },
+    {
+      "shard": "ap",
+      "path": "shards/ap.json.gz",
+      "words": 512
+    },
+    {
+      "shard": "aq",
+      "path": "shards/aq.json.gz",
+      "words": 51
+    },
+    {
+      "shard": "ar",
+      "path": "shards/ar.json.gz",
+      "words": 1208
+    },
+    {
+      "shard": "as",
+      "path": "shards/as.json.gz",
+      "words": 662
+    },
+    {
+      "shard": "at",
+      "path": "shards/at.json.gz",
+      "words": 536
+    },
+    {
+      "shard": "au",
+      "path": "shards/au.json.gz",
+      "words": 511
+    },
+    {
+      "shard": "av",
+      "path": "shards/av.json.gz",
+      "words": 117
+    },
+    {
+      "shard": "aw",
+      "path": "shards/aw.json.gz",
+      "words": 47
+    },
+    {
+      "shard": "ax",
+      "path": "shards/ax.json.gz",
+      "words": 43
+    },
+    {
+      "shard": "ay",
+      "path": "shards/ay.json.gz",
+      "words": 18
+    },
+    {
+      "shard": "az",
+      "path": "shards/az.json.gz",
+      "words": 57
+    },
+    {
+      "shard": "ba",
+      "path": "shards/ba.json.gz",
+      "words": 1861
+    },
+    {
+      "shard": "bb",
+      "path": "shards/bb.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "bc",
+      "path": "shards/bc.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "bd",
+      "path": "shards/bd.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "be",
+      "path": "shards/be.json.gz",
+      "words": 1281
+    },
+    {
+      "shard": "bh",
+      "path": "shards/bh.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "bi",
+      "path": "shards/bi.json.gz",
+      "words": 843
+    },
+    {
+      "shard": "bj",
+      "path": "shards/bj.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "bk",
+      "path": "shards/bk.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "bl",
+      "path": "shards/bl.json.gz",
+      "words": 1037
+    },
+    {
+      "shard": "bm",
+      "path": "shards/bm.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "bn",
+      "path": "shards/bn.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "bo",
+      "path": "shards/bo.json.gz",
+      "words": 1186
+    },
+    {
+      "shard": "bp",
+      "path": "shards/bp.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "br",
+      "path": "shards/br.json.gz",
+      "words": 1251
+    },
+    {
+      "shard": "bs",
+      "path": "shards/bs.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "bt",
+      "path": "shards/bt.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "bu",
+      "path": "shards/bu.json.gz",
+      "words": 960
+    },
+    {
+      "shard": "bv",
+      "path": "shards/bv.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "bw",
+      "path": "shards/bw.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "by",
+      "path": "shards/by.json.gz",
+      "words": 76
+    },
+    {
+      "shard": "ca",
+      "path": "shards/ca.json.gz",
+      "words": 3145
+    },
+    {
+      "shard": "cb",
+      "path": "shards/cb.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "cc",
+      "path": "shards/cc.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "cd",
+      "path": "shards/cd.json.gz",
+      "words": 16
+    },
+    {
+      "shard": "ce",
+      "path": "shards/ce.json.gz",
+      "words": 680
+    },
+    {
+      "shard": "cf",
+      "path": "shards/cf.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "cg",
+      "path": "shards/cg.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ch",
+      "path": "shards/ch.json.gz",
+      "words": 2087
+    },
+    {
+      "shard": "ci",
+      "path": "shards/ci.json.gz",
+      "words": 466
+    },
+    {
+      "shard": "cj",
+      "path": "shards/cj.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "cl",
+      "path": "shards/cl.json.gz",
+      "words": 1008
+    },
+    {
+      "shard": "cm",
+      "path": "shards/cm.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "cn",
+      "path": "shards/cn.json.gz",
+      "words": 20
+    },
+    {
+      "shard": "co",
+      "path": "shards/co.json.gz",
+      "words": 4581
+    },
+    {
+      "shard": "cp",
+      "path": "shards/cp.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "cr",
+      "path": "shards/cr.json.gz",
+      "words": 1093
+    },
+    {
+      "shard": "cs",
+      "path": "shards/cs.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "ct",
+      "path": "shards/ct.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "cu",
+      "path": "shards/cu.json.gz",
+      "words": 615
+    },
+    {
+      "shard": "cv",
+      "path": "shards/cv.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "cw",
+      "path": "shards/cw.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "cx",
+      "path": "shards/cx.json.gz",
+      "words": 8
+    },
+    {
+      "shard": "cy",
+      "path": "shards/cy.json.gz",
+      "words": 370
+    },
+    {
+      "shard": "cz",
+      "path": "shards/cz.json.gz",
+      "words": 19
+    },
+    {
+      "shard": "da",
+      "path": "shards/da.json.gz",
+      "words": 736
+    },
+    {
+      "shard": "db",
+      "path": "shards/db.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "dc",
+      "path": "shards/dc.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "dd",
+      "path": "shards/dd.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "de",
+      "path": "shards/de.json.gz",
+      "words": 2121
+    },
+    {
+      "shard": "df",
+      "path": "shards/df.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "dg",
+      "path": "shards/dg.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "dh",
+      "path": "shards/dh.json.gz",
+      "words": 20
+    },
+    {
+      "shard": "di",
+      "path": "shards/di.json.gz",
+      "words": 1896
+    },
+    {
+      "shard": "dj",
+      "path": "shards/dj.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "dk",
+      "path": "shards/dk.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "dl",
+      "path": "shards/dl.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "dm",
+      "path": "shards/dm.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "dn",
+      "path": "shards/dn.json.gz",
+      "words": 8
+    },
+    {
+      "shard": "do",
+      "path": "shards/do.json.gz",
+      "words": 872
+    },
+    {
+      "shard": "dp",
+      "path": "shards/dp.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "dr",
+      "path": "shards/dr.json.gz",
+      "words": 652
+    },
+    {
+      "shard": "ds",
+      "path": "shards/ds.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "dt",
+      "path": "shards/dt.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "du",
+      "path": "shards/du.json.gz",
+      "words": 373
+    },
+    {
+      "shard": "dv",
+      "path": "shards/dv.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "dw",
+      "path": "shards/dw.json.gz",
+      "words": 59
+    },
+    {
+      "shard": "dy",
+      "path": "shards/dy.json.gz",
+      "words": 102
+    },
+    {
+      "shard": "dz",
+      "path": "shards/dz.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ea",
+      "path": "shards/ea.json.gz",
+      "words": 296
+    },
+    {
+      "shard": "eb",
+      "path": "shards/eb.json.gz",
+      "words": 40
+    },
+    {
+      "shard": "ec",
+      "path": "shards/ec.json.gz",
+      "words": 204
+    },
+    {
+      "shard": "ed",
+      "path": "shards/ed.json.gz",
+      "words": 220
+    },
+    {
+      "shard": "ee",
+      "path": "shards/ee.json.gz",
+      "words": 17
+    },
+    {
+      "shard": "ef",
+      "path": "shards/ef.json.gz",
+      "words": 69
+    },
+    {
+      "shard": "eg",
+      "path": "shards/eg.json.gz",
+      "words": 99
+    },
+    {
+      "shard": "eh",
+      "path": "shards/eh.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "ei",
+      "path": "shards/ei.json.gz",
+      "words": 74
+    },
+    {
+      "shard": "ej",
+      "path": "shards/ej.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "ek",
+      "path": "shards/ek.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "el",
+      "path": "shards/el.json.gz",
+      "words": 641
+    },
+    {
+      "shard": "em",
+      "path": "shards/em.json.gz",
+      "words": 328
+    },
+    {
+      "shard": "en",
+      "path": "shards/en.json.gz",
+      "words": 741
+    },
+    {
+      "shard": "eo",
+      "path": "shards/eo.json.gz",
+      "words": 19
+    },
+    {
+      "shard": "ep",
+      "path": "shards/ep.json.gz",
+      "words": 269
+    },
+    {
+      "shard": "eq",
+      "path": "shards/eq.json.gz",
+      "words": 121
+    },
+    {
+      "shard": "er",
+      "path": "shards/er.json.gz",
+      "words": 294
+    },
+    {
+      "shard": "es",
+      "path": "shards/es.json.gz",
+      "words": 204
+    },
+    {
+      "shard": "et",
+      "path": "shards/et.json.gz",
+      "words": 159
+    },
+    {
+      "shard": "eu",
+      "path": "shards/eu.json.gz",
+      "words": 365
+    },
+    {
+      "shard": "ev",
+      "path": "shards/ev.json.gz",
+      "words": 178
+    },
+    {
+      "shard": "ew",
+      "path": "shards/ew.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "ex",
+      "path": "shards/ex.json.gz",
+      "words": 765
+    },
+    {
+      "shard": "ey",
+      "path": "shards/ey.json.gz",
+      "words": 76
+    },
+    {
+      "shard": "ez",
+      "path": "shards/ez.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "fa",
+      "path": "shards/fa.json.gz",
+      "words": 2083
+    },
+    {
+      "shard": "fb",
+      "path": "shards/fb.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "fc",
+      "path": "shards/fc.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "fd",
+      "path": "shards/fd.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "fe",
+      "path": "shards/fe.json.gz",
+      "words": 581
+    },
+    {
+      "shard": "fh",
+      "path": "shards/fh.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "fi",
+      "path": "shards/fi.json.gz",
+      "words": 1081
+    },
+    {
+      "shard": "fj",
+      "path": "shards/fj.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "fl",
+      "path": "shards/fl.json.gz",
+      "words": 805
+    },
+    {
+      "shard": "fm",
+      "path": "shards/fm.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "fn",
+      "path": "shards/fn.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "fo",
+      "path": "shards/fo.json.gz",
+      "words": 961
+    },
+    {
+      "shard": "fp",
+      "path": "shards/fp.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "fr",
+      "path": "shards/fr.json.gz",
+      "words": 924
+    },
+    {
+      "shard": "fs",
+      "path": "shards/fs.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ft",
+      "path": "shards/ft.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "fu",
+      "path": "shards/fu.json.gz",
+      "words": 424
+    },
+    {
+      "shard": "fw",
+      "path": "shards/fw.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "fy",
+      "path": "shards/fy.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "ga",
+      "path": "shards/ga.json.gz",
+      "words": 863
+    },
+    {
+      "shard": "gb",
+      "path": "shards/gb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "gc",
+      "path": "shards/gc.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "gd",
+      "path": "shards/gd.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ge",
+      "path": "shards/ge.json.gz",
+      "words": 4438
+    },
+    {
+      "shard": "gh",
+      "path": "shards/gh.json.gz",
+      "words": 41
+    },
+    {
+      "shard": "gi",
+      "path": "shards/gi.json.gz",
+      "words": 369
+    },
+    {
+      "shard": "gj",
+      "path": "shards/gj.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "gl",
+      "path": "shards/gl.json.gz",
+      "words": 433
+    },
+    {
+      "shard": "gm",
+      "path": "shards/gm.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "gn",
+      "path": "shards/gn.json.gz",
+      "words": 36
+    },
+    {
+      "shard": "go",
+      "path": "shards/go.json.gz",
+      "words": 715
+    },
+    {
+      "shard": "gp",
+      "path": "shards/gp.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "gr",
+      "path": "shards/gr.json.gz",
+      "words": 1302
+    },
+    {
+      "shard": "gs",
+      "path": "shards/gs.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "gu",
+      "path": "shards/gu.json.gz",
+      "words": 445
+    },
+    {
+      "shard": "gw",
+      "path": "shards/gw.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "gy",
+      "path": "shards/gy.json.gz",
+      "words": 117
+    },
+    {
+      "shard": "ha",
+      "path": "shards/ha.json.gz",
+      "words": 1427
+    },
+    {
+      "shard": "hb",
+      "path": "shards/hb.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hc",
+      "path": "shards/hc.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "hd",
+      "path": "shards/hd.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "he",
+      "path": "shards/he.json.gz",
+      "words": 1335
+    },
+    {
+      "shard": "hf",
+      "path": "shards/hf.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "hg",
+      "path": "shards/hg.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hh",
+      "path": "shards/hh.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hi",
+      "path": "shards/hi.json.gz",
+      "words": 599
+    },
+    {
+      "shard": "hl",
+      "path": "shards/hl.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hm",
+      "path": "shards/hm.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "hn",
+      "path": "shards/hn.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ho",
+      "path": "shards/ho.json.gz",
+      "words": 1279
+    },
+    {
+      "shard": "hp",
+      "path": "shards/hp.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hq",
+      "path": "shards/hq.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hr",
+      "path": "shards/hr.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "hs",
+      "path": "shards/hs.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "ht",
+      "path": "shards/ht.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "hu",
+      "path": "shards/hu.json.gz",
+      "words": 430
+    },
+    {
+      "shard": "hw",
+      "path": "shards/hw.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "hy",
+      "path": "shards/hy.json.gz",
+      "words": 678
+    },
+    {
+      "shard": "hz",
+      "path": "shards/hz.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ia",
+      "path": "shards/ia.json.gz",
+      "words": 15
+    },
+    {
+      "shard": "ib",
+      "path": "shards/ib.json.gz",
+      "words": 27
+    },
+    {
+      "shard": "ic",
+      "path": "shards/ic.json.gz",
+      "words": 145
+    },
+    {
+      "shard": "id",
+      "path": "shards/id.json.gz",
+      "words": 132
+    },
+    {
+      "shard": "ie",
+      "path": "shards/ie.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "if",
+      "path": "shards/if.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ig",
+      "path": "shards/ig.json.gz",
+      "words": 66
+    },
+    {
+      "shard": "ii",
+      "path": "shards/ii.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "ij",
+      "path": "shards/ij.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "ik",
+      "path": "shards/ik.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "il",
+      "path": "shards/il.json.gz",
+      "words": 165
+    },
+    {
+      "shard": "im",
+      "path": "shards/im.json.gz",
+      "words": 525
+    },
+    {
+      "shard": "in",
+      "path": "shards/in.json.gz",
+      "words": 2615
+    },
+    {
+      "shard": "io",
+      "path": "shards/io.json.gz",
+      "words": 67
+    },
+    {
+      "shard": "ip",
+      "path": "shards/ip.json.gz",
+      "words": 28
+    },
+    {
+      "shard": "iq",
+      "path": "shards/iq.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ir",
+      "path": "shards/ir.json.gz",
+      "words": 279
+    },
+    {
+      "shard": "is",
+      "path": "shards/is.json.gz",
+      "words": 230
+    },
+    {
+      "shard": "it",
+      "path": "shards/it.json.gz",
+      "words": 62
+    },
+    {
+      "shard": "iu",
+      "path": "shards/iu.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "iv",
+      "path": "shards/iv.json.gz",
+      "words": 42
+    },
+    {
+      "shard": "iw",
+      "path": "shards/iw.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "ix",
+      "path": "shards/ix.json.gz",
+      "words": 17
+    },
+    {
+      "shard": "iy",
+      "path": "shards/iy.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "iz",
+      "path": "shards/iz.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "ja",
+      "path": "shards/ja.json.gz",
+      "words": 537
+    },
+    {
+      "shard": "jd",
+      "path": "shards/jd.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "je",
+      "path": "shards/je.json.gz",
+      "words": 256
+    },
+    {
+      "shard": "jf",
+      "path": "shards/jf.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "jh",
+      "path": "shards/jh.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ji",
+      "path": "shards/ji.json.gz",
+      "words": 77
+    },
+    {
+      "shard": "jn",
+      "path": "shards/jn.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "jo",
+      "path": "shards/jo.json.gz",
+      "words": 497
+    },
+    {
+      "shard": "jr",
+      "path": "shards/jr.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ju",
+      "path": "shards/ju.json.gz",
+      "words": 379
+    },
+    {
+      "shard": "jv",
+      "path": "shards/jv.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "jy",
+      "path": "shards/jy.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ka",
+      "path": "shards/ka.json.gz",
+      "words": 326
+    },
+    {
+      "shard": "kb",
+      "path": "shards/kb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "kc",
+      "path": "shards/kc.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ke",
+      "path": "shards/ke.json.gz",
+      "words": 291
+    },
+    {
+      "shard": "kg",
+      "path": "shards/kg.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "kh",
+      "path": "shards/kh.json.gz",
+      "words": 46
+    },
+    {
+      "shard": "ki",
+      "path": "shards/ki.json.gz",
+      "words": 394
+    },
+    {
+      "shard": "kk",
+      "path": "shards/kk.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "kl",
+      "path": "shards/kl.json.gz",
+      "words": 38
+    },
+    {
+      "shard": "km",
+      "path": "shards/km.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "kn",
+      "path": "shards/kn.json.gz",
+      "words": 164
+    },
+    {
+      "shard": "ko",
+      "path": "shards/ko.json.gz",
+      "words": 130
+    },
+    {
+      "shard": "kp",
+      "path": "shards/kp.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "kr",
+      "path": "shards/kr.json.gz",
+      "words": 46
+    },
+    {
+      "shard": "ks",
+      "path": "shards/ks.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "kt",
+      "path": "shards/kt.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ku",
+      "path": "shards/ku.json.gz",
+      "words": 82
+    },
+    {
+      "shard": "kv",
+      "path": "shards/kv.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "kw",
+      "path": "shards/kw.json.gz",
+      "words": 19
+    },
+    {
+      "shard": "ky",
+      "path": "shards/ky.json.gz",
+      "words": 21
+    },
+    {
+      "shard": "la",
+      "path": "shards/la.json.gz",
+      "words": 1425
+    },
+    {
+      "shard": "lb",
+      "path": "shards/lb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "lc",
+      "path": "shards/lc.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ld",
+      "path": "shards/ld.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "le",
+      "path": "shards/le.json.gz",
+      "words": 1097
+    },
+    {
+      "shard": "lf",
+      "path": "shards/lf.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "lg",
+      "path": "shards/lg.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "lh",
+      "path": "shards/lh.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "li",
+      "path": "shards/li.json.gz",
+      "words": 1292
+    },
+    {
+      "shard": "lj",
+      "path": "shards/lj.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ll",
+      "path": "shards/ll.json.gz",
+      "words": 13
+    },
+    {
+      "shard": "lm",
+      "path": "shards/lm.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "lo",
+      "path": "shards/lo.json.gz",
+      "words": 1100
+    },
+    {
+      "shard": "lp",
+      "path": "shards/lp.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "lr",
+      "path": "shards/lr.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ls",
+      "path": "shards/ls.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "lt",
+      "path": "shards/lt.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "lu",
+      "path": "shards/lu.json.gz",
+      "words": 379
+    },
+    {
+      "shard": "lv",
+      "path": "shards/lv.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "lw",
+      "path": "shards/lw.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "lx",
+      "path": "shards/lx.json.gz",
+      "words": 27
+    },
+    {
+      "shard": "ly",
+      "path": "shards/ly.json.gz",
+      "words": 221
+    },
+    {
+      "shard": "ma",
+      "path": "shards/ma.json.gz",
+      "words": 2630
+    },
+    {
+      "shard": "mb",
+      "path": "shards/mb.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "mc",
+      "path": "shards/mc.json.gz",
+      "words": 23
+    },
+    {
+      "shard": "md",
+      "path": "shards/md.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "me",
+      "path": "shards/me.json.gz",
+      "words": 1482
+    },
+    {
+      "shard": "mf",
+      "path": "shards/mf.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "mg",
+      "path": "shards/mg.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "mh",
+      "path": "shards/mh.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "mi",
+      "path": "shards/mi.json.gz",
+      "words": 1285
+    },
+    {
+      "shard": "mk",
+      "path": "shards/mk.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ml",
+      "path": "shards/ml.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "mm",
+      "path": "shards/mm.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "mn",
+      "path": "shards/mn.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "mo",
+      "path": "shards/mo.json.gz",
+      "words": 1505
+    },
+    {
+      "shard": "mp",
+      "path": "shards/mp.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "mr",
+      "path": "shards/mr.json.gz",
+      "words": 13
+    },
+    {
+      "shard": "ms",
+      "path": "shards/ms.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "mt",
+      "path": "shards/mt.json.gz",
+      "words": 11
+    },
+    {
+      "shard": "mu",
+      "path": "shards/mu.json.gz",
+      "words": 780
+    },
+    {
+      "shard": "mv",
+      "path": "shards/mv.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "mw",
+      "path": "shards/mw.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "mx",
+      "path": "shards/mx.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "my",
+      "path": "shards/my.json.gz",
+      "words": 286
+    },
+    {
+      "shard": "na",
+      "path": "shards/na.json.gz",
+      "words": 663
+    },
+    {
+      "shard": "nb",
+      "path": "shards/nb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "nc",
+      "path": "shards/nc.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "nd",
+      "path": "shards/nd.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ne",
+      "path": "shards/ne.json.gz",
+      "words": 955
+    },
+    {
+      "shard": "ng",
+      "path": "shards/ng.json.gz",
+      "words": 12
+    },
+    {
+      "shard": "nh",
+      "path": "shards/nh.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ni",
+      "path": "shards/ni.json.gz",
+      "words": 415
+    },
+    {
+      "shard": "nj",
+      "path": "shards/nj.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "nl",
+      "path": "shards/nl.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "nm",
+      "path": "shards/nm.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "nn",
+      "path": "shards/nn.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "no",
+      "path": "shards/no.json.gz",
+      "words": 1069
+    },
+    {
+      "shard": "np",
+      "path": "shards/np.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "nr",
+      "path": "shards/nr.json.gz",
+      "words": 8
+    },
+    {
+      "shard": "ns",
+      "path": "shards/ns.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "nt",
+      "path": "shards/nt.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "nu",
+      "path": "shards/nu.json.gz",
+      "words": 283
+    },
+    {
+      "shard": "nv",
+      "path": "shards/nv.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "nw",
+      "path": "shards/nw.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ny",
+      "path": "shards/ny.json.gz",
+      "words": 64
+    },
+    {
+      "shard": "oa",
+      "path": "shards/oa.json.gz",
+      "words": 37
+    },
+    {
+      "shard": "ob",
+      "path": "shards/ob.json.gz",
+      "words": 222
+    },
+    {
+      "shard": "oc",
+      "path": "shards/oc.json.gz",
+      "words": 158
+    },
+    {
+      "shard": "od",
+      "path": "shards/od.json.gz",
+      "words": 75
+    },
+    {
+      "shard": "oe",
+      "path": "shards/oe.json.gz",
+      "words": 43
+    },
+    {
+      "shard": "of",
+      "path": "shards/of.json.gz",
+      "words": 133
+    },
+    {
+      "shard": "og",
+      "path": "shards/og.json.gz",
+      "words": 13
+    },
+    {
+      "shard": "oh",
+      "path": "shards/oh.json.gz",
+      "words": 13
+    },
+    {
+      "shard": "oi",
+      "path": "shards/oi.json.gz",
+      "words": 70
+    },
+    {
+      "shard": "oj",
+      "path": "shards/oj.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "ok",
+      "path": "shards/ok.json.gz",
+      "words": 21
+    },
+    {
+      "shard": "ol",
+      "path": "shards/ol.json.gz",
+      "words": 253
+    },
+    {
+      "shard": "om",
+      "path": "shards/om.json.gz",
+      "words": 67
+    },
+    {
+      "shard": "on",
+      "path": "shards/on.json.gz",
+      "words": 296
+    },
+    {
+      "shard": "oo",
+      "path": "shards/oo.json.gz",
+      "words": 23
+    },
+    {
+      "shard": "op",
+      "path": "shards/op.json.gz",
+      "words": 320
+    },
+    {
+      "shard": "or",
+      "path": "shards/or.json.gz",
+      "words": 876
+    },
+    {
+      "shard": "os",
+      "path": "shards/os.json.gz",
+      "words": 182
+    },
+    {
+      "shard": "ot",
+      "path": "shards/ot.json.gz",
+      "words": 81
+    },
+    {
+      "shard": "ou",
+      "path": "shards/ou.json.gz",
+      "words": 247
+    },
+    {
+      "shard": "ov",
+      "path": "shards/ov.json.gz",
+      "words": 376
+    },
+    {
+      "shard": "ow",
+      "path": "shards/ow.json.gz",
+      "words": 25
+    },
+    {
+      "shard": "ox",
+      "path": "shards/ox.json.gz",
+      "words": 115
+    },
+    {
+      "shard": "oy",
+      "path": "shards/oy.json.gz",
+      "words": 22
+    },
+    {
+      "shard": "oz",
+      "path": "shards/oz.json.gz",
+      "words": 23
+    },
+    {
+      "shard": "pa",
+      "path": "shards/pa.json.gz",
+      "words": 1994
+    },
+    {
+      "shard": "pb",
+      "path": "shards/pb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "pc",
+      "path": "shards/pc.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "pd",
+      "path": "shards/pd.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "pe",
+      "path": "shards/pe.json.gz",
+      "words": 1567
+    },
+    {
+      "shard": "pf",
+      "path": "shards/pf.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "ph",
+      "path": "shards/ph.json.gz",
+      "words": 818
+    },
+    {
+      "shard": "pi",
+      "path": "shards/pi.json.gz",
+      "words": 1033
+    },
+    {
+      "shard": "pj",
+      "path": "shards/pj.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "pk",
+      "path": "shards/pk.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "pl",
+      "path": "shards/pl.json.gz",
+      "words": 854
+    },
+    {
+      "shard": "pm",
+      "path": "shards/pm.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "pn",
+      "path": "shards/pn.json.gz",
+      "words": 29
+    },
+    {
+      "shard": "po",
+      "path": "shards/po.json.gz",
+      "words": 1667
+    },
+    {
+      "shard": "pp",
+      "path": "shards/pp.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "pr",
+      "path": "shards/pr.json.gz",
+      "words": 2129
+    },
+    {
+      "shard": "ps",
+      "path": "shards/ps.json.gz",
+      "words": 245
+    },
+    {
+      "shard": "pt",
+      "path": "shards/pt.json.gz",
+      "words": 90
+    },
+    {
+      "shard": "pu",
+      "path": "shards/pu.json.gz",
+      "words": 754
+    },
+    {
+      "shard": "pv",
+      "path": "shards/pv.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "pw",
+      "path": "shards/pw.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "px",
+      "path": "shards/px.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "py",
+      "path": "shards/py.json.gz",
+      "words": 204
+    },
+    {
+      "shard": "qa",
+      "path": "shards/qa.json.gz",
+      "words": 19
+    },
+    {
+      "shard": "qc",
+      "path": "shards/qc.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "qe",
+      "path": "shards/qe.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "qi",
+      "path": "shards/qi.json.gz",
+      "words": 12
+    },
+    {
+      "shard": "qo",
+      "path": "shards/qo.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "qu",
+      "path": "shards/qu.json.gz",
+      "words": 529
+    },
+    {
+      "shard": "qw",
+      "path": "shards/qw.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ra",
+      "path": "shards/ra.json.gz",
+      "words": 1065
+    },
+    {
+      "shard": "rb",
+      "path": "shards/rb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "rc",
+      "path": "shards/rc.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "re",
+      "path": "shards/re.json.gz",
+      "words": 2594
+    },
+    {
+      "shard": "rf",
+      "path": "shards/rf.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "rg",
+      "path": "shards/rg.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "rh",
+      "path": "shards/rh.json.gz",
+      "words": 256
+    },
+    {
+      "shard": "ri",
+      "path": "shards/ri.json.gz",
+      "words": 598
+    },
+    {
+      "shard": "rn",
+      "path": "shards/rn.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "ro",
+      "path": "shards/ro.json.gz",
+      "words": 1058
+    },
+    {
+      "shard": "rp",
+      "path": "shards/rp.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "rt",
+      "path": "shards/rt.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ru",
+      "path": "shards/ru.json.gz",
+      "words": 496
+    },
+    {
+      "shard": "rv",
+      "path": "shards/rv.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "rw",
+      "path": "shards/rw.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "ry",
+      "path": "shards/ry.json.gz",
+      "words": 18
+    },
+    {
+      "shard": "sa",
+      "path": "shards/sa.json.gz",
+      "words": 1659
+    },
+    {
+      "shard": "sb",
+      "path": "shards/sb.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "sc",
+      "path": "shards/sc.json.gz",
+      "words": 1055
+    },
+    {
+      "shard": "sd",
+      "path": "shards/sd.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "se",
+      "path": "shards/se.json.gz",
+      "words": 1968
+    },
+    {
+      "shard": "sf",
+      "path": "shards/sf.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "sg",
+      "path": "shards/sg.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "sh",
+      "path": "shards/sh.json.gz",
+      "words": 1124
+    },
+    {
+      "shard": "si",
+      "path": "shards/si.json.gz",
+      "words": 1194
+    },
+    {
+      "shard": "sj",
+      "path": "shards/sj.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "sk",
+      "path": "shards/sk.json.gz",
+      "words": 257
+    },
+    {
+      "shard": "sl",
+      "path": "shards/sl.json.gz",
+      "words": 480
+    },
+    {
+      "shard": "sm",
+      "path": "shards/sm.json.gz",
+      "words": 264
+    },
+    {
+      "shard": "sn",
+      "path": "shards/sn.json.gz",
+      "words": 286
+    },
+    {
+      "shard": "so",
+      "path": "shards/so.json.gz",
+      "words": 1193
+    },
+    {
+      "shard": "sp",
+      "path": "shards/sp.json.gz",
+      "words": 1372
+    },
+    {
+      "shard": "sq",
+      "path": "shards/sq.json.gz",
+      "words": 177
+    },
+    {
+      "shard": "sr",
+      "path": "shards/sr.json.gz",
+      "words": 8
+    },
+    {
+      "shard": "ss",
+      "path": "shards/ss.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "st",
+      "path": "shards/st.json.gz",
+      "words": 2347
+    },
+    {
+      "shard": "su",
+      "path": "shards/su.json.gz",
+      "words": 1586
+    },
+    {
+      "shard": "sv",
+      "path": "shards/sv.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "sw",
+      "path": "shards/sw.json.gz",
+      "words": 435
+    },
+    {
+      "shard": "sy",
+      "path": "shards/sy.json.gz",
+      "words": 388
+    },
+    {
+      "shard": "sz",
+      "path": "shards/sz.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "ta",
+      "path": "shards/ta.json.gz",
+      "words": 1125
+    },
+    {
+      "shard": "tb",
+      "path": "shards/tb.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "tc",
+      "path": "shards/tc.json.gz",
+      "words": 8
+    },
+    {
+      "shard": "td",
+      "path": "shards/td.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "te",
+      "path": "shards/te.json.gz",
+      "words": 1067
+    },
+    {
+      "shard": "th",
+      "path": "shards/th.json.gz",
+      "words": 1122
+    },
+    {
+      "shard": "ti",
+      "path": "shards/ti.json.gz",
+      "words": 589
+    },
+    {
+      "shard": "tj",
+      "path": "shards/tj.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "tk",
+      "path": "shards/tk.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "tl",
+      "path": "shards/tl.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "tm",
+      "path": "shards/tm.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "tn",
+      "path": "shards/tn.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "to",
+      "path": "shards/to.json.gz",
+      "words": 894
+    },
+    {
+      "shard": "tp",
+      "path": "shards/tp.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "tr",
+      "path": "shards/tr.json.gz",
+      "words": 1591
+    },
+    {
+      "shard": "ts",
+      "path": "shards/ts.json.gz",
+      "words": 30
+    },
+    {
+      "shard": "tt",
+      "path": "shards/tt.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "tu",
+      "path": "shards/tu.json.gz",
+      "words": 496
+    },
+    {
+      "shard": "tv",
+      "path": "shards/tv.json.gz",
+      "words": 16
+    },
+    {
+      "shard": "tw",
+      "path": "shards/tw.json.gz",
+      "words": 199
+    },
+    {
+      "shard": "tx",
+      "path": "shards/tx.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ty",
+      "path": "shards/ty.json.gz",
+      "words": 141
+    },
+    {
+      "shard": "tz",
+      "path": "shards/tz.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "ua",
+      "path": "shards/ua.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ub",
+      "path": "shards/ub.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "uc",
+      "path": "shards/uc.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ud",
+      "path": "shards/ud.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "uf",
+      "path": "shards/uf.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ug",
+      "path": "shards/ug.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "uh",
+      "path": "shards/uh.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ui",
+      "path": "shards/ui.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "uk",
+      "path": "shards/uk.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "ul",
+      "path": "shards/ul.json.gz",
+      "words": 104
+    },
+    {
+      "shard": "um",
+      "path": "shards/um.json.gz",
+      "words": 58
+    },
+    {
+      "shard": "un",
+      "path": "shards/un.json.gz",
+      "words": 2499
+    },
+    {
+      "shard": "up",
+      "path": "shards/up.json.gz",
+      "words": 166
+    },
+    {
+      "shard": "ur",
+      "path": "shards/ur.json.gz",
+      "words": 193
+    },
+    {
+      "shard": "us",
+      "path": "shards/us.json.gz",
+      "words": 100
+    },
+    {
+      "shard": "ut",
+      "path": "shards/ut.json.gz",
+      "words": 63
+    },
+    {
+      "shard": "uu",
+      "path": "shards/uu.json.gz",
+      "words": 5
+    },
+    {
+      "shard": "uv",
+      "path": "shards/uv.json.gz",
+      "words": 13
+    },
+    {
+      "shard": "ux",
+      "path": "shards/ux.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "uy",
+      "path": "shards/uy.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "uz",
+      "path": "shards/uz.json.gz",
+      "words": 7
+    },
+    {
+      "shard": "va",
+      "path": "shards/va.json.gz",
+      "words": 521
+    },
+    {
+      "shard": "vc",
+      "path": "shards/vc.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "vd",
+      "path": "shards/vd.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ve",
+      "path": "shards/ve.json.gz",
+      "words": 727
+    },
+    {
+      "shard": "vf",
+      "path": "shards/vf.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "vh",
+      "path": "shards/vh.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "vi",
+      "path": "shards/vi.json.gz",
+      "words": 758
+    },
+    {
+      "shard": "vl",
+      "path": "shards/vl.json.gz",
+      "words": 16
+    },
+    {
+      "shard": "vo",
+      "path": "shards/vo.json.gz",
+      "words": 247
+    },
+    {
+      "shard": "vr",
+      "path": "shards/vr.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "vt",
+      "path": "shards/vt.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "vu",
+      "path": "shards/vu.json.gz",
+      "words": 49
+    },
+    {
+      "shard": "vx",
+      "path": "shards/vx.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "vy",
+      "path": "shards/vy.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "wa",
+      "path": "shards/wa.json.gz",
+      "words": 908
+    },
+    {
+      "shard": "wb",
+      "path": "shards/wb.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "we",
+      "path": "shards/we.json.gz",
+      "words": 589
+    },
+    {
+      "shard": "wh",
+      "path": "shards/wh.json.gz",
+      "words": 587
+    },
+    {
+      "shard": "wi",
+      "path": "shards/wi.json.gz",
+      "words": 896
+    },
+    {
+      "shard": "wl",
+      "path": "shards/wl.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "wm",
+      "path": "shards/wm.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "wn",
+      "path": "shards/wn.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "wo",
+      "path": "shards/wo.json.gz",
+      "words": 573
+    },
+    {
+      "shard": "wp",
+      "path": "shards/wp.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "wr",
+      "path": "shards/wr.json.gz",
+      "words": 160
+    },
+    {
+      "shard": "ws",
+      "path": "shards/ws.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "wt",
+      "path": "shards/wt.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "wu",
+      "path": "shards/wu.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "wv",
+      "path": "shards/wv.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ww",
+      "path": "shards/ww.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "wy",
+      "path": "shards/wy.json.gz",
+      "words": 30
+    },
+    {
+      "shard": "xa",
+      "path": "shards/xa.json.gz",
+      "words": 26
+    },
+    {
+      "shard": "xc",
+      "path": "shards/xc.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "xe",
+      "path": "shards/xe.json.gz",
+      "words": 54
+    },
+    {
+      "shard": "xh",
+      "path": "shards/xh.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "xi",
+      "path": "shards/xi.json.gz",
+      "words": 18
+    },
+    {
+      "shard": "xl",
+      "path": "shards/xl.json.gz",
+      "words": 9
+    },
+    {
+      "shard": "xm",
+      "path": "shards/xm.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "xo",
+      "path": "shards/xo.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "xt",
+      "path": "shards/xt.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "xv",
+      "path": "shards/xv.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "xx",
+      "path": "shards/xx.json.gz",
+      "words": 21
+    },
+    {
+      "shard": "xy",
+      "path": "shards/xy.json.gz",
+      "words": 26
+    },
+    {
+      "shard": "ya",
+      "path": "shards/ya.json.gz",
+      "words": 110
+    },
+    {
+      "shard": "yb",
+      "path": "shards/yb.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ye",
+      "path": "shards/ye.json.gz",
+      "words": 242
+    },
+    {
+      "shard": "yg",
+      "path": "shards/yg.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "yh",
+      "path": "shards/yh.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "yi",
+      "path": "shards/yi.json.gz",
+      "words": 14
+    },
+    {
+      "shard": "yl",
+      "path": "shards/yl.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "ym",
+      "path": "shards/ym.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "yo",
+      "path": "shards/yo.json.gz",
+      "words": 82
+    },
+    {
+      "shard": "yp",
+      "path": "shards/yp.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "yq",
+      "path": "shards/yq.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "yr",
+      "path": "shards/yr.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "yt",
+      "path": "shards/yt.json.gz",
+      "words": 3
+    },
+    {
+      "shard": "yu",
+      "path": "shards/yu.json.gz",
+      "words": 44
+    },
+    {
+      "shard": "yv",
+      "path": "shards/yv.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "za",
+      "path": "shards/za.json.gz",
+      "words": 70
+    },
+    {
+      "shard": "zb",
+      "path": "shards/zb.json.gz",
+      "words": 2
+    },
+    {
+      "shard": "zd",
+      "path": "shards/zd.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "ze",
+      "path": "shards/ze.json.gz",
+      "words": 82
+    },
+    {
+      "shard": "zh",
+      "path": "shards/zh.json.gz",
+      "words": 6
+    },
+    {
+      "shard": "zi",
+      "path": "shards/zi.json.gz",
+      "words": 90
+    },
+    {
+      "shard": "zl",
+      "path": "shards/zl.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "zn",
+      "path": "shards/zn.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "zo",
+      "path": "shards/zo.json.gz",
+      "words": 83
+    },
+    {
+      "shard": "zr",
+      "path": "shards/zr.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "zs",
+      "path": "shards/zs.json.gz",
+      "words": 1
+    },
+    {
+      "shard": "zu",
+      "path": "shards/zu.json.gz",
+      "words": 10
+    },
+    {
+      "shard": "zw",
+      "path": "shards/zw.json.gz",
+      "words": 4
+    },
+    {
+      "shard": "zy",
+      "path": "shards/zy.json.gz",
+      "words": 38
+    }
+  ]
+}

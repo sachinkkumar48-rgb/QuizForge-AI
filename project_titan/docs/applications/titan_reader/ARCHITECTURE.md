@@ -13,17 +13,20 @@ lib/
     ├── app.dart                     # MaterialApp.router + ReaderTheme
     ├── navigation/
     │   ├── reader_routes.dart       # route path constants
-    │   └── reader_router.dart       # GoRouter config (/ and /reader/:documentId)
+    │   └── reader_router.dart       # GoRouter config (/ , /vocabulary, /reader/:documentId)
     ├── screens/
     │   ├── library_screen.dart      # import, list, Recent shelf, favorites
-    │   └── reader_screen.dart       # viewer, navigation bar, search toggle
+    │   ├── reader_screen.dart       # viewer, navigation bar, search toggle
+    │   └── vocabulary_screen.dart   # Phase 3: My Vocabulary
     ├── widgets/
     │   ├── document_card.dart       # library list item
     │   ├── document_search_bar.dart # debounced search panel + match nav
     │   ├── annotations_panel.dart   # Phase 2: markup list/recolor/delete
     │   ├── bookmarks_panel.dart     # Phase 2: bookmarks + PDF outline
     │   ├── notes_panel.dart         # Phase 2: notes list/search/editor
-    │   └── note_editor_dialog.dart  # Phase 2: note create/edit dialog
+    │   ├── note_editor_dialog.dart  # Phase 2: note create/edit dialog
+    │   ├── dictionary_panel.dart    # Phase 3: lookup/search/recent/save
+    │   └── vocabulary_word_editor_dialog.dart # Phase 3: meaning/note editor
     ├── domain/entities/
     │   ├── reader_document.dart     # library entry (LOCAL_ONLY by default)
     │   ├── reading_position.dart    # page + total pages + timestamp
@@ -32,21 +35,37 @@ lib/
     │   ├── normalized_page_rect.dart # Phase 2: canonical annotation geometry
     │   ├── reader_annotation.dart   # Phase 2: highlight/underline/strikethrough
     │   ├── reader_bookmark.dart     # Phase 2: app bookmarks + outline entry
-    │   └── reader_note.dart         # Phase 2: free-form notes
+    │   ├── reader_note.dart         # Phase 2: free-form notes
+    │   ├── dictionary_entry.dart    # Phase 3: entry/sense/source metadata
+    │   ├── recent_lookup.dart       # Phase 3: word + timestamp history item
+    │   └── vocabulary_word.dart     # Phase 3: saved word + source + statuses
+    ├── domain/
+    │   ├── word_normalizer.dart     # Phase 3: selection → single word rules
+    │   └── dictionary_errors.dart   # Phase 3: typed lookup errors
     ├── data/
     │   ├── document_library_repository.dart  # StorageService-backed library
     │   ├── reading_position_repository.dart  # StorageService-backed positions
     │   ├── annotation_repository.dart        # Phase 2 (titan.reader.annotations)
     │   ├── bookmark_repository.dart          # Phase 2 (titan.reader.bookmarks)
-    │   └── note_repository.dart              # Phase 2 (titan.reader.notes)
+    │   ├── note_repository.dart              # Phase 2 (titan.reader.notes)
+    │   ├── dictionary_data_source.dart       # Phase 3: DataSource contract
+    │   ├── bundled_dictionary_data_source.dart # Phase 3: WordNet asset shards
+    │   ├── remote_dictionary_source.dart     # Phase 3: opt-in dictionaryapi.dev
+    │   ├── dictionary_cache_repository.dart  # Phase 3 (titan.reader.dictionary.cache)
+    │   ├── recent_lookup_repository.dart     # Phase 3 (titan.reader.dictionary.recent)
+    │   └── vocabulary_repository.dart        # Phase 3 (titan.reader.vocabulary)
     ├── services/
     │   ├── library_service.dart     # import validation + library mutations
     │   ├── reading_history_service.dart      # Recent ordering/cap/dedup
     │   ├── annotation_service.dart  # Phase 2: markup CRUD + undo/redo
     │   ├── bookmark_service.dart    # Phase 2: bookmark CRUD + undo/redo
     │   ├── note_service.dart        # Phase 2: note CRUD/search + undo/redo
-    │   └── reader_undo_stack.dart   # Phase 2: Reader-scoped undo/redo core
-    ├── providers/reader_providers.dart       # Riverpod wiring
+    │   ├── reader_undo_stack.dart   # Phase 2: Reader-scoped undo/redo core
+    │   ├── dictionary_service.dart  # Phase 3: local-first lookup pipeline
+    │   └── vocabulary_service.dart  # Phase 3: My Vocabulary CRUD
+    ├── providers/
+    │   ├── reader_providers.dart    # Riverpod wiring (reader/library)
+    │   └── dictionary_providers.dart # Phase 3: dictionary/vocabulary wiring
     ├── pdf/
     │   ├── pdf_engine_contracts.dart         # PdfDocumentEngine + handle
     │   └── pdfrx_pdf_engine.dart             # pdfrx adapter (only pdfrx import site)
@@ -140,3 +159,46 @@ Undo/redo is Reader-scoped and never affects other applications.
   `LibraryService.importFile` before any write.
 - Annotations, bookmarks and notes are Reader-managed data; nothing is
   written into the PDF file itself.
+- Dictionary content is source-backed only (WordNet 3.0 bundle); remote
+  lookup is opt-in, transmits only the word, and is disabled by default.
+- Personal vocabulary notes never overwrite or mix with source-backed
+  definitions.
+
+## Phase 3: dictionary & vocabulary
+
+### Layering (§20–22)
+
+`DictionaryPanel` / `VocabularyScreen` → providers
+(`dictionary_providers.dart`) → `DictionaryService` / `VocabularyService`
+→ repositories/data sources → `StorageService` + bundled assets. The
+domain model (`DictionaryEntry`, `VocabularyWord`, typed errors) is
+independent of JSON, HTTP and packages.
+
+### Local-first lookup
+
+`DictionaryService.lookup(rawWord)` normalizes, then walks: bundled local
+source → cache (`dictionary:<normalizedWord>`) → remote source (only when
+`remoteLookupEnabledProvider` is true) → `NotFound(offline: true)`. Every
+outcome is a sealed `DictionaryLookupResult` (`Found` / `NotFound` /
+`Failure`), so the UI renders explicit states and typed errors only.
+
+### Bundled dataset
+
+WordNet 3.0 ships as gzip-compressed JSON asset shards (two-letter keys)
+plus a sorted headword index. `BundledDictionaryDataSource` decodes shards
+lazily behind an LRU cache (max 12) and answers prefix suggestions with a
+binary search over headwords — the full dictionary is never loaded into
+memory. The injectable `assetLoader` keeps widget tests off real assets.
+
+### Selection integration (§13–15)
+
+Phase 3 extends the Phase 2 selection pipeline — same
+`captureTextSelection` snapshot, same toolbar. `WordNormalizer` accepts
+exactly one word after trimming punctuation; phrases show a guidance
+snackbar instead of opening the panel.
+
+### Vocabulary source navigation
+
+`/reader/:documentId?page=N` (parsed into
+`ReaderScreen.initialPageOverride`) lets a saved word jump back to the
+exact page it was encountered on.

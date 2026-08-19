@@ -198,7 +198,23 @@ void main() {
       expect(stored.single.pageNumber, 3);
     });
 
-    testWidgets('dictionary and grammar are placeholders', (tester) async {
+    testWidgets('grammar action stays a placeholder', (tester) async {
+      final libraryService = service();
+      final documentId = await importSample(libraryService);
+      await tester.pumpWidget(buildSubject(documentId));
+      await tester.pump();
+      await tester.pump();
+
+      final handle = engine.lastHandle!;
+      handle.scriptedSelection = scriptedSelectionOn(3);
+      handle.lastSettings!.onSelectionAction!('grammar');
+      await tester.pump();
+      await tester.pump();
+      expect(find.textContaining('Grammar'), findsWidgets);
+    });
+
+    testWidgets('multi-word selection is rejected for dictionary (§14)',
+        (tester) async {
       final libraryService = service();
       final documentId = await importSample(libraryService);
       await tester.pumpWidget(buildSubject(documentId));
@@ -209,7 +225,11 @@ void main() {
       handle.scriptedSelection = scriptedSelectionOn(3);
       handle.lastSettings!.onSelectionAction!('dictionary');
       await tester.pump();
-      expect(find.textContaining('Dictionary'), findsWidgets);
+      await tester.pump();
+      // Phase 3: phrases are not dictionary words (§14).
+      expect(find.textContaining('Select a single word'), findsOneWidget);
+      // The dictionary panel never opens for a phrase.
+      expect(find.byKey(const Key('dictionary-word-header')), findsNothing);
     });
   });
 

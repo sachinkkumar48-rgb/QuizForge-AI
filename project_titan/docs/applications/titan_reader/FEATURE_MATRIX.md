@@ -43,7 +43,7 @@ annotations) — see PDF_ENGINE.md.
 | Annotation persistence + restore after restart | ✅ | `titan.reader.annotations` namespace | `reader_phase2_test.dart` (restart test) |
 | Overlay rendering stable across zoom/resize | ✅ | normalized rects → `pagePaintCallbacks` | `phase2_entities_test.dart`, restart test |
 | Selection context toolbar (Copy/Highlight/Underline/Strikethrough/Note) | ✅ | `customizeContextMenuItems` adapter hook | `reader_phase2_test.dart` |
-| Dictionary / Grammar placeholders | ✅ | placeholder snackbars (later phases) | `reader_phase2_test.dart` |
+| Dictionary / Grammar placeholders | ✅ | dictionary implemented in Phase 3; grammar still placeholder | `reader_phase2_test.dart` |
 | Bookmarks (add/remove/edit/list/navigate) | ✅ | `bookmark_service.dart`, `bookmarks_panel.dart` | `phase2_services_test.dart`, `reader_phase2_test.dart` |
 | Bookmark persistence + restore after restart | ✅ | `titan.reader.bookmarks` namespace | `reader_phase2_test.dart` (restart test) |
 | PDF-native outline reading + navigation | ✅ | `loadOutline`/`goToOutlineEntry` (never persisted) | `reader_phase2_test.dart` |
@@ -53,18 +53,46 @@ annotations) — see PDF_ENGINE.md.
 | Reader-scoped undo/redo | ✅ | `reader_undo_stack.dart` + service stacks | `phase2_services_test.dart`, `reader_phase2_test.dart` |
 | PDF-native annotation export/import | ⏳ | not supported by pdfrx 2.4.7; model designed for future mapping | — |
 
+## Phase 3 — Dictionary & vocabulary
+
+All dictionary content is **source-backed** (bundled WordNet 3.0; see
+DICTIONARY.md for license/attribution). Nothing is AI-generated. Remote
+lookup exists but is **off by default** (LOCAL_ONLY privacy).
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| Bundled offline dictionary (WordNet 3.0, 147,306 words) | ✅ | `assets/dictionary/`, `bundled_dictionary_data_source.dart` | `phase3_repositories_test.dart`, integration acceptance |
+| Lazy shard loading + LRU cache (never whole dictionary in memory) | ✅ | `bundled_dictionary_data_source.dart` | `phase3_repositories_test.dart` |
+| Word normalization (`"Ephemeral,"` → `ephemeral`) | ✅ | `domain/word_normalizer.dart` | `phase3_entities_test.dart` |
+| Multi-word selection rejected for dictionary (§14) | ✅ | `reader_screen._singleSelectedWord` | `reader_phase2_test.dart` |
+| Selection → Dictionary panel (definitions, POS, examples, synonyms/antonyms) | ✅ | `widgets/dictionary_panel.dart` | `dictionary_panel_test.dart`, integration W1 |
+| Save Word from panel and from toolbar with source context | ✅ | `dictionary_panel._saveWord`, `reader_screen._saveWordFromSelection` | `dictionary_panel_test.dart`, integration W1/W2 |
+| Explicit states: loading / success / not-found / offline / error | ✅ | `dictionary_panel._buildResult`, `_buildNotFound` | `dictionary_panel_test.dart` |
+| Offline-unavailable state + opt-in online lookup switch | ✅ | `dictionary_panel._buildNotFound`, `remoteLookupEnabledProvider` | `dictionary_panel_test.dart`, integration W3 |
+| Optional remote fallback (dictionaryapi.dev, word-only payload) | ✅ | `data/remote_dictionary_source.dart` | `phase3_services_test.dart` |
+| Lookup cache with provenance (`dictionary:<word>`) | ✅ | `data/dictionary_cache_repository.dart` | `phase3_repositories_test.dart`, `phase3_services_test.dart` |
+| Recent lookups (record, reopen, clear) | ✅ | `data/recent_lookup_repository.dart`, panel search home | `dictionary_panel_test.dart` |
+| Prefix suggestions from headword index | ✅ | `prefixMatches` + binary search | `phase3_repositories_test.dart`, `dictionary_panel_test.dart` |
+| My Vocabulary screen (list, search, sort, status filter) | ✅ | `screens/vocabulary_screen.dart` | `vocabulary_screen_test.dart` |
+| Vocabulary statuses New/Learning/Known/Mastered (manual only) | ✅ | `VocabularyService.changeStatus` | `phase3_services_test.dart`, `vocabulary_screen_test.dart` |
+| Personal meaning/note (never overwrites dictionary definitions) | ✅ | `vocabulary_word_editor_dialog.dart` | `vocabulary_screen_test.dart` |
+| Source tracking + jump-back to document page | ✅ | `vocabulary_screen._openSource`, `/reader/:id?page=N` | `vocabulary_screen_test.dart`, integration W2 |
+| Vocabulary persistence across restart | ✅ | `titan.reader.vocabulary` namespace | `phase3_services_test.dart`, integration W3 |
+| Pronunciation / IPA / audio | ⏳ | WordNet ships no phonetics; never faked (§8) | — |
+| Grammar tools | ⏳ | still a placeholder by design (§35) | `reader_phase2_test.dart` |
+
 ## Later phases (planned)
 
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
 | Thumbnails | ⏳ | pdfrx supports page images; UI not built yet |
-| Dictionary lookup | ⏳ | Phase 3; selection toolbar slot already reserved |
-| Grammar + vocabulary tools | ⏳ | Phase 3+ |
+| Grammar + vocabulary tools | ⏳ | Phase 4+; selection toolbar slot reserved |
 | AI reading assistant (opt-in) | ⏳ | requires privacy-state transitions, see PRIVACY.md |
 | PDF-native annotation export/import | ⏳ | blocked on engine capability |
 
 ## Quality gates (current)
 
-- `flutter test`: 111 tests passing
+- `flutter test`: 191 tests passing
 - `dart analyze`: 0 issues
-- `dart format --set-exit-if-changed lib test`: clean
+- Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
+  QuizForge AI (234) suites all passing
