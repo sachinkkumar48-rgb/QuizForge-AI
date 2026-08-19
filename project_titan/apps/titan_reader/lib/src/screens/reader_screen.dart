@@ -20,6 +20,7 @@ import '../widgets/annotations_panel.dart';
 import '../widgets/bookmarks_panel.dart';
 import '../widgets/dictionary_panel.dart';
 import '../widgets/document_search_bar.dart';
+import '../widgets/grammar_panel.dart';
 import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
 
@@ -51,7 +52,7 @@ class ReaderScreen extends ConsumerStatefulWidget {
 }
 
 /// Action ids offered on the text-selection context toolbar (§19 of the
-/// Phase 2 brief). Grammar remains a placeholder until a later phase.
+/// Phase 2 brief). Grammar analysis is provided by Phase 4.
 class _SelectionActionIds {
   static const copy = 'copy';
   static const dictionary = 'dictionary';
@@ -212,7 +213,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       case _SelectionActionIds.saveWord:
         await _saveWordFromSelection();
       case _SelectionActionIds.grammar:
-        _placeholder('Grammar support arrives in a later phase.');
+        await _grammarFromSelection();
       case _SelectionActionIds.highlight:
         await _annotateFromSelection(ReaderAnnotationType.highlight);
       case _SelectionActionIds.underline:
@@ -272,6 +273,27 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       documentName: document?.title,
       pageNumber: snapshotPage ?? _page,
       selectedText: word,
+    );
+  }
+
+  /// Opens the grammar panel for the selected text. Multi-sentence and
+  /// multi-paragraph selections are supported (§9 of the Phase 4 brief).
+  Future<void> _grammarFromSelection() async {
+    final handle = _handle;
+    if (handle == null) return;
+    final snapshot = await handle.captureTextSelection();
+    if (snapshot == null || snapshot.text.trim().isEmpty) return;
+    final page = snapshot.primaryPageNumber;
+    await handle.clearTextSelection();
+    final document =
+        ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+    if (!mounted) return;
+    showGrammarPanel(
+      context,
+      text: snapshot.text,
+      documentId: widget.documentId,
+      documentName: document?.title,
+      pageNumber: page,
     );
   }
 

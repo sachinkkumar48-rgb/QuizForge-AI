@@ -66,6 +66,33 @@
   4. acceptance against the **real bundled WordNet assets** (ephemeral
      resolves, definitions non-empty, attribution present, restart-safe).
 
+## Phase 4 coverage
+
+- `phase4_entities_test.dart` — `GrammarIssue`, `GrammarSuggestion`, `GrammarCheckResult`,
+  and `GrammarCorrection` JSON serialization/deserialization, defensive clamping,
+  `spanIn` bounds safety, right-to-left `GrammarTextCorrection.apply` offset preservation,
+  and overlapping span resolution.
+- `phase4_engine_test.dart` — deterministic grammar rules (`repeated-word`,
+  `sentence-capitalization`, `standalone-i`, `double-space`, `doubled-punctuation`,
+  `punctuation-space-after/before`, `modal-of`, `alot`, `article-agreement`), WordNet
+  headword spell checking (edit distance 1 & 2, contraction handling, acronym skipping),
+  and `LocalGrammarEngine` issue merging and suppression.
+- `phase4_repositories_test.dart` — `GrammarCacheRepository` versioned keys and cache
+  lifecycle, `GrammarCorrectionRepository` storage persistence, `LanguageToolApiSource`
+  request formatting, HTTP error mapping, and malformed response tolerance.
+- `phase4_services_test.dart` — `GrammarService` local-first orchestration, cache hits,
+  engine update invalidation, opt-in remote merging, graceful remote failure fallback,
+  and Reader-managed correction persistence.
+- `grammar_panel_test.dart` — `GrammarPanel` widget states (loading, error, no issues,
+  issue rendering), suggestion copy/apply, dismiss, Dictionary open, and Save Word actions.
+- `reader_phase4_test.dart` — PDF text selection context toolbar → Grammar action integration,
+  panel presentation, and selection clearing.
+- `grammar_workflow_integration_test.dart` — end-to-end integration workflows:
+  1. Selected text → grammar analysis → issue rendering → apply correction →
+     Reader-managed correction persistence.
+  2. Single-word spelling error → direct Dictionary definition lookup & Vocabulary save.
+  3. Fully offline checking resilience with remote features disabled.
+
 ## Widget-test conventions (learned the hard way)
 
 - **No real `dart:io` inside `testWidgets`.** The test body runs in a
@@ -95,7 +122,7 @@
 
 ```powershell
 cd apps/titan_reader
-flutter test                                     # full suite (191 tests)
+flutter test                                     # full suite (297 tests)
 dart analyze .                                   # 0 issues
 dart format --set-exit-if-changed lib test       # 0 changed
 ```

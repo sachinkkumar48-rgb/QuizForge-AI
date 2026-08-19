@@ -85,6 +85,12 @@ class BundledDictionaryDataSource implements DictionaryDataSource {
     return load;
   }
 
+  /// Loads the sorted headword index.
+  ///
+  /// Phase 4 spelling reuses this index so no second word list ships with
+  /// the app. The list is cached after the first load.
+  Future<List<String>> loadHeadwords() => _loadHeadwords();
+
   Future<List<String>> _loadHeadwordsUncached() async {
     // Load manifest alongside so wordCount/license metadata are ready
     // after the first index access.

@@ -202,3 +202,40 @@ snackbar instead of opening the panel.
 `/reader/:documentId?page=N` (parsed into
 `ReaderScreen.initialPageOverride`) lets a saved word jump back to the
 exact page it was encountered on.
+
+## Phase 4: grammar & spelling
+
+### Layering
+
+`GrammarPanel` (`widgets/grammar_panel.dart`) → `grammarServiceProvider`
+(`providers/grammar_providers.dart`) → `GrammarService`
+(`services/grammar_service.dart`) → `GrammarEngine` contract
+(`data/grammar_engine.dart`) → `LocalGrammarEngine` / `RemoteGrammarSource`.
+
+The domain model (`GrammarIssue`, `GrammarSuggestion`, `GrammarCheckResult`,
+`GrammarCorrection`, `GrammarTextCorrection`, typed errors) has zero dependency
+on UI, HTTP, WordNet, or database libraries.
+
+### Local-first analysis pipeline
+
+1. Check request arrives with selected text.
+2. `GrammarService` computes cache key (`grammar:<engineId>:<version>:<lang>:<hash>`).
+   If cached, returns immediately without re-parsing.
+3. `LocalGrammarEngine` runs `RuleGrammarChecker` (10 deterministic rules) and
+   `WordNetSpellChecker` (headword index + Damerau-Levenshtein candidates).
+4. Spelling errors overlapping rule-flagged spans (e.g. `alot`) are suppressed.
+5. If `remoteEnabled` is true, queries `LanguageToolApiSource` and merges results
+   (local issues win over duplicate spans).
+6. Result is cached in `titan.reader.grammar.cache`.
+
+### Offset safety & correction lifecycle
+
+1. Issues retain exact character spans (`startOffset`, `endOffset`) relative to
+   the analyzed selection.
+2. `GrammarTextCorrection.apply` executes right-to-left replacements with
+   overlap safety.
+3. Applying a suggestion writes a `GrammarCorrection` to
+   `titan.reader.grammar.corrections`.
+4. **PDF Invariant**: Original PDF files are NEVER modified. All corrections are
+   Reader-managed records.
+

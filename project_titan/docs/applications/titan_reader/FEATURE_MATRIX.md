@@ -79,20 +79,48 @@ lookup exists but is **off by default** (LOCAL_ONLY privacy).
 | Source tracking + jump-back to document page | ✅ | `vocabulary_screen._openSource`, `/reader/:id?page=N` | `vocabulary_screen_test.dart`, integration W2 |
 | Vocabulary persistence across restart | ✅ | `titan.reader.vocabulary` namespace | `phase3_services_test.dart`, integration W3 |
 | Pronunciation / IPA / audio | ⏳ | WordNet ships no phonetics; never faked (§8) | — |
-| Grammar tools | ⏳ | still a placeholder by design (§35) | `reader_phase2_test.dart` |
+
+## Phase 4 — Grammar & spelling
+
+All local grammar and spelling checks are **deterministic and offline-first**.
+WordNet headwords are reused for spelling. Remote checking is **opt-in only**
+and off by default. Applying suggestions creates **Reader-managed records**
+without modifying the original PDF.
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| Bundled spelling engine (WordNet headword index, 147k words) | ✅ | `data/spell_checker.dart` | `phase4_engine_test.dart` |
+| Edit-distance candidate generator (Damerau-Levenshtein d=1 then d=2) | ✅ | `data/spell_checker.dart` | `phase4_engine_test.dart` |
+| Deterministic grammar rule engine (10 exact rules) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Repeated word detection (`rule.repeated-word`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Sentence capitalization check (`rule.sentence-capitalization`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Pronoun capitalization check (`rule.standalone-i`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Double space detection (`rule.double-space`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Doubled punctuation check (`rule.doubled-punctuation`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Punctuation spacing checks (`rule.punctuation-space-after/before`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Modal verb correction (`rule.modal-of`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| "Alot" split check (`rule.alot`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Article agreement check (`rule.article-agreement`) | ✅ | `data/local_rule_engine.dart` | `phase4_engine_test.dart` |
+| Composite Local Engine (spelling suppression in rule spans) | ✅ | `data/grammar_engine.dart` | `phase4_engine_test.dart` |
+| Optional remote source (LanguageTool HTTP, opt-in) | ✅ | `data/remote_grammar_source.dart` | `phase4_repositories_test.dart` |
+| Offset-safe correction applier (`GrammarTextCorrection.apply`) | ✅ | `domain/grammar_text_correction.dart` | `phase4_entities_test.dart` |
+| Grammar cache (`titan.reader.grammar.cache`, versioned key) | ✅ | `data/grammar_cache_repository.dart` | `phase4_repositories_test.dart`, `phase4_services_test.dart` |
+| Reader-managed corrections persistence (`titan.reader.grammar.corrections`) | ✅ | `data/grammar_correction_repository.dart` | `phase4_repositories_test.dart`, `phase4_services_test.dart` |
+| Selection toolbar integration (capture selection → Grammar action) | ✅ | `screens/reader_screen.dart` | `reader_phase4_test.dart` |
+| Grammar panel UI (issues, suggestions, explanations, copy, dismiss, apply) | ✅ | `widgets/grammar_panel.dart` | `grammar_panel_test.dart` |
+| Grammar → Dictionary / My Vocabulary integration | ✅ | `widgets/grammar_panel.dart` | `grammar_panel_test.dart`, `grammar_workflow_integration_test.dart` |
 
 ## Later phases (planned)
 
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
 | Thumbnails | ⏳ | pdfrx supports page images; UI not built yet |
-| Grammar + vocabulary tools | ⏳ | Phase 4+; selection toolbar slot reserved |
 | AI reading assistant (opt-in) | ⏳ | requires privacy-state transitions, see PRIVACY.md |
-| PDF-native annotation export/import | ⏳ | blocked on engine capability |
+| Native PDF text modification / export | ⏳ | Phase 6; pdfrx currently display-only |
 
 ## Quality gates (current)
 
-- `flutter test`: 191 tests passing
+- `flutter test` (titan_reader): 297 tests passing
 - `dart analyze`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
   QuizForge AI (234) suites all passing
