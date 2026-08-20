@@ -132,7 +132,16 @@ class PdfString extends PdfObject {
   PdfString.fromString(String text, {bool isHex = false})
       : this(utf8.encode(text), isHex: isHex);
 
-  String asString() => utf8.decode(bytes, allowMalformed: true);
+  String asString() {
+    if (bytes.length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF) {
+      final codeUnits = <int>[];
+      for (var i = 2; i + 1 < bytes.length; i += 2) {
+        codeUnits.add((bytes[i] << 8) | bytes[i + 1]);
+      }
+      return String.fromCharCodes(codeUnits);
+    }
+    return utf8.decode(bytes, allowMalformed: true);
+  }
 
   @override
   void writeTo(BytesBuilder builder) {
@@ -309,6 +318,18 @@ class PdfDict extends PdfObject {
   PdfRef? getRef(String key) {
     final obj = this[key];
     if (obj is PdfRef) return obj;
+    return null;
+  }
+
+  PdfString? getString(String key) {
+    final obj = this[key];
+    if (obj is PdfString) return obj;
+    return null;
+  }
+
+  double? getDouble(String key) {
+    final obj = this[key];
+    if (obj is PdfNumber) return obj.asDouble;
     return null;
   }
 

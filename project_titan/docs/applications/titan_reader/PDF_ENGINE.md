@@ -95,3 +95,12 @@ DefaultPdfManipulationEngine ───► Structural Mutation / Merge / Split / 
 - `PdfParser`: Reconstructs the complete cross-reference (`xref`) table, object generations, trailer dictionary, and catalog.
 - `PdfDocumentAst`: In-memory mutable representation of the document object graph and page hierarchy.
 - `PdfWriter`: Serializes AST objects back to byte streams with reconstructed `/XRef` tables, object numbers, and atomic output writing.
+
+## Hardening & Compatibility (Phase 6A.1)
+
+The AST engine was hardened across 20 corpus categories (A–T), differential roundtrips, and malformed fuzzing suites:
+- **Inheritance Resolution**: Automatically flattens and inherits `/MediaBox`, `/CropBox`, `/Resources`, and `/Rotate` from nested `/Pages` ancestors down to leaf `/Page` nodes.
+- **Unicode Strings**: Full UTF-16BE decoding and hex serialization for international metadata and annotations.
+- **Safety**: Rejection of encrypted PDFs (`/Encrypt`) with typed `PdfUnsupportedDocumentException` to protect files from cryptographic corruption.
+- **Zero-Page Protection**: Rejection of empty/corrupt document graphs with typed `PdfInvalidDocumentException`.
+- **Atomic Reliability**: All mutations stage writes to `.tmp_titan_*` before atomic renaming to prevent corrupted outputs on interrupt.

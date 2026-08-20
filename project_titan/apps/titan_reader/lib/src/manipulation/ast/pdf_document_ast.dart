@@ -55,9 +55,33 @@ class PdfDocumentAst {
     _collectPages(_pagesRoot);
   }
 
-  void _collectPages(PdfDict node) {
+  void _collectPages(
+    PdfDict node, {
+    PdfObject? inheritedMediaBox,
+    PdfObject? inheritedCropBox,
+    PdfObject? inheritedResources,
+    PdfObject? inheritedRotate,
+  }) {
+    final curMediaBox = node['MediaBox'] ?? inheritedMediaBox;
+    final curCropBox = node['CropBox'] ?? inheritedCropBox;
+    final curResources = node['Resources'] ?? inheritedResources;
+    final curRotate = node['Rotate'] ?? inheritedRotate;
+
     final type = node.getName('Type');
     if (type == 'Page') {
+      if (!node.containsKey('MediaBox') && curMediaBox != null) {
+        node['MediaBox'] = curMediaBox;
+      }
+      if (!node.containsKey('CropBox') && curCropBox != null) {
+        node['CropBox'] = curCropBox;
+      }
+      if (!node.containsKey('Resources') && curResources != null) {
+        node['Resources'] = curResources;
+      }
+      if (!node.containsKey('Rotate') && curRotate != null) {
+        node['Rotate'] = curRotate;
+      }
+
       final objNum = _findObjNumFor(node);
       if (objNum != null) {
         _pageRefs.add(PdfRef(objNum));
@@ -75,19 +99,56 @@ class PdfDocumentAst {
         if (childObj is PdfDict) {
           final childType = childObj.getName('Type');
           if (childType == 'Page') {
+            if (!childObj.containsKey('MediaBox') && curMediaBox != null) {
+              childObj['MediaBox'] = curMediaBox;
+            }
+            if (!childObj.containsKey('CropBox') && curCropBox != null) {
+              childObj['CropBox'] = curCropBox;
+            }
+            if (!childObj.containsKey('Resources') && curResources != null) {
+              childObj['Resources'] = curResources;
+            }
+            if (!childObj.containsKey('Rotate') && curRotate != null) {
+              childObj['Rotate'] = curRotate;
+            }
             _pageRefs.add(kid);
           } else if (childType == 'Pages') {
-            _collectPages(childObj);
+            _collectPages(
+              childObj,
+              inheritedMediaBox: curMediaBox,
+              inheritedCropBox: curCropBox,
+              inheritedResources: curResources,
+              inheritedRotate: curRotate,
+            );
           } else {
             // Default to page if has /MediaBox or /Contents
             if (childObj.containsKey('MediaBox') ||
-                childObj.containsKey('Contents')) {
+                childObj.containsKey('Contents') ||
+                curMediaBox != null) {
+              if (!childObj.containsKey('MediaBox') && curMediaBox != null) {
+                childObj['MediaBox'] = curMediaBox;
+              }
+              if (!childObj.containsKey('CropBox') && curCropBox != null) {
+                childObj['CropBox'] = curCropBox;
+              }
+              if (!childObj.containsKey('Resources') && curResources != null) {
+                childObj['Resources'] = curResources;
+              }
+              if (!childObj.containsKey('Rotate') && curRotate != null) {
+                childObj['Rotate'] = curRotate;
+              }
               _pageRefs.add(kid);
             }
           }
         }
       } else if (kid is PdfDict) {
-        _collectPages(kid);
+        _collectPages(
+          kid,
+          inheritedMediaBox: curMediaBox,
+          inheritedCropBox: curCropBox,
+          inheritedResources: curResources,
+          inheritedRotate: curRotate,
+        );
       }
     }
   }
@@ -327,8 +388,18 @@ class PdfDocumentAst {
       catalog: newCatalog,
     );
 
+    final idOffset = subDoc.nextAvailableObjectNumber();
     // Insert selected pages into the new subDoc
     subDoc.insertPagesFrom(this, zeroBasedIndices, 0);
+
+    if (trailer.containsKey('Info')) {
+      final infoRef = trailer['Info'];
+      if (infoRef is PdfRef) {
+        subDoc.trailer['Info'] = PdfRef(infoRef.objectNumber + idOffset);
+      } else if (infoRef is PdfDict) {
+        subDoc.trailer['Info'] = infoRef;
+      }
+    }
 
     return subDoc;
   }

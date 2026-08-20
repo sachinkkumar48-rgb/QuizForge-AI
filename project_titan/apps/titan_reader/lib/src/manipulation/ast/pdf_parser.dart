@@ -44,6 +44,13 @@ class PdfParser {
     // 3. Locate Trailer & Catalog
     final trailer = _findOrSynthesizeTrailer(objects);
 
+    if (trailer.containsKey('Encrypt')) {
+      throw const PdfUnsupportedDocumentException(
+        'Encrypted PDF documents cannot be safely mutated without cryptographic keys.',
+        reason: 'Encrypted document (/Encrypt entry present in trailer)',
+      );
+    }
+
     // 4. Resolve Catalog and Pages Tree
     final rootRef = trailer['Root'];
     PdfDict? catalog;
@@ -72,13 +79,28 @@ class PdfParser {
           filePath: '');
     }
 
-    return PdfDocumentAst(
+    if (catalog.containsKey('Encrypt')) {
+      throw const PdfUnsupportedDocumentException(
+        'Encrypted PDF documents cannot be safely mutated without cryptographic keys.',
+        reason: 'Encrypted document (/Encrypt entry present in catalog)',
+      );
+    }
+
+    final docAst = PdfDocumentAst(
       header: header,
       objects: objects,
       objectGenerations: objectGenerations,
       trailer: trailer,
       catalog: catalog,
     );
+
+    if (docAst.pageCount == 0) {
+      throw const PdfInvalidDocumentException(
+          'Document contains no valid page objects.',
+          filePath: '');
+    }
+
+    return docAst;
   }
 
   String _extractHeader() {

@@ -243,9 +243,13 @@ on UI, HTTP, WordNet, or database libraries.
 
 Multi-provider AI assistant architecture supporting local Ollama, OpenAI-compatible APIs, Google Gemini, and offline mocks. Features RAG-based context retrieval, prompt-injection defense fencing, response caching, conversation history, and flashcard generation.
 
-## Phase 6A: PDF document manipulation
+## Phase 6A & 6A.1: PDF document manipulation & hardening
 
 ### Layering
 `MergePdfsDialog` / `OrganizePagesDialog` (`widgets/`) → `PdfDocumentManipulationService` (`manipulation/services/`) → `PdfManipulationEngine` (`manipulation/engine/`) → `DefaultPdfManipulationEngine` (`manipulation/engine/`) → `PdfParser` / `PdfDocumentAst` / `PdfWriter` (`manipulation/ast/`).
 
-5. Original source files remain untouched on disk.
+### Invariants & Hardening
+1. Original source files remain completely untouched on disk.
+2. All operations stage output files to `.tmp_titan_*` before atomic renaming to prevent corrupt outputs.
+3. Nested page tree attributes (`/MediaBox`, `/CropBox`, `/Resources`, `/Rotate`) are systematically flattened and inherited during AST page extraction.
+4. Encrypted and malformed zero-page documents are safely rejected with typed exceptions (`PdfUnsupportedDocumentException`, `PdfInvalidDocumentException`).

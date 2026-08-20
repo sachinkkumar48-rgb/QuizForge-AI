@@ -155,14 +155,28 @@ Enterprise-grade, non-destructive PDF page mutations, document assembly, and str
 | Organize Pages Dialog UI | ✅ | `widgets/organize_pages_dialog.dart` | `organize_pages_dialog_test.dart` |
 | End-to-end safe manipulation workflows | ✅ | `test/integration/phase6a_workflows_integration_test.dart` | `phase6a_workflows_integration_test.dart` |
 
+## Phase 6A.1 — PDF engine hardening & compatibility audit
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| Corpus Category A–T Testing | ✅ | `test/manipulation/pdf_compatibility_corpus_test.dart` | `pdf_compatibility_corpus_test.dart` |
+| Security Fuzzing & Malformed Resilience | ✅ | `test/manipulation/pdf_security_fuzzing_test.dart` | `pdf_security_fuzzing_test.dart` |
+| Differential & Idempotence Roundtrips | ✅ | `test/manipulation/pdf_differential_validation_test.dart` | `pdf_differential_validation_test.dart` |
+| Page Tree Attribute Inheritance Resolution | ✅ | `manipulation/ast/pdf_document_ast.dart` | `pdf_compatibility_corpus_test.dart` |
+| Unicode UTF-16BE / Hex String Support | ✅ | `manipulation/ast/pdf_primitive.dart` | `pdf_compatibility_corpus_test.dart` |
+| Zero-Page & Malformed Structure Safe Guard | ✅ | `manipulation/ast/pdf_parser.dart` | `pdf_security_fuzzing_test.dart` |
+| Encrypted PDF Rejection Guard | ✅ | `manipulation/ast/pdf_parser.dart` | `pdf_compatibility_corpus_test.dart` |
+
 ## Later phases (planned)
 
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
 | Thumbnails | ⏳ | pdfrx supports page images; UI not built yet |
+| PDF-Native Annotations | ⏳ | Phase 6B |
+
 ## Quality gates (current)
 
-- `flutter test` (titan_reader): 382 tests passing
+- `flutter test` (titan_reader): 407 tests passing
 - `dart analyze project_titan/apps/titan_reader`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
-  QuizForge AI (234) suites all passing
+  QuizForge AI (234) suites all passing (719 / 719 total)
