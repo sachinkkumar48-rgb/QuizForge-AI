@@ -59,25 +59,17 @@ channels.
 
 ## PDF-native vs Reader-managed annotations
 
-pdfrx 2.4.7's `PdfAnnotation` surface is metadata-only (title/content
-strings); it **cannot create, render or persist PDF-native annotations**.
-Therefore TITAN Reader stores annotations in TITAN storage and paints them
-as overlays. Consequences:
+TITAN Reader supports two distinct, complementary annotation architectures:
 
-- Annotations survive restarts and sync with the Reader, but are **not
-  embedded into the PDF file** and are invisible to other PDF tools.
-- The normalized-rect model maps cleanly onto PDF highlight/underline/
-  strike-out annotation rects, leaving room for future export/import once
-  an engine supports it.
-- The PDF's native outline is still *read* and surfaced (read-only).
-
-## Replacing the engine
-
-1. Implement `PdfDocumentEngine` + `PdfViewerHandle` against the new SDK in
-   a new adapter file under `src/pdf/`.
-2. Switch the default of `pdfEngineProvider` (or override it in `main()`).
-3. No changes required outside `src/pdf/` — screens, services and tests are
-   engine-agnostic.
+| Feature / Dimension | Reader-Managed Annotations (Phase 2) | PDF-Native Annotations (Phase 6B) |
+| ------------------- | ------------------------------------ | --------------------------------- |
+| **Storage Location** | Application database / Hive / SQLite | `/Annots` array inside PDF binary |
+| **Target Use Case** | User study notes, AI summaries, high-speed overlays | Interoperable document sharing & standard PDF viewers |
+| **Portability** | Within TITAN Reader application ecosystem | Universal across Acrobat, Preview, Chrome, PDFium, Foxit |
+| **Mutation Style** | Non-destructive database writes | In-place or new PDF AST object serialization |
+| **Rendering** | Presentation overlays on `pdfrx` viewer | Direct PDF Appearance Streams (`/AP` Form XObjects) |
+| **Supported Types** | Highlights, Notes, Bookmarks | Highlight, Underline, StrikeOut, Ink, FreeText, Sticky Note, Raw |
+| **Undo / Redo** | Memory & DB state reversal | `ReaderUndoStack` with atomic synchronous disk persistence |
 
 ## PDF Manipulation Engine (Phase 6A)
 
@@ -88,15 +80,33 @@ While `pdfrx` handles high-performance native rendering and text selection, PDF 
 ```
 pdfrx (PDFium) ───► Viewing / Rendering / Interactive Selection
 DefaultPdfManipulationEngine ───► Structural Mutation / Merge / Split / AST Manipulation
+DefaultPdfNativeAnnotationEngine ───► PDF-Native /Annots CRUD / /AP Generation / Flattening
 ```
 
 ### AST Architecture
 - `PdfTokenizer`: Lexical analysis of PDF syntax into tokens (Names, Strings, Numbers, Booleans, References, Dict/Array delimiters).
 - `PdfParser`: Reconstructs the complete cross-reference (`xref`) table, object generations, trailer dictionary, and catalog.
 - `PdfDocumentAst`: In-memory mutable representation of the document object graph and page hierarchy.
-- `PdfWriter`: Serializes AST objects back to byte streams with reconstructed `/XRef` tables, object numbers, and atomic output writing.
+- `PdfWriter`: Serializes AST objects back to byte streams with reconstructed `/XRef` tables, object numbers, and atomic output writing (`writeBytes`, `writeAtomic`, `writeAtomicSync`).
 
-## Hardening & Compatibility (Phase 6A.1)
+## PDF-Native Annotation Engine (Phase 6B)
+
+The PDF-Native Annotation Engine (`DefaultPdfNativeAnnotationEngine` behind `PdfNativeAnnotationEngine`) enables full ISO 32000-1 annotation lifecycle management directly within the AST:
+
+### Core Capabilities
+1. **Parser & Builder**:
+   - `PdfAnnotationParser`: Scans `/Annots` arrays, resolving direct and indirect object dictionaries into strongly-typed `PdfNativeAnnotation` entities.
+   - `PdfAnnotationBuilder`: Translates domain annotations into standard PDF dictionaries, computing `/Rect`, `/QuadPoints`, `/InkList`, `/DA`, `/C` (RGB), `/CA` (opacity), `/BM` (blend mode), and `/AP` (Form XObject Appearance Streams).
+2. **Raw Annotation Preservation**:
+   - Unknown or complex annotation types (e.g. `/Link`, `/Widget`, stamps) are preserved as `PdfNativeRawAnnotation` and written back unmodified.
+3. **Page Flattening**:
+   - Flattens native annotations into the page's `/Contents` stream using PDF operator sequences (q/Q matrix transformations, Do for XObjects), locking visual appearance permanently.
+4. **Coordinate Transformation**:
+   - `PdfCoordinateTransformer`: Converts bidirectionally between screen coordinates (top-left normalized `[0, 1]`) and PDF User Space points (bottom-left origin, 72 DPI).
+5. **Undo / Redo System**:
+   - Integrated with `ReaderUndoStack`, providing synchronous reversible state transitions and atomic file disk synchronization.
+
+## Hardening & Compatibility (Phase 6A.1 & 6B)
 
 The AST engine was hardened across 20 corpus categories (A–T), differential roundtrips, and malformed fuzzing suites:
 - **Inheritance Resolution**: Automatically flattens and inherits `/MediaBox`, `/CropBox`, `/Resources`, and `/Rotate` from nested `/Pages` ancestors down to leaf `/Page` nodes.
@@ -104,3 +114,4 @@ The AST engine was hardened across 20 corpus categories (A–T), differential ro
 - **Safety**: Rejection of encrypted PDFs (`/Encrypt`) with typed `PdfUnsupportedDocumentException` to protect files from cryptographic corruption.
 - **Zero-Page Protection**: Rejection of empty/corrupt document graphs with typed `PdfInvalidDocumentException`.
 - **Atomic Reliability**: All mutations stage writes to `.tmp_titan_*` before atomic renaming to prevent corrupted outputs on interrupt.
+

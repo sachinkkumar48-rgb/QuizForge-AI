@@ -167,16 +167,29 @@ Enterprise-grade, non-destructive PDF page mutations, document assembly, and str
 | Zero-Page & Malformed Structure Safe Guard | ✅ | `manipulation/ast/pdf_parser.dart` | `pdf_security_fuzzing_test.dart` |
 | Encrypted PDF Rejection Guard | ✅ | `manipulation/ast/pdf_parser.dart` | `pdf_compatibility_corpus_test.dart` |
 
-## Later phases (planned)
+## Phase 6B — PDF-native annotations
 
-| Feature | Status | Notes |
-| ------- | ------ | ----- |
-| Thumbnails | ⏳ | pdfrx supports page images; UI not built yet |
-| PDF-Native Annotations | ⏳ | Phase 6B |
+Full ISO 32000-1 compliant PDF-native annotation engine with Form XObject appearance streams (`/AP`), raw preservation, coordinate transforms, and undo/redo support.
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| PDF Highlight Annotation (`/Highlight`) | ✅ | `PdfNativeHighlightAnnotation` / `PdfAnnotationBuilder` | `pdf_native_annotation_entities_test.dart`, `pdf_annotation_parser_builder_test.dart` |
+| PDF Underline Annotation (`/Underline`) | ✅ | `PdfNativeUnderlineAnnotation` / `PdfAnnotationBuilder` | `pdf_native_annotation_entities_test.dart`, `pdf_annotation_parser_builder_test.dart` |
+| PDF StrikeOut Annotation (`/StrikeOut`) | ✅ | `PdfNativeStrikeOutAnnotation` / `PdfAnnotationBuilder` | `pdf_native_annotation_entities_test.dart`, `pdf_annotation_parser_builder_test.dart` |
+| PDF Ink / Freehand Annotation (`/Ink`) | ✅ | `PdfNativeInkAnnotation` / `PdfAnnotationBuilder` | `pdf_native_annotation_entities_test.dart`, `pdf_annotation_parser_builder_test.dart` |
+| PDF FreeText Annotation (`/FreeText`) | ✅ | `PdfNativeFreeTextAnnotation` / `PdfAnnotationBuilder` | `pdf_native_annotation_entities_test.dart`, `pdf_annotation_parser_builder_test.dart` |
+| PDF Sticky Note / Text (`/Text`) | ✅ | `PdfNativeStickyNoteAnnotation` / `PdfAnnotationBuilder` | `pdf_native_annotation_entities_test.dart`, `pdf_annotation_parser_builder_test.dart` |
+| Unknown / Raw Annotation Preservation | ✅ | `PdfNativeRawAnnotation` / `PdfAnnotationParser` | `pdf_native_annotation_entities_test.dart`, `pdf_native_interoperability_test.dart` |
+| Native Annotation Engine CRUD | ✅ | `DefaultPdfNativeAnnotationEngine` | `pdf_native_annotation_engine_test.dart` |
+| Synchronous Persistence & Undo/Redo | ✅ | `PdfNativeAnnotationService` / `ReaderUndoStack` | `phase6b_native_annotation_service_test.dart` |
+| Page Flattening Engine | ✅ | `DefaultPdfNativeAnnotationEngine.flattenAnnotations` | `pdf_native_annotation_engine_test.dart` |
+| JSON / FDF Export & Import | ✅ | `PdfNativeAnnotationService` | `phase6b_native_annotation_service_test.dart` |
+| Cross-Viewer Interoperability & Preserving 6A | ✅ | `DefaultPdfNativeAnnotationEngine` | `pdf_native_interoperability_test.dart` |
 
 ## Quality gates (current)
 
-- `flutter test` (titan_reader): 407 tests passing
+- `flutter test` (titan_reader): 433 tests passing (100% pass rate)
 - `dart analyze project_titan/apps/titan_reader`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
-  QuizForge AI (234) suites all passing (719 / 719 total)
+  QuizForge AI (234) suites all passing (745 / 745 total workspace tests)
+

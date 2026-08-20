@@ -26,7 +26,8 @@ void main() {
   });
 
   group('Phase 6A.1: Differential & Idempotence Validation Tests', () {
-    test('Idempotence: Parse -> Mutate -> Write -> Re-parse -> Write produces identical structure',
+    test(
+        'Idempotence: Parse -> Mutate -> Write -> Re-parse -> Write produces identical structure',
         () async {
       final docOriginal = _createFixture(pageCount: 3);
       final writerOriginal = PdfWriter(docOriginal);
@@ -58,7 +59,8 @@ void main() {
       expect(ast2.getPageDict(2).getInt('Rotate') ?? 0, 0);
     });
 
-    test('Chained Mutation Cycle: Merge(3) -> Split(3) -> Re-Merge(3) preserves page count and resources',
+    test(
+        'Chained Mutation Cycle: Merge(3) -> Split(3) -> Re-Merge(3) preserves page count and resources',
         () async {
       final docA = _createFixture(pageCount: 2);
       final docB = _createFixture(pageCount: 3);
@@ -104,7 +106,8 @@ void main() {
       expect(reMergeRes.pageCount, 6);
     });
 
-    test('Atomic file replacement safety: overwriting existing output path replaces atomically without corruption',
+    test(
+        'Atomic file replacement safety: overwriting existing output path replaces atomically without corruption',
         () async {
       final doc = _createFixture(pageCount: 2);
       final targetPath = '${tempDir.path}/atomic_target.pdf';

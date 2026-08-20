@@ -189,8 +189,8 @@ void main() {
 
       expect(infoDict.getString('Title')?.asString(),
           'TITAN Engineering Specification');
-      expect(infoDict.getString('Author')?.asString(),
-          'TITAN Architecture Team');
+      expect(
+          infoDict.getString('Author')?.asString(), 'TITAN Architecture Team');
     });
 
     test('Category H: Bookmarks & Outlines (/Outlines hierarchy preservation)',
@@ -237,7 +237,8 @@ void main() {
 
     test('Category J: Compressed FlateDecode stream preservation', () async {
       // Create raw uncompressed and deflated stream payload
-      final rawData = utf8.encode('BT /F1 12 Tf 100 700 Td (Hello World) Tj ET');
+      final rawData =
+          utf8.encode('BT /F1 12 Tf 100 700 Td (Hello World) Tj ET');
       final zlibCompressed = Uint8List.fromList(zlib.encode(rawData));
 
       final doc = _buildPdfWithCompressedStream(zlibCompressed);
@@ -326,7 +327,8 @@ startxref
       sw.stop();
 
       expect(res.pageCount, 100);
-      expect(sw.elapsedMilliseconds, lessThan(3000)); // Fast pure Dart execution
+      expect(
+          sw.elapsedMilliseconds, lessThan(3000)); // Fast pure Dart execution
     });
 
     test('Category R & S: Unicode UTF-16BE & Devanagari Hindi Text Strings',
@@ -457,7 +459,8 @@ PdfDocumentAst _buildMultiSizePdf(List<List<double>> pageSizes) {
     pageRefs.add(PdfRef(pageId));
   }
 
-  final catalog = PdfDict(const {'Type': PdfName('Catalog'), 'Pages': PdfRef(2)});
+  final catalog =
+      PdfDict(const {'Type': PdfName('Catalog'), 'Pages': PdfRef(2)});
   final pages = PdfDict({
     'Type': const PdfName('Pages'),
     'Kids': PdfArray(pageRefs),
@@ -539,7 +542,8 @@ PdfDocumentAst _buildPdfWithImageXObject(Uint8List imageBytes) {
   objects[2] = pages;
   gens[2] = 0;
 
-  final catalog = PdfDict(const {'Type': PdfName('Catalog'), 'Pages': PdfRef(2)});
+  final catalog =
+      PdfDict(const {'Type': PdfName('Catalog'), 'Pages': PdfRef(2)});
   objects[1] = catalog;
   gens[1] = 0;
 
@@ -607,7 +611,8 @@ PdfDocumentAst _buildPdfWithEmbeddedFont() {
   objects[2] = pages;
   gens[2] = 0;
 
-  final catalog = PdfDict(const {'Type': PdfName('Catalog'), 'Pages': PdfRef(2)});
+  final catalog =
+      PdfDict(const {'Type': PdfName('Catalog'), 'Pages': PdfRef(2)});
   objects[1] = catalog;
   gens[1] = 0;
 

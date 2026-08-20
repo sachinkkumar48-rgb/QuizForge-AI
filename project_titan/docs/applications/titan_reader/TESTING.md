@@ -131,11 +131,20 @@
 - `pdf_security_fuzzing_test.dart` — Fuzzing and safety resilience (truncated files, missing trailers, malformed syntax, 0-page rejection, bounds safety, duplicate indices, deep nesting).
 - `pdf_differential_validation_test.dart` — Idempotence, parse/mutate/write roundtripping, chained mutation cycles, and atomic replacement safety.
 
+## Phase 6B coverage
+
+- `pdf_native_annotation_entities_test.dart` — domain entity immutability, `copyWith`, JSON roundtrips, `PdfColor` RGB/Hex/Opacity transforms, `PdfBoundingBox` / `PdfQuadPoint` geometric transforms, and `PdfNativeRawAnnotation` preservation.
+- `pdf_annotation_parser_builder_test.dart` — low-level AST `/Annots` parsing and builder roundtrips for all 6 annotation types (`/Highlight`, `/Underline`, `/StrikeOut`, `/Ink`, `/FreeText`, `/Text`) with Form XObject `/AP` appearance streams and `/Contents` fallbacks.
+- `pdf_native_annotation_engine_test.dart` — `DefaultPdfNativeAnnotationEngine` CRUD operations (load, add, update, delete, saveAll), scale tests (100+ annotations), corrupt `/Annots` recovery, multi-page distribution, and page flattening (`flattenAnnotations`).
+- `phase6b_native_annotation_service_test.dart` — `PdfNativeAnnotationService` non-destructive filename generator, JSON/FDF export and import, and `ReaderUndoStack` synchronous undo/redo persistence.
+- `pdf_native_interoperability_test.dart` — cross-viewer interoperability, ISO 32000-1 conformance, preservation across Phase 6A operations (merge, split, reorder, rotate), and raw unsupported annotation preservation.
+
 ## Running
 
 ```powershell
 cd project_titan/apps/titan_reader
-flutter test                                     # full suite (407 tests)
+flutter test                                     # full suite (433 tests)
 dart analyze project_titan/apps/titan_reader     # 0 issues
 dart format --set-exit-if-changed lib test       # 0 changed
 ```
+

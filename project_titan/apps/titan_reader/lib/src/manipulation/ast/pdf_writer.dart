@@ -75,13 +75,13 @@ class PdfWriter {
     return builder.takeBytes();
   }
 
-  /// Writes output to [targetPath] atomically via temporary staging file.
-  Future<File> writeAtomic(String targetPath) async {
+  /// Writes output to [targetPath] atomically via temporary staging file (synchronous).
+  File writeAtomicSync(String targetPath) {
     try {
       final targetFile = File(targetPath);
       final parentDir = targetFile.parent;
-      if (!await parentDir.exists()) {
-        await parentDir.create(recursive: true);
+      if (!parentDir.existsSync()) {
+        parentDir.createSync(recursive: true);
       }
 
       final tmpPath =
@@ -89,20 +89,20 @@ class PdfWriter {
       final tmpFile = File(tmpPath);
 
       final bytes = writeBytes();
-      await tmpFile.writeAsBytes(bytes, flush: true);
+      tmpFile.writeAsBytesSync(bytes, flush: true);
 
       // Verify file was written
-      if (!await tmpFile.exists() || await tmpFile.length() < 10) {
+      if (!tmpFile.existsSync() || tmpFile.lengthSync() < 10) {
         throw PdfAtomicWriteException(
             'Temporary staging file failed validation: $tmpPath',
             targetPath: targetPath);
       }
 
       // Atomic rename / replace
-      if (await targetFile.exists()) {
-        await targetFile.delete();
+      if (targetFile.existsSync()) {
+        targetFile.deleteSync();
       }
-      return await tmpFile.rename(targetPath);
+      return tmpFile.renameSync(targetPath);
     } catch (e) {
       if (e is PdfManipulationException) rethrow;
       throw PdfAtomicWriteException(
@@ -110,5 +110,10 @@ class PdfWriter {
           targetPath: targetPath,
           cause: e);
     }
+  }
+
+  /// Writes output to [targetPath] atomically via temporary staging file.
+  Future<File> writeAtomic(String targetPath) async {
+    return writeAtomicSync(targetPath);
   }
 }

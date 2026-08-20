@@ -48,7 +48,8 @@ void main() {
     test('Non-PDF file header (e.g. PNG / HTML / Random binary) rejects safely',
         () async {
       final pngFile = File('${tempDir.path}/fake.pdf');
-      await pngFile.writeAsBytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+      await pngFile
+          .writeAsBytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
 
       expect(
         () => service.inspectPageCount(pngFile.path),
@@ -70,7 +71,8 @@ endobj
       expect(() => parser.parse(), throwsA(isA<PdfManipulationException>()));
     });
 
-    test('Missing /Pages or corrupted catalog dictionary throws typed exception',
+    test(
+        'Missing /Pages or corrupted catalog dictionary throws typed exception',
         () async {
       final badCatalog = utf8.encode('''
 %PDF-1.7
@@ -85,7 +87,8 @@ trailer
       expect(() => parser.parse(), throwsA(isA<PdfInvalidDocumentException>()));
     });
 
-    test('Unclosed string and unclosed dictionary in tokenizer terminate safely',
+    test(
+        'Unclosed string and unclosed dictionary in tokenizer terminate safely',
         () {
       final unclosedStr = utf8.encode('(This string never ends');
       final tok1 = PdfTokenizer(Uint8List.fromList(unclosedStr));
@@ -99,7 +102,8 @@ trailer
       expect(tok2.nextToken(), isA<PdfName>());
     });
 
-    test('Deleting all pages in a document throws PdfEmptyDocumentResultException',
+    test(
+        'Deleting all pages in a document throws PdfEmptyDocumentResultException',
         () async {
       final validPdf = utf8.encode('''
 %PDF-1.7
@@ -197,8 +201,7 @@ trailer
       );
     });
 
-    test('Deeply nested dictionary structures do not cause stack overflow',
-        () {
+    test('Deeply nested dictionary structures do not cause stack overflow', () {
       final sb = StringBuffer();
       for (var i = 0; i < 50; i++) {
         sb.write('<< /N ');
@@ -208,7 +211,8 @@ trailer
         sb.write(' >>');
       }
 
-      final tokenizer = PdfTokenizer(Uint8List.fromList(utf8.encode(sb.toString())));
+      final tokenizer =
+          PdfTokenizer(Uint8List.fromList(utf8.encode(sb.toString())));
       // Tokenizer handles nested delimiters without recursion
       expect(tokenizer.nextToken(), '<<');
     });

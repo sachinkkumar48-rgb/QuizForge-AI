@@ -253,3 +253,17 @@ Multi-provider AI assistant architecture supporting local Ollama, OpenAI-compati
 2. All operations stage output files to `.tmp_titan_*` before atomic renaming to prevent corrupt outputs.
 3. Nested page tree attributes (`/MediaBox`, `/CropBox`, `/Resources`, `/Rotate`) are systematically flattened and inherited during AST page extraction.
 4. Encrypted and malformed zero-page documents are safely rejected with typed exceptions (`PdfUnsupportedDocumentException`, `PdfInvalidDocumentException`).
+
+## Phase 6B: PDF-native annotations engine
+
+### Layering
+`PdfNativeAnnotationService` (`manipulation/services/`) → `PdfNativeAnnotationEngine` (`manipulation/engine/`) → `DefaultPdfNativeAnnotationEngine` (`manipulation/engine/`) → `PdfAnnotationParser` / `PdfAnnotationBuilder` (`manipulation/ast/`) → `PdfDocumentAst` / `PdfWriter`.
+
+### Architecture Principles & Invariants
+1. **Decoupled Two-Tier Annotation Model**: Reader-managed annotations (Phase 2, app database overlays) remain completely independent from PDF-native annotations (Phase 6B, embedded ISO 32000-1 `/Annots` arrays).
+2. **ISO 32000-1 Compliance**: Supports Highlight, Underline, StrikeOut, Ink, FreeText, and Text/Sticky Note with valid `/Rect`, `/QuadPoints`, `/InkList`, `/DA`, and Form XObject `/AP` streams.
+3. **Lossless Preservation**: Unrecognized annotation types (links, forms, stamps) are parsed into `PdfNativeRawAnnotation` and preserved intact without loss.
+4. **Coordinate Transformation**: Canonical normalized 0-1 coordinate space translated to/from PDF 72 DPI bottom-left point coordinate system.
+5. **Undo / Redo Safety**: Integrated with `ReaderUndoStack`, using synchronous disk persistence (`writeAtomicSync`) to guarantee atomic rollback and roll-forward consistency.
+6. **Page Flattening**: Burns annotation appearance streams into `/Contents` streams and purges `/Annots`, locking visual appearances for standard print workflows.
+
