@@ -17,6 +17,7 @@ import '../pdf/pdf_engine_contracts.dart';
 import '../providers/dictionary_providers.dart';
 import '../providers/reader_providers.dart';
 import '../services/library_service.dart';
+import '../domain/entities/pdf_manipulation_result.dart';
 import '../widgets/ai_assistant_panel.dart';
 import '../widgets/annotations_panel.dart';
 import '../widgets/bookmarks_panel.dart';
@@ -25,6 +26,7 @@ import '../widgets/document_search_bar.dart';
 import '../widgets/grammar_panel.dart';
 import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
+import '../widgets/organize_pages_dialog.dart';
 
 /// Full-screen PDF reader: rendering, page navigation, zoom, fit modes,
 /// rotation, text search, reading-position persistence and Phase 2 markup
@@ -661,7 +663,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           ),
           PopupMenuButton<String>(
             tooltip: 'View options',
-            onSelected: (value) {
+            onSelected: (value) async {
               switch (value) {
                 case 'fit-width':
                   handle.applyFitMode(PdfFitMode.fitWidth);
@@ -670,6 +672,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 case 'rotate':
                   handle.rotateClockwise();
                   setState(() {});
+                case 'organize-pages':
+                  final result = await showDialog<PdfManipulationResult>(
+                    context: context,
+                    builder: (context) => OrganizePagesDialog(
+                      filePath: document.filePath,
+                      initialPageCount: _pageCount ?? 1,
+                    ),
+                  );
+                  if (result != null && mounted) {
+                    _placeholder(
+                        'Pages organized (${result.pageCount} pages). Saved to ${result.primaryOutputPath}');
+                  }
               }
             },
             itemBuilder: (context) => const [
@@ -694,6 +708,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 child: ListTile(
                   leading: Icon(Icons.rotate_right_outlined),
                   title: Text('Rotate'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'organize-pages',
+                child: ListTile(
+                  leading: Icon(Icons.auto_stories),
+                  title: Text('Organize pages'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),

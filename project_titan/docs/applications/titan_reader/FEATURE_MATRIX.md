@@ -132,16 +132,37 @@ Multi-provider AI assistant architecture supporting local Ollama, OpenAI-compati
 | Selection context toolbar → AI action | ✅ | `screens/reader_screen.dart` | `reader_phase5_test.dart` |
 | End-to-end AI workflows | ✅ | `test/integration/ai_workflow_integration_test.dart` | `ai_workflow_integration_test.dart` |
 
+## Phase 6A — PDF document manipulation
+
+Enterprise-grade, non-destructive PDF page mutations, document assembly, and structural manipulation powered by a pure Dart AST engine.
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| PDF AST Parser & Lexer | ✅ | `manipulation/ast/pdf_parser.dart` | `ast_parser_writer_test.dart` |
+| PDF AST Serializer & Writer | ✅ | `manipulation/ast/pdf_writer.dart` | `ast_parser_writer_test.dart` |
+| Merge PDFs | ✅ | `DefaultPdfManipulationEngine.merge` | `phase6a_manipulation_engine_test.dart`, `merge_pdfs_dialog_test.dart` |
+| Split PDFs by ranges | ✅ | `DefaultPdfManipulationEngine.split` | `phase6a_manipulation_engine_test.dart` |
+| Extract pages | ✅ | `DefaultPdfManipulationEngine.extractPages` | `phase6a_manipulation_engine_test.dart`, `organize_pages_dialog_test.dart` |
+| Delete pages | ✅ | `DefaultPdfManipulationEngine.deletePages` | `phase6a_manipulation_engine_test.dart`, `organize_pages_dialog_test.dart` |
+| Reorder pages | ✅ | `DefaultPdfManipulationEngine.reorderPages` | `phase6a_manipulation_engine_test.dart`, `organize_pages_dialog_test.dart` |
+| Rotate pages (90/180/270°) | ✅ | `DefaultPdfManipulationEngine.rotatePages` | `phase6a_manipulation_engine_test.dart`, `organize_pages_dialog_test.dart` |
+| Insert blank pages | ✅ | `DefaultPdfManipulationEngine.insertBlankPage` | `phase6a_manipulation_engine_test.dart`, `organize_pages_dialog_test.dart` |
+| Insert pages from another PDF | ✅ | `DefaultPdfManipulationEngine.insertPagesFromPdf` | `phase6a_manipulation_engine_test.dart` |
+| PDF Catalog `/PageLabels` | ✅ | `DefaultPdfManipulationEngine.setPageLabels` | `phase6a_manipulation_engine_test.dart` |
+| Safe non-destructive output path generation | ✅ | `PdfDocumentManipulationService.generateSafeOutputPath` | `phase6a_manipulation_service_test.dart` |
+| Pre/postflight output verification | ✅ | `PdfDocumentManipulationService` | `phase6a_manipulation_service_test.dart` |
+| Merge PDFs Dialog UI | ✅ | `widgets/merge_pdfs_dialog.dart` | `merge_pdfs_dialog_test.dart` |
+| Organize Pages Dialog UI | ✅ | `widgets/organize_pages_dialog.dart` | `organize_pages_dialog_test.dart` |
+| End-to-end safe manipulation workflows | ✅ | `test/integration/phase6a_workflows_integration_test.dart` | `phase6a_workflows_integration_test.dart` |
+
 ## Later phases (planned)
 
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
 | Thumbnails | ⏳ | pdfrx supports page images; UI not built yet |
-| Native PDF text modification / export | ⏳ | Phase 6; pdfrx currently display-only |
-
 ## Quality gates (current)
 
-- `flutter test` (titan_reader): 345 tests passing
-- `flutter analyze`: 0 issues
+- `flutter test` (titan_reader): 382 tests passing
+- `dart analyze project_titan/apps/titan_reader`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
   QuizForge AI (234) suites all passing

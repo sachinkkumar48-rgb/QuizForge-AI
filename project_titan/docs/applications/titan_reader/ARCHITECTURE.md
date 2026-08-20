@@ -239,3 +239,13 @@ on UI, HTTP, WordNet, or database libraries.
 4. **PDF Invariant**: Original PDF files are NEVER modified. All corrections are
    Reader-managed records.
 
+## Phase 5: AI reading assistant
+
+Multi-provider AI assistant architecture supporting local Ollama, OpenAI-compatible APIs, Google Gemini, and offline mocks. Features RAG-based context retrieval, prompt-injection defense fencing, response caching, conversation history, and flashcard generation.
+
+## Phase 6A: PDF document manipulation
+
+### Layering
+`MergePdfsDialog` / `OrganizePagesDialog` (`widgets/`) → `PdfDocumentManipulationService` (`manipulation/services/`) → `PdfManipulationEngine` (`manipulation/engine/`) → `DefaultPdfManipulationEngine` (`manipulation/engine/`) → `PdfParser` / `PdfDocumentAst` / `PdfWriter` (`manipulation/ast/`).
+
+5. Original source files remain untouched on disk.

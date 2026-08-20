@@ -118,11 +118,21 @@
 - Asset directories are not recursive in `pubspec.yaml`: `shards/` is
   listed separately so `flutter test` bundles it.
 
+## Phase 6A coverage
+
+- `ast_parser_writer_test.dart` — low-level PDF tokenizer, AST nodes, dictionary/array manipulation, xref offset calculation, and parser/writer roundtrips.
+- `phase6a_manipulation_engine_test.dart` — `DefaultPdfManipulationEngine` operational tests for all 9 operations (merge, split, extract, delete, reorder, rotate, insert blank, insert from PDF, page labels) using synthetically generated valid test PDFs.
+- `phase6a_entities_test.dart` — `PdfPageRange` parsing, formatting, validation, `PdfPageLabelRange` styling/numbering rules, and typed PDF manipulation exceptions.
+- `phase6a_manipulation_service_test.dart` — non-destructive file safety, collision-free filename generator, preflight validation against bad files, and postflight atomic write verification.
+- `phase6a_workflows_integration_test.dart` — end-to-end safe workflows: multi-document merge, range split, extract/delete/reorder pipelines, and disk validation.
+- `merge_pdfs_dialog_test.dart` — `MergePdfsDialog` UI states, empty state, file selection list, reordering, item removal, and merge execution.
+- `organize_pages_dialog_test.dart` — `OrganizePagesDialog` UI grid, single/multi page selection, rotate clockwise/counter-clockwise, delete selected, move left/right, and atomic save.
+
 ## Running
 
 ```powershell
 cd apps/titan_reader
-flutter test                                     # full suite (297 tests)
-dart analyze .                                   # 0 issues
+flutter test                                     # full suite (382 tests)
+dart analyze project_titan/apps/titan_reader     # 0 issues
 dart format --set-exit-if-changed lib test       # 0 changed
 ```

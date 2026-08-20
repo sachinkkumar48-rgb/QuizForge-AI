@@ -6,10 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:titan_pdf/titan_pdf.dart';
 
+import '../domain/entities/pdf_manipulation_result.dart';
 import '../domain/entities/reader_document.dart';
 import '../navigation/reader_routes.dart';
 import '../providers/reader_providers.dart';
 import '../widgets/document_card.dart';
+import '../widgets/merge_pdfs_dialog.dart';
 
 /// Document library: lists all imported PDFs, shows the recent shelf and
 /// exposes import / favorite / remove actions.
@@ -30,6 +32,12 @@ class LibraryScreen extends ConsumerWidget {
             tooltip: 'My Vocabulary',
             icon: const Icon(Icons.menu_book_outlined),
             onPressed: () => context.go(ReaderRoutes.vocabulary),
+          ),
+          IconButton(
+            key: const Key('merge-pdfs-button'),
+            tooltip: 'Merge PDFs',
+            icon: const Icon(Icons.call_merge),
+            onPressed: () => _mergePdfs(context, ref),
           ),
           IconButton(
             tooltip: 'Import PDF',
@@ -85,6 +93,22 @@ class LibraryScreen extends ConsumerWidget {
   void _openDocument(
       BuildContext context, WidgetRef ref, ReaderDocument document) {
     context.go(ReaderRoutes.readerFor(document.id));
+  }
+
+  Future<void> _mergePdfs(BuildContext context, WidgetRef ref) async {
+    final result = await showDialog<PdfManipulationResult>(
+      context: context,
+      builder: (context) => const MergePdfsDialog(),
+    );
+    if (result != null && context.mounted) {
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(
+            content: Text(
+                'Merged ${result.pageCount} pages. Saved to ${result.primaryOutputPath}')),
+      );
+      ref.invalidate(libraryDocumentsProvider);
+    }
   }
 
   Future<void> _toggleFavorite(WidgetRef ref, ReaderDocument document) async {

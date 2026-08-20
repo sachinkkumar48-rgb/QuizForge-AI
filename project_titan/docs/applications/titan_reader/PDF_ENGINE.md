@@ -78,3 +78,20 @@ as overlays. Consequences:
 2. Switch the default of `pdfEngineProvider` (or override it in `main()`).
 3. No changes required outside `src/pdf/` — screens, services and tests are
    engine-agnostic.
+
+## PDF Manipulation Engine (Phase 6A)
+
+While `pdfrx` handles high-performance native rendering and text selection, PDF page mutations and structural operations are handled by a dedicated, pure Dart AST manipulation engine (`DefaultPdfManipulationEngine`) behind the `PdfManipulationEngine` contract (`src/manipulation/engine/pdf_manipulation_engine.dart`).
+
+### Engine Separation Rule
+
+```
+pdfrx (PDFium) ───► Viewing / Rendering / Interactive Selection
+DefaultPdfManipulationEngine ───► Structural Mutation / Merge / Split / AST Manipulation
+```
+
+### AST Architecture
+- `PdfTokenizer`: Lexical analysis of PDF syntax into tokens (Names, Strings, Numbers, Booleans, References, Dict/Array delimiters).
+- `PdfParser`: Reconstructs the complete cross-reference (`xref`) table, object generations, trailer dictionary, and catalog.
+- `PdfDocumentAst`: In-memory mutable representation of the document object graph and page hierarchy.
+- `PdfWriter`: Serializes AST objects back to byte streams with reconstructed `/XRef` tables, object numbers, and atomic output writing.
