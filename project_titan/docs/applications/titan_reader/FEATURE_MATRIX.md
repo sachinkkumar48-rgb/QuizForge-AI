@@ -186,10 +186,34 @@ Full ISO 32000-1 compliant PDF-native annotation engine with Form XObject appear
 | JSON / FDF Export & Import | ✅ | `PdfNativeAnnotationService` | `phase6b_native_annotation_service_test.dart` |
 | Cross-Viewer Interoperability & Preserving 6A | ✅ | `DefaultPdfNativeAnnotationEngine` | `pdf_native_interoperability_test.dart` |
 
+## Phase 6C — Interactive forms (AcroForms)
+
+Full ISO 32000-1 compliant Interactive PDF Forms engine supporting text fields, checkboxes, radio buttons, dropdowns, list boxes, push buttons, signatures, FDF/JSON I/O, validation, flattening, and interactive UI overlay layers.
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| AcroForm Domain Model & Validation | ✅ | `PdfFormField`, `PdfFormDocument` | `pdf_form_entities_test.dart` |
+| Text Form Fields (`/Tx` + multiline/password) | ✅ | `PdfTextFormField` | `pdf_form_entities_test.dart`, `pdf_form_parser_builder_test.dart` |
+| Checkbox Form Fields (`/Btn` checkbox) | ✅ | `PdfCheckboxFormField` | `pdf_form_entities_test.dart`, `pdf_form_parser_builder_test.dart` |
+| Radio Button Groups (`/Btn` radio) | ✅ | `PdfRadioButtonFormField` | `pdf_form_entities_test.dart`, `pdf_form_parser_builder_test.dart` |
+| Dropdown Combo Boxes (`/Ch` combo) | ✅ | `PdfDropdownFormField` | `pdf_form_entities_test.dart`, `pdf_form_parser_builder_test.dart` |
+| List Boxes (`/Ch` list + multi-select) | ✅ | `PdfListBoxFormField` | `pdf_form_entities_test.dart`, `pdf_form_parser_builder_test.dart` |
+| Push Buttons & Signature Placeholders | ✅ | `PdfPushButtonFormField`, `PdfSignatureFormField` | `pdf_form_entities_test.dart` |
+| AcroForm Hierarchy & Widget AST Parser | ✅ | `PdfFormParser` | `pdf_form_parser_builder_test.dart` |
+| AST Field Value Updating & NeedAppearances | ✅ | `PdfFormBuilder.updateFieldValue` | `pdf_form_parser_builder_test.dart` |
+| Form Reset Workflow | ✅ | `PdfFormBuilder.resetForm` | `pdf_form_parser_builder_test.dart`, `pdf_form_engine_service_test.dart` |
+| Form Flattening Pipeline | ✅ | `PdfFormBuilder.flattenForm` | `pdf_form_parser_builder_test.dart`, `pdf_form_engine_service_test.dart` |
+| FDF Serialization & Parsing (ISO 32000-1 §12.7.7) | ✅ | `PdfFdfSerializer` | `pdf_form_parser_builder_test.dart`, `pdf_form_engine_service_test.dart` |
+| Structured JSON Form Data Export & Import | ✅ | `PdfFdfSerializer` | `pdf_form_parser_builder_test.dart`, `pdf_form_engine_service_test.dart` |
+| Pure Dart AcroForm Engine (`DefaultPdfFormEngine`) | ✅ | `DefaultPdfFormEngine` | `pdf_form_engine_service_test.dart` |
+| Application Form Service with Undo/Redo | ✅ | `PdfFormService` / `ReaderUndoStack` | `pdf_form_engine_service_test.dart` |
+| Scaled Interactive UI Overlay Layer | ✅ | `PdfFormOverlayLayer` | `pdf_form_interoperability_test.dart` |
+
 ## Quality gates (current)
 
-- `flutter test` (titan_reader): 433 tests passing (100% pass rate)
+- `flutter test` (titan_reader): 463 tests passing (100% pass rate)
 - `dart analyze project_titan/apps/titan_reader`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
-  QuizForge AI (234) suites all passing (745 / 745 total workspace tests)
+  QuizForge AI (234) suites all passing (775 / 775 total workspace tests)
+
 
