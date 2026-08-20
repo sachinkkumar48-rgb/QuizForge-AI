@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/entities/ai_reading_task.dart';
 import '../domain/entities/reader_annotation.dart';
 import '../domain/entities/reader_bookmark.dart';
 import '../domain/entities/reader_document.dart';
@@ -16,6 +17,7 @@ import '../pdf/pdf_engine_contracts.dart';
 import '../providers/dictionary_providers.dart';
 import '../providers/reader_providers.dart';
 import '../services/library_service.dart';
+import '../widgets/ai_assistant_panel.dart';
 import '../widgets/annotations_panel.dart';
 import '../widgets/bookmarks_panel.dart';
 import '../widgets/dictionary_panel.dart';
@@ -52,9 +54,14 @@ class ReaderScreen extends ConsumerStatefulWidget {
 }
 
 /// Action ids offered on the text-selection context toolbar (§19 of the
-/// Phase 2 brief). Grammar analysis is provided by Phase 4.
+/// Phase 2 brief). Grammar analysis is provided by Phase 4. AI assistant
+/// actions are provided by Phase 5.
 class _SelectionActionIds {
   static const copy = 'copy';
+  static const explain = 'explain';
+  static const simplify = 'simplify';
+  static const askAi = 'ask-ai';
+  static const summarize = 'summarize';
   static const dictionary = 'dictionary';
   static const saveWord = 'save-word';
   static const grammar = 'grammar';
@@ -65,6 +72,10 @@ class _SelectionActionIds {
 
   static const List<PdfSelectionAction> all = [
     PdfSelectionAction(id: copy, label: 'Copy'),
+    PdfSelectionAction(id: explain, label: 'Explain'),
+    PdfSelectionAction(id: simplify, label: 'Simplify'),
+    PdfSelectionAction(id: askAi, label: 'Ask AI'),
+    PdfSelectionAction(id: summarize, label: 'Summarize'),
     PdfSelectionAction(id: dictionary, label: 'Dictionary'),
     PdfSelectionAction(id: saveWord, label: 'Save Word'),
     PdfSelectionAction(id: grammar, label: 'Grammar'),
@@ -208,6 +219,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     switch (actionId) {
       case _SelectionActionIds.copy:
         await _copySelection();
+      case _SelectionActionIds.explain:
+        await _aiFromSelection(AIReadingTask.explain);
+      case _SelectionActionIds.simplify:
+        await _aiFromSelection(AIReadingTask.simplify);
+      case _SelectionActionIds.askAi:
+        await _aiFromSelection(AIReadingTask.askQuestion);
+      case _SelectionActionIds.summarize:
+        await _aiFromSelection(AIReadingTask.summarize);
       case _SelectionActionIds.dictionary:
         await _dictionaryFromSelection();
       case _SelectionActionIds.saveWord:
@@ -294,6 +313,28 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       documentId: widget.documentId,
       documentName: document?.title,
       pageNumber: page,
+    );
+  }
+
+  /// Opens the AI Assistant panel for the selected text and task.
+  Future<void> _aiFromSelection(AIReadingTask task) async {
+    final handle = _handle;
+    if (handle == null) return;
+    final snapshot = await handle.captureTextSelection();
+    if (snapshot == null || snapshot.text.trim().isEmpty) return;
+    final page = snapshot.primaryPageNumber;
+    await handle.clearTextSelection();
+    final document =
+        ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+    if (!mounted) return;
+    showAIAssistantPanel(
+      context,
+      text: snapshot.text,
+      initialTask: task,
+      documentId: widget.documentId,
+      documentName: document?.title,
+      pageNumber: page ?? _page,
+      onNavigateToPage: (p) => handle.goToPage(p),
     );
   }
 
@@ -548,6 +589,24 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               isBookmarked ? Icons.bookmark : Icons.bookmark_border,
             ),
             onPressed: _toggleBookmark,
+          ),
+          IconButton(
+            key: const Key('ai-assistant-button'),
+            tooltip: 'AI Reading Assistant',
+            icon: const Icon(Icons.auto_awesome_outlined),
+            onPressed: () {
+              final document =
+                  ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+              showAIAssistantPanel(
+                context,
+                text: '',
+                initialTask: AIReadingTask.askQuestion,
+                documentId: widget.documentId,
+                documentName: document?.title,
+                pageNumber: page,
+                onNavigateToPage: (p) => handle.goToPage(p),
+              );
+            },
           ),
           IconButton(
             key: const Key('dictionary-panel-button'),

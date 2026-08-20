@@ -2,10 +2,10 @@
 
 TITAN Reader is the professional document application of Project TITAN: a PDF
 reader with document management, reading-position persistence, in-document
-text search, Phase 2 markup (annotations, bookmarks, notes) and a Phase 3
-fully offline dictionary with personal vocabulary. Grammar and AI-assistant
-capabilities are planned for later phases on top of the same engine
-abstraction.
+text search, Phase 2 markup (annotations, bookmarks, notes), Phase 3
+fully offline dictionary with personal vocabulary, Phase 4 local-first grammar
+and spelling, and Phase 5 multi-provider AI reading assistant with RAG context
+retrieval and prompt-injection defense.
 
 - Location: `apps/titan_reader`
 - Targets: **Android** and **Windows** first (Web future-compatible)

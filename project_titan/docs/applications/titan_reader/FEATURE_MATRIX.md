@@ -110,17 +110,38 @@ without modifying the original PDF.
 | Grammar panel UI (issues, suggestions, explanations, copy, dismiss, apply) | ✅ | `widgets/grammar_panel.dart` | `grammar_panel_test.dart` |
 | Grammar → Dictionary / My Vocabulary integration | ✅ | `widgets/grammar_panel.dart` | `grammar_panel_test.dart`, `grammar_workflow_integration_test.dart` |
 
+## Phase 5 — AI reading assistant
+
+Multi-provider AI assistant architecture supporting local Ollama, OpenAI-compatible APIs, Google Gemini, and offline mocks. Features RAG-based context retrieval, prompt-injection defense fencing, response caching, conversation history, and flashcard generation.
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| Provider abstraction (`AIReadingProvider`) | ✅ | `data/ai_reading_provider.dart` | `phase5_ai_providers_test.dart` |
+| Mock provider (offline deterministic) | ✅ | `data/mock_ai_reading_provider.dart` | `phase5_ai_providers_test.dart` |
+| Ollama provider (local-first) | ✅ | `data/ollama_reading_provider.dart` | `phase5_ai_providers_test.dart` |
+| OpenAI-compatible provider | ✅ | `data/openai_compatible_reading_provider.dart` | `phase5_ai_providers_test.dart` |
+| Gemini REST provider | ✅ | `data/gemini_reading_provider.dart` | `phase5_ai_providers_test.dart` |
+| RAG retrieval engine (TF-IDF passage search) | ✅ | `data/ai_retrieval_engine.dart` | `phase5_ai_retrieval_test.dart` |
+| Prompt-injection defense fencing | ✅ | `domain/ai_reading_prompt_builder.dart` | `phase5_ai_entities_test.dart` |
+| Response caching (`titan.reader.ai.cache`) | ✅ | `data/ai_cache_repository.dart` | `phase5_ai_services_test.dart` |
+| Multi-turn conversations (`titan.reader.ai.conversations`) | ✅ | `data/ai_conversation_repository.dart` | `phase5_ai_services_test.dart` |
+| Flashcard generation (`titan.reader.ai.flashcards`) | ✅ | `data/ai_flashcard_repository.dart` | `phase5_ai_services_test.dart` |
+| Config repository (`titan.reader.ai.config`) | ✅ | `data/ai_config_repository.dart` | `phase5_ai_services_test.dart` |
+| AI Assistant panel UI (task tabs, Q&A, copy, model badge) | ✅ | `widgets/ai_assistant_panel.dart` | `ai_assistant_panel_test.dart` |
+| AI settings dialog (provider, URL, model, key) | ✅ | `widgets/ai_settings_dialog.dart` | `ai_assistant_panel_test.dart` |
+| Selection context toolbar → AI action | ✅ | `screens/reader_screen.dart` | `reader_phase5_test.dart` |
+| End-to-end AI workflows | ✅ | `test/integration/ai_workflow_integration_test.dart` | `ai_workflow_integration_test.dart` |
+
 ## Later phases (planned)
 
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
 | Thumbnails | ⏳ | pdfrx supports page images; UI not built yet |
-| AI reading assistant (opt-in) | ⏳ | requires privacy-state transitions, see PRIVACY.md |
 | Native PDF text modification / export | ⏳ | Phase 6; pdfrx currently display-only |
 
 ## Quality gates (current)
 
-- `flutter test` (titan_reader): 297 tests passing
-- `dart analyze`: 0 issues
+- `flutter test` (titan_reader): 345 tests passing
+- `flutter analyze`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
   QuizForge AI (234) suites all passing
