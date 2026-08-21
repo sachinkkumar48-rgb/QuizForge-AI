@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:titan_reader/src/data/document_library_repository.dart';
 import 'package:titan_reader/src/data/reading_position_repository.dart';
+import 'package:titan_reader/src/domain/entities/pdf_print_result.dart';
 import 'package:titan_reader/src/domain/entities/pdf_visual_signature.dart';
 import 'package:titan_reader/src/domain/entities/reader_bookmark.dart';
 import 'package:titan_reader/src/domain/entities/reading_position.dart';
 import 'package:titan_reader/src/pdf/pdf_engine_contracts.dart';
+import 'package:titan_reader/src/providers/print_providers.dart';
 import 'package:titan_reader/src/providers/reader_providers.dart';
 import 'package:titan_reader/src/screens/reader_screen.dart';
 import 'package:titan_reader/src/services/library_service.dart';
+import 'package:titan_reader/src/services/print_service.dart';
 import 'package:titan_reader/src/services/reading_history_service.dart';
 import 'package:titan_reader/src/services/signature_service.dart';
 import 'package:titan_reader/src/widgets/document_search_bar.dart';
@@ -364,4 +367,67 @@ void main() {
 
     expect(find.text('Place "Executive Sign"'), findsNothing);
   });
+
+  testWidgets(
+      'Phase 6G-1: triggers native printing from toolbar button successfully',
+      (tester) async {
+    final libraryService = service();
+    final document = await libraryService.importFile(
+      filePath: fakePdfPath,
+      fileName: 'sample.pdf',
+      sizeBytes: 1024,
+      at: DateTime.utc(2026, 8, 1),
+      headerBytes: pdfHeader,
+    );
+
+    int printCallCount = 0;
+    String? printedFilePath;
+
+    final fakePrintAdapter = _TestPdfPrintAdapter((path, name) async {
+      printCallCount++;
+      printedFilePath = path;
+      return const PdfPrintResult.completed(printerName: 'Default Printer');
+    });
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        storageServiceProvider.overrideWithValue(storage),
+        pdfEngineProvider.overrideWithValue(engine),
+        pdfPrintAdapterProvider.overrideWithValue(fakePrintAdapter),
+        printFileExistsProvider.overrideWithValue((path) async => true),
+      ],
+      child: MaterialApp(
+        home: ReaderScreen(
+          documentId: document.id,
+          fileExists: (path) => true,
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    final printButton = find.byKey(const Key('print-document-button'));
+    expect(printButton, findsOneWidget);
+
+    await tester.tap(printButton);
+    await tester.pumpAndSettle();
+
+    expect(printCallCount, 1);
+    expect(printedFilePath, fakePdfPath);
+    expect(find.text('Document sent to printer.'), findsOneWidget);
+  });
+}
+
+class _TestPdfPrintAdapter implements PdfPrintAdapter {
+  final Future<PdfPrintResult> Function(String filePath, String? documentName)
+      handler;
+
+  _TestPdfPrintAdapter(this.handler);
+
+  @override
+  Future<PdfPrintResult> printPdf({
+    required String filePath,
+    String? documentName,
+  }) {
+    return handler(filePath, documentName);
+  }
 }

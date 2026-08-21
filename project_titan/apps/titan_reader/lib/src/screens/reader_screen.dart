@@ -17,6 +17,7 @@ import '../domain/word_normalizer.dart';
 import '../navigation/reader_routes.dart';
 import '../pdf/pdf_engine_contracts.dart';
 import '../providers/dictionary_providers.dart';
+import '../providers/print_providers.dart';
 import '../providers/reader_providers.dart';
 import '../providers/signature_providers.dart';
 import '../services/library_service.dart';
@@ -517,6 +518,33 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     }
   }
 
+  Future<void> _printDocument() async {
+    final document =
+        ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+    if (document == null) {
+      if (mounted) _placeholder('No active document to print.');
+      return;
+    }
+    final printService = ref.read(printServiceProvider);
+    try {
+      final result = await printService.printDocument(
+        filePath: document.filePath,
+        documentTitle: document.title,
+      );
+      if (!mounted) return;
+      if (result.isSuccess) {
+        _placeholder('Document sent to printer.');
+      } else if (result.isFailure) {
+        _placeholder('Print failed: ${result.errorMessage ?? 'Unknown error'}');
+      }
+      // Cancellations are silent/neutral per specification.
+    } catch (e) {
+      if (mounted) {
+        _placeholder('Print failed: $e');
+      }
+    }
+  }
+
   void _placeholder(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -772,6 +800,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             },
           ),
           IconButton(
+            key: const Key('print-document-button'),
+            tooltip: 'Print document',
+            icon: const Icon(Icons.print_outlined),
+            onPressed: _printDocument,
+          ),
+          IconButton(
             tooltip: _searchOpen ? 'Close search' : 'Search document',
             icon: const Icon(Icons.search),
             onPressed: () => setState(() => _searchOpen = !_searchOpen),
@@ -780,6 +814,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             tooltip: 'View options',
             onSelected: (value) async {
               switch (value) {
+                case 'print':
+                  await _printDocument();
                 case 'fit-width':
                   handle.applyFitMode(PdfFitMode.fitWidth);
                 case 'fit-page':
@@ -802,6 +838,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               }
             },
             itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'print',
+                child: ListTile(
+                  leading: Icon(Icons.print_outlined),
+                  title: Text('Print document'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
               PopupMenuItem<String>(
                 value: 'fit-width',
                 child: ListTile(
