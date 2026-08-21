@@ -1,0 +1,19 @@
+{
+  "agent_command": "agy",
+  "default_model": "gemini-3.6-flash-medium",
+  "timeout_minutes": 20,
+  "verify_timeout_seconds": 600,
+  "max_repairs": 2,
+  "print_timeout": "20m",
+  "output_format": "json",
+  "dangerously_skip_permissions": false,
+  "protected_prefixes": [
+    "project_titan/apps/quizforge_ai",
+    "project_titan/apps/quizforge",
+    "packages/quizforge"
+  ],
+  "allowed_scope": [
+    "project_titan/apps/titan_reader",
+    "project_titan/docs/applications/titan_reader"
+  ]
+}
