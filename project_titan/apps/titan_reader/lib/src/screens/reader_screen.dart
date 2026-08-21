@@ -23,6 +23,7 @@ import '../widgets/annotations_panel.dart';
 import '../widgets/bookmarks_panel.dart';
 import '../widgets/dictionary_panel.dart';
 import '../widgets/document_search_bar.dart';
+import '../widgets/document_selection_toolbar.dart';
 import '../widgets/grammar_panel.dart';
 import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
@@ -73,20 +74,22 @@ class _SelectionActionIds {
   static const underline = 'underline';
   static const strikethrough = 'strikethrough';
   static const note = 'note';
+  static const search = 'search';
 
   static const List<PdfSelectionAction> all = [
     PdfSelectionAction(id: copy, label: 'Copy'),
-    PdfSelectionAction(id: explain, label: 'Explain'),
-    PdfSelectionAction(id: simplify, label: 'Simplify'),
-    PdfSelectionAction(id: askAi, label: 'Ask AI'),
-    PdfSelectionAction(id: summarize, label: 'Summarize'),
-    PdfSelectionAction(id: dictionary, label: 'Dictionary'),
-    PdfSelectionAction(id: saveWord, label: 'Save Word'),
-    PdfSelectionAction(id: grammar, label: 'Grammar'),
     PdfSelectionAction(id: highlight, label: 'Highlight'),
     PdfSelectionAction(id: underline, label: 'Underline'),
     PdfSelectionAction(id: strikethrough, label: 'Strikethrough'),
     PdfSelectionAction(id: note, label: 'Note'),
+    PdfSelectionAction(id: search, label: 'Search in Document'),
+    PdfSelectionAction(id: dictionary, label: 'Dictionary'),
+    PdfSelectionAction(id: saveWord, label: 'Save Word'),
+    PdfSelectionAction(id: grammar, label: 'Grammar'),
+    PdfSelectionAction(id: explain, label: 'Explain'),
+    PdfSelectionAction(id: simplify, label: 'Simplify'),
+    PdfSelectionAction(id: askAi, label: 'Ask AI'),
+    PdfSelectionAction(id: summarize, label: 'Summarize'),
   ];
 }
 
@@ -101,6 +104,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   bool _thumbnailSidebarOpen = false;
   bool _outlineSidebarOpen = false;
   bool _openedRecorded = false;
+  bool _hasSelection = false;
 
   /// Color applied to annotations created from the selection toolbar.
   ReaderAnnotationColor _activeColor = ReaderAnnotationColor.yellow;
@@ -111,6 +115,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     _handle = ref.read(pdfEngineProvider).createHandle();
     final handle = _handle!;
     handle.addPageChangedListener(_onPageChanged);
+    handle.addSelectionChangedListener(_onSelectionChanged);
     _prepare(handle);
   }
 
@@ -180,11 +185,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     ));
   }
 
+  void _onSelectionChanged() {
+    if (!mounted) return;
+    final hasSel = _handle?.hasTextSelection ?? false;
+    if (_hasSelection != hasSel) {
+      setState(() => _hasSelection = hasSel);
+    }
+  }
+
   @override
   void dispose() {
     final handle = _handle;
     if (handle != null) {
       handle.removePageChangedListener(_onPageChanged);
+      handle.removeSelectionChangedListener(_onSelectionChanged);
       // Best-effort final position save, then release engine resources.
       _persistPosition();
       handle.dispose();
@@ -221,7 +235,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   /// Routes selection-context actions from the viewer to the application.
-  Future<void> _onSelectionAction(String actionId) async {
+  Future<void> _onSelectionAction(String actionId,
+      {ReaderAnnotationColor? color}) async {
     switch (actionId) {
       case _SelectionActionIds.copy:
         await _copySelection();
@@ -240,13 +255,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       case _SelectionActionIds.grammar:
         await _grammarFromSelection();
       case _SelectionActionIds.highlight:
-        await _annotateFromSelection(ReaderAnnotationType.highlight);
+        await _annotateFromSelection(ReaderAnnotationType.highlight,
+            color: color);
       case _SelectionActionIds.underline:
-        await _annotateFromSelection(ReaderAnnotationType.underline);
+        await _annotateFromSelection(ReaderAnnotationType.underline,
+            color: color);
       case _SelectionActionIds.strikethrough:
-        await _annotateFromSelection(ReaderAnnotationType.strikethrough);
+        await _annotateFromSelection(ReaderAnnotationType.strikethrough,
+            color: color);
       case _SelectionActionIds.note:
         await _addNoteFromSelection();
+      case _SelectionActionIds.search:
+        await _searchFromSelection();
     }
   }
 
@@ -260,19 +280,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   /// Creates a markup annotation from the viewer's current text selection.
-  Future<void> _annotateFromSelection(ReaderAnnotationType type) async {
+  Future<void> _annotateFromSelection(ReaderAnnotationType type,
+      {ReaderAnnotationColor? color}) async {
     final handle = _handle;
     if (handle == null) return;
     final snapshot = await handle.captureTextSelection();
     if (snapshot == null || snapshot.fragments.isEmpty) return;
     final service = ref.read(annotationServiceProvider);
     final now = DateTime.now();
+    final chosenColor = color ?? _activeColor;
     await service.addAnnotation(ReaderAnnotation(
       id: service.nextId(),
       documentId: widget.documentId,
       pageNumber: snapshot.primaryPageNumber ?? 1,
       type: type,
-      color: _activeColor,
+      color: chosenColor,
       selectedText: snapshot.text,
       rects: [for (final fragment in snapshot.fragments) fragment.rect],
       createdAt: now,
@@ -280,6 +302,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     ));
     await handle.clearTextSelection();
     _syncOverlays();
+  }
+
+  /// Opens the search bar pre-filled with selected text and runs search.
+  Future<void> _searchFromSelection() async {
+    final handle = _handle;
+    if (handle == null) return;
+    final snapshot = await handle.captureTextSelection();
+    if (snapshot == null || snapshot.text.trim().isEmpty) return;
+    final query = snapshot.text.trim();
+    await handle.clearTextSelection();
+    setState(() => _searchOpen = true);
+    await handle.startSearch(query);
   }
 
   /// Opens the dictionary panel for the selected word. Multi-word
@@ -808,6 +842,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               ],
             ),
           ),
+          if (_hasSelection)
+            DocumentSelectionToolbar(
+              handle: handle,
+              activeColor: _activeColor,
+              onColorChanged: (c) => setState(() => _activeColor = c),
+              onAction: _onSelectionAction,
+              onClose: () => setState(() => _hasSelection = false),
+            ),
           SafeArea(
             top: false,
             child: Container(

@@ -5,6 +5,7 @@ import 'package:titan_reader/src/data/document_library_repository.dart';
 import 'package:titan_reader/src/data/reading_position_repository.dart';
 import 'package:titan_reader/src/domain/entities/reader_bookmark.dart';
 import 'package:titan_reader/src/domain/entities/reading_position.dart';
+import 'package:titan_reader/src/pdf/pdf_engine_contracts.dart';
 import 'package:titan_reader/src/providers/reader_providers.dart';
 import 'package:titan_reader/src/screens/reader_screen.dart';
 import 'package:titan_reader/src/services/library_service.dart';
@@ -275,5 +276,42 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Table of Contents'), findsNothing);
+  });
+
+  testWidgets(
+      'Phase 6D-4: renders DocumentSelectionToolbar on selection and handles actions',
+      (tester) async {
+    final libraryService = service();
+    final document = await libraryService.importFile(
+      filePath: fakePdfPath,
+      fileName: 'sample.pdf',
+      sizeBytes: 1024,
+      at: DateTime.utc(2026, 8, 1),
+      headerBytes: pdfHeader,
+    );
+
+    await tester.pumpWidget(buildSubject(document.id));
+    await tester.pumpAndSettle();
+
+    final handle = engine.lastHandle!;
+    expect(find.byKey(const Key('selection-copy-button')), findsNothing);
+
+    // Simulate user selecting text in the viewer
+    handle.scriptedSelection = const PdfTextSelectionSnapshot(
+      text: 'Neural Networks and Deep Learning',
+      fragments: [],
+    );
+    handle.fireSelectionChanged();
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('selection-copy-button')), findsOneWidget);
+    expect(find.text('Neural Networks and Deep Learning'), findsOneWidget);
+
+    // Tap search action in toolbar
+    await tester.tap(find.byKey(const Key('selection-search-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DocumentSearchBar), findsOneWidget);
+    expect(handle.searchQueries, contains('Neural Networks and Deep Learning'));
   });
 }
