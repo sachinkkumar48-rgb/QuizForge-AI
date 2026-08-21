@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:titan_reader/src/data/document_library_repository.dart';
 import 'package:titan_reader/src/data/reading_position_repository.dart';
+import 'package:titan_reader/src/domain/entities/reader_bookmark.dart';
 import 'package:titan_reader/src/domain/entities/reading_position.dart';
 import 'package:titan_reader/src/providers/reader_providers.dart';
 import 'package:titan_reader/src/screens/reader_screen.dart';
@@ -170,5 +171,109 @@ void main() {
 
     expect(handle.visitedPages, isNotEmpty);
     expect(handle.visitedPages.last, greaterThan(1));
+  });
+
+  testWidgets('thumbnail sidebar button toggles sidebar and navigates on tap',
+      (tester) async {
+    final libraryService = service();
+    final document = await libraryService.importFile(
+      filePath: fakePdfPath,
+      fileName: 'sample.pdf',
+      sizeBytes: 1024,
+      at: DateTime.utc(2026, 8, 1),
+      headerBytes: pdfHeader,
+    );
+
+    await tester.pumpWidget(buildSubject(document.id));
+    await tester.pump();
+
+    final handle = engine.lastHandle!;
+    handle.pageCount = 8;
+    handle.firePageChanged(1);
+    await tester.pump();
+
+    final toggleButton = find.byKey(const Key('thumbnails-sidebar-button'));
+    expect(toggleButton, findsOneWidget);
+
+    // Open sidebar
+    await tester.tap(toggleButton);
+    await tester.pump();
+
+    expect(find.text('Thumbnails (8)'), findsOneWidget);
+
+    // Tap thumbnail for page 2
+    final page2Thumbnail = find.byKey(const Key('thumbnail-page-2'));
+    expect(page2Thumbnail, findsOneWidget);
+
+    await tester.tap(page2Thumbnail);
+    await tester.pump();
+
+    expect(handle.visitedPages, contains(2));
+
+    // Close sidebar
+    await tester.tap(find.byKey(const Key('close-thumbnail-sidebar-button')));
+    await tester.pump();
+
+    expect(find.text('Thumbnails (8)'), findsNothing);
+  });
+
+  testWidgets(
+      'Phase 6D-2: opens outline sidebar and navigates on outline node tap',
+      (tester) async {
+    final libraryService = service();
+    final document = await libraryService.importFile(
+      filePath: fakePdfPath,
+      fileName: 'sample.pdf',
+      sizeBytes: 1024,
+      at: DateTime.utc(2026, 8, 1),
+      headerBytes: pdfHeader,
+    );
+
+    await tester.pumpWidget(buildSubject(document.id));
+    await tester.pump();
+
+    final handle = engine.lastHandle!;
+    handle.pageCount = 20;
+    handle.scriptedOutline = const [
+      ReaderOutlineEntry(
+        title: 'Chapter 1: Foundations',
+        path: '0',
+        pageNumber: 1,
+      ),
+      ReaderOutlineEntry(
+        title: 'Chapter 2: Advanced Topics',
+        path: '1',
+        pageNumber: 12,
+      ),
+    ];
+    handle.firePageChanged(1);
+    await tester.pump();
+
+    final outlineButton = find.byKey(const Key('outline-sidebar-button'));
+    expect(outlineButton, findsOneWidget);
+
+    // Open outline sidebar
+    await tester.tap(outlineButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Table of Contents'), findsOneWidget);
+    expect(find.text('Chapter 1: Foundations'), findsOneWidget);
+    expect(find.text('Chapter 2: Advanced Topics'), findsOneWidget);
+
+    // Tap chapter 2
+    final ch2Node = find.byKey(const Key('outline-node-1'));
+    expect(ch2Node, findsOneWidget);
+
+    await tester.tap(ch2Node);
+    await tester.pumpAndSettle();
+
+    expect(handle.visitedOutlinePaths, contains('1'));
+    expect(handle.visitedPages, contains(12));
+
+    // Close outline sidebar
+    await tester.tap(find.byKey(const Key('close-outline-sidebar-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Table of Contents'), findsNothing);
   });
 }

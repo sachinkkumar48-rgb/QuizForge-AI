@@ -26,7 +26,9 @@ lib/
     │   ├── notes_panel.dart         # Phase 2: notes list/search/editor
     │   ├── note_editor_dialog.dart  # Phase 2: note create/edit dialog
     │   ├── dictionary_panel.dart    # Phase 3: lookup/search/recent/save
-    │   └── vocabulary_word_editor_dialog.dart # Phase 3: meaning/note editor
+    │   ├── vocabulary_word_editor_dialog.dart # Phase 3: meaning/note editor
+    │   ├── thumbnail_sidebar.dart   # Phase 6D-1: collapsible page thumbnail sidebar
+    │   └── outline_sidebar.dart     # Phase 6D-2: collapsible table of contents tree sidebar
     ├── domain/entities/
     │   ├── reader_document.dart     # library entry (LOCAL_ONLY by default)
     │   ├── reading_position.dart    # page + total pages + timestamp

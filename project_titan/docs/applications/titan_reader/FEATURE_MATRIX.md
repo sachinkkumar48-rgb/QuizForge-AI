@@ -209,11 +209,32 @@ Full ISO 32000-1 compliant Interactive PDF Forms engine supporting text fields, 
 | Application Form Service with Undo/Redo | ✅ | `PdfFormService` / `ReaderUndoStack` | `pdf_form_engine_service_test.dart` |
 | Scaled Interactive UI Overlay Layer | ✅ | `PdfFormOverlayLayer` | `pdf_form_interoperability_test.dart` |
 
+## Phase 6D-1 — Native page thumbnail navigation sidebar
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| Collapsible Thumbnail Navigation Sidebar | ✅ | `widgets/thumbnail_sidebar.dart` | `thumbnail_sidebar_test.dart`, `reader_screen_test.dart` |
+| Native PDFium Virtualized Page Thumbnails | ✅ | `PdfDocumentEngine.buildThumbnail` / `pdfrx_pdf_engine.dart` | `thumbnail_sidebar_test.dart` |
+| Synchronized Page Navigation & Active Highlight | ✅ | `reader_screen.dart` / `thumbnail_sidebar.dart` | `thumbnail_sidebar_test.dart`, `reader_screen_test.dart` |
+| Bounded / Virtualized Large Document Performance | ✅ | `ListView.builder` lazy rendering | `thumbnail_sidebar_test.dart` |
+| Presentation Rotation & Page Label Alignment | ✅ | `ThumbnailSidebar` + `RotatedBox` | `thumbnail_sidebar_test.dart` |
+
+## Phase 6D-2 — Native PDF outline / table-of-contents navigation
+
+| Feature | Status | Where | Verified by |
+| ------- | ------ | ----- | ----------- |
+| Collapsible Table of Contents Navigation Sidebar | ✅ | `widgets/outline_sidebar.dart` | `outline_sidebar_test.dart`, `reader_screen_test.dart` |
+| Multi-Level Nested Outline Hierarchy Tree | ✅ | `OutlineSidebar` recursive node builder | `outline_sidebar_test.dart` |
+| Expand / Collapse All & Individual Branch Toggling | ✅ | `OutlineSidebar` state & action buttons | `outline_sidebar_test.dart` |
+| Real-Time Title Search / Filtering | ✅ | `OutlineSidebar` search filter bar | `outline_sidebar_test.dart` |
+| Synchronized Viewport Jumping & Active Section Highlight | ✅ | `reader_screen.dart` / `OutlineSidebar` | `outline_sidebar_test.dart`, `reader_screen_test.dart` |
+| Non-Destructive Empty & External Destination Resilience | ✅ | `OutlineSidebar` null-destination guards | `outline_sidebar_test.dart` |
+
 ## Quality gates (current)
 
-- `flutter test` (titan_reader): 463 tests passing (100% pass rate)
+- `flutter test` (titan_reader): 481 tests passing (100% pass rate)
 - `dart analyze project_titan/apps/titan_reader`: 0 issues
 - Regression: titan_pdf (5), titan_quiz (31), titan_quiz_ai (42) and
-  QuizForge AI (234) suites all passing (775 / 775 total workspace tests)
+  QuizForge AI (234) suites all passing (793 / 793 total workspace tests)
 
 

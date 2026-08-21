@@ -27,6 +27,8 @@ import '../widgets/grammar_panel.dart';
 import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
 import '../widgets/organize_pages_dialog.dart';
+import '../widgets/outline_sidebar.dart';
+import '../widgets/thumbnail_sidebar.dart';
 
 /// Full-screen PDF reader: rendering, page navigation, zoom, fit modes,
 /// rotation, text search, reading-position persistence and Phase 2 markup
@@ -96,6 +98,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   int? _page;
   int? _pageCount;
   bool _searchOpen = false;
+  bool _thumbnailSidebarOpen = false;
+  bool _outlineSidebarOpen = false;
   bool _openedRecorded = false;
 
   /// Color applied to annotations created from the selection toolbar.
@@ -593,6 +597,39 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             onPressed: _toggleBookmark,
           ),
           IconButton(
+            key: const Key('thumbnails-sidebar-button'),
+            tooltip:
+                _thumbnailSidebarOpen ? 'Hide thumbnails' : 'Page thumbnails',
+            icon: Icon(
+              _thumbnailSidebarOpen
+                  ? Icons.view_sidebar
+                  : Icons.view_sidebar_outlined,
+            ),
+            onPressed: () {
+              setState(() {
+                _thumbnailSidebarOpen = !_thumbnailSidebarOpen;
+                if (_thumbnailSidebarOpen) {
+                  _outlineSidebarOpen = false;
+                }
+              });
+            },
+          ),
+          IconButton(
+            key: const Key('outline-sidebar-button'),
+            tooltip: _outlineSidebarOpen ? 'Hide outline' : 'Table of contents',
+            icon: Icon(
+              _outlineSidebarOpen ? Icons.toc : Icons.toc_outlined,
+            ),
+            onPressed: () {
+              setState(() {
+                _outlineSidebarOpen = !_outlineSidebarOpen;
+                if (_outlineSidebarOpen) {
+                  _thumbnailSidebarOpen = false;
+                }
+              });
+            },
+          ),
+          IconButton(
             key: const Key('ai-assistant-button'),
             tooltip: 'AI Reading Assistant',
             icon: const Icon(Icons.auto_awesome_outlined),
@@ -731,15 +768,45 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               onClose: () => setState(() => _searchOpen = false),
             ),
           Expanded(
-            child: ref.read(pdfEngineProvider).buildViewer(
-                  filePath: document.filePath,
-                  settings: PdfViewerSettings(
-                    initialPage: _initialPage,
-                    selectionActions: _SelectionActionIds.all,
-                    onSelectionAction: _onSelectionAction,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_thumbnailSidebarOpen)
+                  ThumbnailSidebar(
+                    filePath: document.filePath,
+                    pageCount: _pageCount ?? 1,
+                    currentPage: page,
+                    handle: handle,
+                    onPageSelected: (p) => handle.goToPage(p),
+                    onClose: () =>
+                        setState(() => _thumbnailSidebarOpen = false),
+                    width: MediaQuery.of(context).size.width >= 720 ? 220 : 180,
                   ),
-                  handle: handle,
+                if (_outlineSidebarOpen)
+                  OutlineSidebar(
+                    handle: handle,
+                    currentPage: page,
+                    onEntrySelected: (entry) {
+                      if (entry.pageNumber != null) {
+                        handle.goToPage(entry.pageNumber!);
+                      }
+                    },
+                    onClose: () => setState(() => _outlineSidebarOpen = false),
+                    width: MediaQuery.of(context).size.width >= 720 ? 260 : 210,
+                  ),
+                Expanded(
+                  child: ref.read(pdfEngineProvider).buildViewer(
+                        filePath: document.filePath,
+                        settings: PdfViewerSettings(
+                          initialPage: _initialPage,
+                          selectionActions: _SelectionActionIds.all,
+                          onSelectionAction: _onSelectionAction,
+                        ),
+                        handle: handle,
+                      ),
                 ),
+              ],
+            ),
           ),
           SafeArea(
             top: false,

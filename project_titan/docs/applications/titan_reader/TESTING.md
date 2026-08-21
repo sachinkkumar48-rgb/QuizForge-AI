@@ -137,13 +137,21 @@
 - `pdf_annotation_parser_builder_test.dart` — low-level AST `/Annots` parsing and builder roundtrips for all 6 annotation types (`/Highlight`, `/Underline`, `/StrikeOut`, `/Ink`, `/FreeText`, `/Text`) with Form XObject `/AP` appearance streams and `/Contents` fallbacks.
 - `pdf_native_annotation_engine_test.dart` — `DefaultPdfNativeAnnotationEngine` CRUD operations (load, add, update, delete, saveAll), scale tests (100+ annotations), corrupt `/Annots` recovery, multi-page distribution, and page flattening (`flattenAnnotations`).
 - `phase6b_native_annotation_service_test.dart` — `PdfNativeAnnotationService` non-destructive filename generator, JSON/FDF export and import, and `ReaderUndoStack` synchronous undo/redo persistence.
-- `pdf_native_interoperability_test.dart` — cross-viewer interoperability, ISO 32000-1 conformance, preservation across Phase 6A operations (merge, split, reorder, rotate), and raw unsupported annotation preservation.
+## Phase 6D-1 coverage
+
+- `thumbnail_sidebar_test.dart` — header page counts, close button trigger, empty document handling, thumbnail tap navigation, current page highlighted styling and Semantics, custom page label resolver, virtualization scaling against 2000-page document, and dynamic page indicator updates.
+- `reader_screen_test.dart` — toolbar toggle button for thumbnail sidebar and integration with reader handle page navigation.
+
+## Phase 6D-2 coverage
+
+- `outline_sidebar_test.dart` — empty outline state handling, single-level outline entries with destination page badges, nested multi-level outline hierarchy, interactive branch expansion/collapse toggling, expand-all / collapse-all global controls, real-time title search filtering and clearing, null/missing destination tolerance, active section page indicator styling, close button callback, and Semantics accessibility.
+- `reader_screen_test.dart` — toolbar toggle button for Table of Contents outline sidebar, mutual exclusion with thumbnail sidebar, and click-to-jump viewport navigation.
 
 ## Running
 
 ```powershell
 cd project_titan/apps/titan_reader
-flutter test                                     # full suite (433 tests)
+flutter test                                     # full suite (481 tests)
 dart analyze project_titan/apps/titan_reader     # 0 issues
 dart format --set-exit-if-changed lib test       # 0 changed
 ```

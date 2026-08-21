@@ -30,12 +30,31 @@ class FakePdfEngine implements PdfDocumentEngine {
     fake.isReady = true;
     return const SizedBox.expand(key: Key('fake-pdf-viewer'));
   }
+
+  @override
+  Widget buildThumbnail({
+    required String filePath,
+    required int pageNumber,
+    required PdfViewerHandle handle,
+    double? width,
+    double? height,
+  }) {
+    final fake = handle as FakeViewerHandle;
+    fake.requestedThumbnails.add(pageNumber);
+    return SizedBox(
+      key: Key('fake-thumbnail-$pageNumber'),
+      width: width,
+      height: height,
+      child: Center(child: Text('Thumbnail $pageNumber')),
+    );
+  }
 }
 
 /// Scriptable [PdfViewerHandle] recording every interaction.
 class FakeViewerHandle implements PdfViewerHandle {
   final List<int> visitedPages = [];
   final List<String> searchQueries = [];
+  final List<int> requestedThumbnails = [];
   int zoomInCount = 0;
   int zoomOutCount = 0;
   int rotateCount = 0;
@@ -173,6 +192,21 @@ class FakeViewerHandle implements PdfViewerHandle {
   @override
   Future<void> goToOutlineEntry(String path) async {
     visitedOutlinePaths.add(path);
+    ReaderOutlineEntry? findEntry(List<ReaderOutlineEntry> entries) {
+      for (final e in entries) {
+        if (e.path == path) return e;
+        final child = findEntry(e.children);
+        if (child != null) return child;
+      }
+      return null;
+    }
+
+    final entry = findEntry(scriptedOutline);
+    if (entry?.pageNumber != null) {
+      currentPageNumber = entry!.pageNumber;
+      visitedPages.add(entry.pageNumber!);
+      firePageChanged(entry.pageNumber!);
+    }
   }
 
   @override
