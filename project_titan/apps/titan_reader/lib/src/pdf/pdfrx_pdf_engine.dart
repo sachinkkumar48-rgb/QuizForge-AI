@@ -28,6 +28,18 @@ class PdfrxPdfEngine implements PdfDocumentEngine {
     final pdfrxHandle = handle as PdfrxViewerHandle;
     return pdfrxHandle.buildViewer(filePath, settings);
   }
+
+  @override
+  Widget buildThumbnail({
+    required String filePath,
+    required int pageNumber,
+    required PdfViewerHandle handle,
+    double? width,
+    double? height,
+  }) {
+    final pdfrxHandle = handle as PdfrxViewerHandle;
+    return pdfrxHandle.buildThumbnail(pageNumber, width: width, height: height);
+  }
 }
 
 /// [PdfViewerHandle] bound to a pdfrx [PdfViewerController] and
@@ -128,14 +140,22 @@ class PdfrxViewerHandle implements PdfViewerHandle {
   int get rotationQuarterTurns => _rotationQuarterTurns;
 
   @override
-  Future<void> startSearch(String query) async {
+  Future<void> startSearch(
+    String query, {
+    bool caseSensitive = false,
+    bool wholeWord = false,
+  }) async {
     if (query.trim().isEmpty) {
       await clearSearch();
       return;
     }
+    String pattern = query;
+    if (wholeWord) {
+      pattern = r'\b' + RegExp.escape(query) + r'\b';
+    }
     _searcher.startTextSearch(
-      query,
-      caseInsensitive: true,
+      pattern,
+      caseInsensitive: !caseSensitive,
       goToFirstMatch: true,
       searchImmediately: true,
     );
@@ -178,6 +198,15 @@ class PdfrxViewerHandle implements PdfViewerHandle {
   @override
   Future<void> goToPreviousSearchMatch() async {
     await _searcher.goToPrevMatch();
+  }
+
+  @override
+  Future<void> goToSearchMatch(int index) async {
+    final matches = _searcher.matches;
+    if (index >= 0 && index < matches.length) {
+      final match = matches[index];
+      await _searcher.goToMatch(match);
+    }
   }
 
   @override
@@ -394,5 +423,45 @@ class PdfrxViewerHandle implements PdfViewerHandle {
         },
       ));
     }
+  }
+
+  /// Builds a thumbnail preview widget for [pageNumber].
+  Widget buildThumbnail(int pageNumber, {double? width, double? height}) {
+    if (!controller.isReady) {
+      return Container(
+        width: width,
+        height: height,
+        color: Colors.grey.shade100,
+        child: const Center(
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    final pages = controller.pages;
+    if (pageNumber < 1 || pageNumber > pages.length) {
+      return Container(
+        width: width,
+        height: height,
+        color: Colors.grey.shade100,
+        child: const Center(child: Icon(Icons.error_outline, size: 20)),
+      );
+    }
+
+    return RotatedBox(
+      quarterTurns: _rotationQuarterTurns,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: PdfPageView(
+          document: controller.document,
+          pageNumber: pageNumber,
+        ),
+      ),
+    );
   }
 }

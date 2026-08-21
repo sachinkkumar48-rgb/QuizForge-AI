@@ -219,7 +219,11 @@ abstract class PdfViewerHandle {
   int get rotationQuarterTurns;
 
   /// Starts a new text search session for [query].
-  Future<void> startSearch(String query);
+  Future<void> startSearch(
+    String query, {
+    bool caseSensitive = false,
+    bool wholeWord = false,
+  });
 
   /// Clears the current search session and its highlights.
   Future<void> clearSearch();
@@ -241,6 +245,9 @@ abstract class PdfViewerHandle {
 
   /// Moves to the previous search match, wrapping around at the start.
   Future<void> goToPreviousSearchMatch();
+
+  /// Navigates directly to the search match at [index].
+  Future<void> goToSearchMatch(int index);
 
   /// Registers a listener notified when search state changes.
   void addSearchChangedListener(VoidCallback listener);
@@ -295,5 +302,14 @@ abstract class PdfDocumentEngine {
     required String filePath,
     required PdfViewerSettings settings,
     required PdfViewerHandle handle,
+  });
+
+  /// Builds a thumbnail preview widget for [pageNumber] (1-based) of the PDF document.
+  Widget buildThumbnail({
+    required String filePath,
+    required int pageNumber,
+    required PdfViewerHandle handle,
+    double? width,
+    double? height,
   });
 }

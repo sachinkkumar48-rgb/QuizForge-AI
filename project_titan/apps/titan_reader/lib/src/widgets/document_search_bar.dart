@@ -31,6 +31,8 @@ class DocumentSearchBarState extends State<DocumentSearchBar> {
   final TextEditingController controller = TextEditingController();
   Timer? _debounce;
   bool _resultsExpanded = false;
+  bool _caseSensitive = false;
+  bool _wholeWord = false;
 
   @override
   void initState() {
@@ -52,10 +54,44 @@ class DocumentSearchBarState extends State<DocumentSearchBar> {
     if (mounted) setState(() {});
   }
 
-  void _onQueryChanged(String query) {
+  void _onQueryChanged(String query, {bool immediate = false}) {
     _debounce?.cancel();
+    if (immediate) {
+      if (query.trim().isEmpty) {
+        widget.handle.clearSearch();
+      } else {
+        widget.handle.startSearch(
+          query,
+          caseSensitive: _caseSensitive,
+          wholeWord: _wholeWord,
+        );
+      }
+      return;
+    }
     _debounce = Timer(kSearchDebounce, () {
-      widget.handle.startSearch(query);
+      if (query.trim().isEmpty) {
+        widget.handle.clearSearch();
+      } else {
+        widget.handle.startSearch(
+          query,
+          caseSensitive: _caseSensitive,
+          wholeWord: _wholeWord,
+        );
+      }
+    });
+  }
+
+  void _toggleCaseSensitive() {
+    setState(() {
+      _caseSensitive = !_caseSensitive;
+      _onQueryChanged(controller.text, immediate: true);
+    });
+  }
+
+  void _toggleWholeWord() {
+    setState(() {
+      _wholeWord = !_wholeWord;
+      _onQueryChanged(controller.text, immediate: true);
     });
   }
 
@@ -94,15 +130,67 @@ class DocumentSearchBarState extends State<DocumentSearchBar> {
                                 icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   controller.clear();
-                                  _onQueryChanged('');
+                                  widget.handle.clearSearch();
+                                  _onQueryChanged('', immediate: true);
                                   setState(() {});
                                 },
                               )
                             : null,
                       ),
-                      onChanged: _onQueryChanged,
+                      onChanged: (text) {
+                        setState(() {});
+                        _onQueryChanged(text);
+                      },
                     ),
                   ),
+                  const SizedBox(width: 4),
+
+                  // Case Sensitive Toggle
+                  IconButton(
+                    key: const Key('search-case-sensitive-toggle'),
+                    tooltip: _caseSensitive
+                        ? 'Case sensitive (on)'
+                        : 'Match case (off)',
+                    icon: Icon(
+                      Icons.format_size,
+                      size: 20,
+                      color: _caseSensitive
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.6),
+                    ),
+                    style: _caseSensitive
+                        ? IconButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primaryContainer
+                                .withValues(alpha: 0.4),
+                          )
+                        : null,
+                    onPressed: _toggleCaseSensitive,
+                  ),
+
+                  // Whole Word Toggle
+                  IconButton(
+                    key: const Key('search-whole-word-toggle'),
+                    tooltip: _wholeWord
+                        ? 'Whole word (on)'
+                        : 'Match whole word (off)',
+                    icon: Icon(
+                      Icons.space_bar,
+                      size: 20,
+                      color: _wholeWord
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.6),
+                    ),
+                    style: _wholeWord
+                        ? IconButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primaryContainer
+                                .withValues(alpha: 0.4),
+                          )
+                        : null,
+                    onPressed: _toggleWholeWord,
+                  ),
+
                   IconButton(
                     tooltip: 'Previous match',
                     icon: const Icon(Icons.keyboard_arrow_up),
@@ -134,10 +222,28 @@ class DocumentSearchBarState extends State<DocumentSearchBar> {
             ),
             if (status != null)
               Padding(
-                padding: const EdgeInsets.only(left: 16, bottom: 6),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(status, style: theme.textTheme.bodySmall),
+                padding: const EdgeInsets.only(left: 16, bottom: 6, right: 16),
+                child: Row(
+                  children: [
+                    if (handle.isSearchInProgress) ...[
+                      const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Text(
+                        status,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: matches.isEmpty && controller.text.isNotEmpty
+                              ? theme.colorScheme.error
+                              : theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             if (_resultsExpanded && matches.isNotEmpty)
@@ -156,7 +262,7 @@ class DocumentSearchBarState extends State<DocumentSearchBar> {
       List<PdfSearchMatch> matches, int? currentIndex, PdfViewerHandle handle) {
     final query = controller.text.trim();
     if (query.isEmpty && matches.isEmpty) return null;
-    if (handle.isSearchInProgress) return 'Searching…';
+    if (handle.isSearchInProgress) return 'Searching document…';
     if (matches.isEmpty) return 'No matches for "$query"';
     final active = currentIndex != null ? currentIndex + 1 : 0;
     return '$active of ${matches.length} matches';
@@ -164,7 +270,7 @@ class DocumentSearchBarState extends State<DocumentSearchBar> {
 }
 
 /// Scrollable list of all matches found so far; tapping a row jumps to the
-/// match's page and makes it the active highlight.
+/// match's page and activates that match.
 class _ResultsList extends StatelessWidget {
   final PdfViewerHandle handle;
   final List<PdfSearchMatch> matches;
@@ -176,33 +282,61 @@ class _ResultsList extends StatelessWidget {
     final theme = Theme.of(context);
     final currentIndex = handle.currentSearchMatchIndex;
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 200),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: matches.length,
-        itemBuilder: (context, index) {
-          final match = matches[index];
-          final isActive = index == currentIndex;
-          return ListTile(
-            dense: true,
-            selected: isActive,
-            leading: Text(
-              'p.${match.pageNumber}',
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.primary,
+      constraints: const BoxConstraints(maxHeight: 220),
+      child: Material(
+        color: theme.colorScheme.surface,
+        shape: Border(
+          top: BorderSide(
+            color: theme.dividerColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: matches.length,
+          separatorBuilder: (context, index) => Divider(
+            height: 1,
+            color: theme.dividerColor.withValues(alpha: 0.2),
+          ),
+          itemBuilder: (context, index) {
+            final match = matches[index];
+            final isActive = index == currentIndex;
+            return ListTile(
+              dense: true,
+              selected: isActive,
+              selectedTileColor:
+                  theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
+              leading: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'p. ${match.pageNumber}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: isActive
+                        ? theme.colorScheme.onPrimary
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-            title: Text(
-              match.snippet,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            onTap: () {
-              // Jump to the match page; the engine marks the match active.
-              handle.goToPage(match.pageNumber);
-            },
-          );
-        },
+              title: Text(
+                match.snippet,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+              onTap: () {
+                handle.goToSearchMatch(index);
+              },
+            );
+          },
+        ),
       ),
     );
   }

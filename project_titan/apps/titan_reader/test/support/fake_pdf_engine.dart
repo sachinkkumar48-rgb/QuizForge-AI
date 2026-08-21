@@ -139,10 +139,19 @@ class FakeViewerHandle implements PdfViewerHandle {
     rotationQuarterTurns = (rotationQuarterTurns + 1) & 3;
   }
 
+  bool lastCaseSensitive = false;
+  bool lastWholeWord = false;
+  final List<int> visitedMatchIndices = [];
+
   @override
-  Future<void> startSearch(String query) async {
+  Future<void> startSearch(
+    String query, {
+    bool caseSensitive = false,
+    bool wholeWord = false,
+  }) async {
     searchQueries.add(query);
-    searching = false;
+    lastCaseSensitive = caseSensitive;
+    lastWholeWord = wholeWord;
   }
 
   @override
@@ -157,6 +166,16 @@ class FakeViewerHandle implements PdfViewerHandle {
 
   @override
   Future<void> goToPreviousSearchMatch() async => previousMatchCalls++;
+
+  @override
+  Future<void> goToSearchMatch(int index) async {
+    visitedMatchIndices.add(index);
+    currentSearchMatchIndex = index;
+    if (index >= 0 && index < matches.length) {
+      final match = matches[index];
+      await goToPage(match.pageNumber);
+    }
+  }
 
   @override
   void addSearchChangedListener(VoidCallback listener) =>
