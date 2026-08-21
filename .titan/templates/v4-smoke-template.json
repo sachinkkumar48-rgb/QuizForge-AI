@@ -1,0 +1,33 @@
+{
+  "name": "v4-smoke-template",
+  "variables": [
+    "feature_name",
+    "target_app",
+    "verification_token"
+  ],
+  "prompt": "Respond with 'TEMPLATE SMOKE CONFIRMED: {{feature_name}} on {{target_app}} with token {{verification_token}}' and do not modify any files.",
+  "scope": [
+    "project_titan/apps/titan_reader",
+    "project_titan/docs/applications/titan_reader"
+  ],
+  "models": [
+    "gemini-3.6-flash-medium",
+    "gemini-3.6-flash-high"
+  ],
+  "max_repairs": 2,
+  "timeout_minutes": 5,
+  "verification_gates": [
+    {
+      "name": "Template Gate 1",
+      "command": "py -c \"print('Template gate 1 passed')\"",
+      "cwd": ".",
+      "timeout_seconds": 30
+    },
+    {
+      "name": "Template Gate 2",
+      "command": "git status --short",
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "v4-template-smoke",
+  "template": ".titan/templates/v4-smoke-template.json",
+  "variables": {
+    "feature_name": "OutlineNavigation",
+    "target_app": "titan_reader",
+    "verification_token": "V4-TOK-9988"
+  }
+}

@@ -16,6 +16,7 @@ LOGDIR = ROOT / ".titan" / "logs"
 PROMPTDIR = ROOT / ".titan" / "prompts"
 RESULTDIR = ROOT / ".titan" / "results"
 TASKSDIR = ROOT / ".titan" / "tasks"
+TEMPLATESDIR = ROOT / ".titan" / "templates"
 
 DEFAULT_CONFIG = {
     "agent_command": "agy",
@@ -140,7 +141,6 @@ def compute_git_delta(before_map: dict, after_map: dict):
         code = info["code"]
         current_hash = info["hash"]
         if p not in before_map:
-            # Entirely new entry
             if "?" in code or "A" in code:
                 newly_created.append(p)
             elif "D" in code:
@@ -148,7 +148,6 @@ def compute_git_delta(before_map: dict, after_map: dict):
             else:
                 newly_changed.append(p)
         else:
-            # Existed in before_map - check if it changed
             prev_info = before_map[p]
             if prev_info["code"] != code or prev_info["hash"] != current_hash:
                 if "D" in code:
@@ -181,11 +180,9 @@ def check_scope_violations(changed_files: list, task_scope: list, cfg: dict):
     violations = []
 
     for f in changed_files:
-        # Ignore .titan/ internal orchestrator records
         if f.startswith(".titan/"):
             continue
 
-        # Check protected prefixes from global configuration
         is_protected = False
         for p in protected:
             p_norm = p.replace("\\", "/").rstrip("/")
@@ -196,7 +193,6 @@ def check_scope_violations(changed_files: list, task_scope: list, cfg: dict):
         if is_protected:
             continue
 
-        # If task scope is specified, check against task scope
         if task_scope:
             in_scope = False
             for s in task_scope:
@@ -224,7 +220,6 @@ def extract_json(text: str):
     except Exception:
         pass
 
-    # Try finding outermost JSON object
     start = text.find("{")
     end = text.rfind("}")
     if start != -1 and end != -1 and end > start:
@@ -241,6 +236,52 @@ def extract_json(text: str):
     }
 
 
+def get_available_models(timeout: int = 30) -> list:
+    """
+    Invokes `agy models` dynamically and parses the list of available model IDs.
+    `agy models` remains the authoritative source of truth.
+    """
+    try:
+        proc = subprocess.run(
+            ["agy", "models"],
+            cwd=ROOT,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout
+        )
+        if proc.returncode != 0:
+            return []
+        models = []
+        for line in proc.stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            model_id = line.split()[0]
+            models.append(model_id)
+        return models
+    except Exception:
+        return []
+
+
+def validate_model_preflight(requested_models: list, available_models: list = None) -> tuple:
+    """
+    Validates that every model in requested_models exists in available_models.
+    Returns (is_valid: bool, available_models: list, missing_models: list)
+    """
+    if available_models is None:
+        available_models = get_available_models()
+
+    if not available_models:
+        return False, [], list(requested_models)
+
+    missing = [m for m in requested_models if m not in available_models]
+    return (len(missing) == 0, available_models, missing)
+
+
 def resolve_model(models: list, repair_count: int, default_model: str = "gemini-3.6-flash-medium") -> str:
     """
     Model escalation strategy:
@@ -255,6 +296,214 @@ def resolve_model(models: list, repair_count: int, default_model: str = "gemini-
         return models[0]
     idx = min(repair_count - 1, len(models) - 1)
     return models[idx]
+
+
+def resolve_template_and_task(task: dict, base_dir: Path = ROOT) -> dict:
+    """
+    Resolves task definition with template inheritance and variable substitution.
+    Deterministic {{var}} replacement with Python standard library only.
+    """
+    resolved = dict(task)
+
+    if "template" in task and task["template"]:
+        tpl_path = Path(task["template"])
+        if not tpl_path.is_absolute():
+            tpl_path = base_dir / tpl_path
+        if not tpl_path.exists():
+            raise ValueError(f"Template file not found: {tpl_path}")
+
+        tpl_data = load_json(tpl_path, None)
+        if not tpl_data or not isinstance(tpl_data, dict):
+            raise ValueError(f"Invalid JSON template in {tpl_path}")
+
+        # Check required variables
+        required_vars = tpl_data.get("variables", [])
+        provided_vars = task.get("variables", {})
+        missing_vars = [v for v in required_vars if v not in provided_vars]
+        if missing_vars:
+            raise ValueError(f"Missing required template variable(s): {', '.join(missing_vars)}")
+
+        # Inherit fields from template if not overridden in task
+        for k in (
+            "scope",
+            "verification_gates",
+            "verify",
+            "models",
+            "max_repairs",
+            "timeout_minutes",
+            "verify_timeout_seconds",
+            "prompt",
+            "prompt_file"
+        ):
+            if k in tpl_data and k not in resolved:
+                resolved[k] = tpl_data[k]
+
+        # Resolve prompt with variable substitution
+        prompt_template = resolved.get("prompt")
+        if not prompt_template and resolved.get("prompt_file"):
+            pf = Path(resolved["prompt_file"])
+            if not pf.is_absolute():
+                pf = base_dir / pf
+            if pf.exists():
+                prompt_template = pf.read_text(encoding="utf-8")
+
+        if prompt_template:
+            prompt_str = prompt_template
+            for var_k, var_v in provided_vars.items():
+                prompt_str = prompt_str.replace(f"{{{{{var_k}}}}}", str(var_v))
+            resolved["prompt"] = prompt_str
+            resolved["prompt_file"] = None
+
+    return resolved
+
+
+def normalize_verification_gates(task: dict, default_timeout: int = 600) -> list:
+    """
+    Normalizes V4 verification_gates or V3 verify list into standardized gate structures.
+    """
+    if "verification_gates" in task and task["verification_gates"]:
+        gates = []
+        for i, g in enumerate(task["verification_gates"], 1):
+            if isinstance(g, dict):
+                gates.append({
+                    "name": g.get("name", f"Gate {i}"),
+                    "command": g.get("command", ""),
+                    "cwd": g.get("cwd", "."),
+                    "timeout_seconds": int(g.get("timeout_seconds", default_timeout))
+                })
+            elif isinstance(g, str):
+                gates.append({
+                    "name": f"Gate {i}",
+                    "command": g,
+                    "cwd": ".",
+                    "timeout_seconds": int(default_timeout)
+                })
+        return gates
+    elif "verify" in task and task["verify"]:
+        gates = []
+        for i, v in enumerate(task["verify"], 1):
+            if isinstance(v, dict):
+                gates.append({
+                    "name": v.get("name", f"Check #{i}"),
+                    "command": v.get("command", ""),
+                    "cwd": v.get("cwd", "."),
+                    "timeout_seconds": int(v.get("timeout_seconds", default_timeout))
+                })
+            elif isinstance(v, str):
+                gates.append({
+                    "name": f"Check #{i}",
+                    "command": v,
+                    "cwd": ".",
+                    "timeout_seconds": int(default_timeout)
+                })
+        return gates
+    return []
+
+
+def execute_verification_pipeline(gates: list, base_dir: Path = ROOT):
+    """
+    Executes verification gates sequentially.
+    CRITICAL RULE: Stops at the first failure or timeout.
+    Returns: (all_passed, results_list, failed_gate)
+    """
+    results = []
+    failed_gate = None
+    all_passed = True
+
+    for gate in gates:
+        cmd_str = gate["command"]
+        cwd_val = gate.get("cwd", ".")
+        cmd_cwd = (base_dir / cwd_val).resolve() if cwd_val != "." else base_dir
+        timeout_sec = gate.get("timeout_seconds", 600)
+
+        start_t = time.time()
+        is_timeout = False
+        rc = 0
+        stdout = ""
+        stderr = ""
+
+        try:
+            proc = subprocess.Popen(
+                cmd_str,
+                shell=True,
+                cwd=cmd_cwd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            stdout, stderr = proc.communicate(timeout=timeout_sec)
+            rc = proc.returncode
+        except subprocess.TimeoutExpired:
+            is_timeout = True
+            rc = 124
+            proc.kill()
+            try:
+                stdout, stderr = proc.communicate(timeout=5)
+            except Exception:
+                pass
+
+        duration = round(time.time() - start_t, 2)
+        if is_timeout:
+            status = "TIMEOUT"
+            passed = False
+        elif rc == 0:
+            status = "PASS"
+            passed = True
+        else:
+            status = "FAIL"
+            passed = False
+
+        cwd_rel = str(cmd_cwd.relative_to(base_dir)).replace("\\", "/") if cmd_cwd != base_dir else "."
+        gate_res = {
+            "name": gate["name"],
+            "command": cmd_str,
+            "cwd": cwd_rel,
+            "timeout_seconds": timeout_sec,
+            "exit_code": rc,
+            "duration_seconds": duration,
+            "stdout": stdout,
+            "stderr": stderr,
+            "status": status,
+            "passed": passed,
+            "is_timeout": is_timeout
+        }
+        results.append(gate_res)
+
+        if not passed:
+            all_passed = False
+            failed_gate = gate_res
+            # Stop immediately at first failure
+            break
+
+    return all_passed, results, failed_gate
+
+
+def format_gate_failure_report(results: list, failed_gate: dict) -> str:
+    """Formats sequential verification results and diagnostic output for repair."""
+    lines = []
+    for r in results:
+        lines.append(f"Gate '{r['name']}': `{r['command']}` (cwd: `{r['cwd']}`) -> {r['status']} (exit code {r['exit_code']}) in {r['duration_seconds']}s")
+
+    if failed_gate:
+        lines.append(f"\n### Diagnostic Details for Failing Gate: '{failed_gate['name']}'")
+        lines.append(f"- Command: `{failed_gate['command']}`")
+        lines.append(f"- Status: {failed_gate['status']} (exit code {failed_gate['exit_code']})")
+        if failed_gate["stdout"].strip():
+            out_snippet = failed_gate["stdout"].strip()
+            if len(out_snippet) > 4000:
+                out_snippet = out_snippet[:2000] + "\n... [truncated] ...\n" + out_snippet[-2000:]
+            lines.append("STDOUT:")
+            lines.append(f"```\n{out_snippet}\n```")
+        if failed_gate["stderr"].strip():
+            err_snippet = failed_gate["stderr"].strip()
+            if len(err_snippet) > 4000:
+                err_snippet = err_snippet[:2000] + "\n... [truncated] ...\n" + err_snippet[-2000:]
+            lines.append("STDERR:")
+            lines.append(f"```\n{err_snippet}\n```")
+    return "\n".join(lines)
 
 
 def execute_agy_turn(
@@ -350,7 +599,6 @@ def execute_agy_turn(
     else:
         parsed = extract_json(stdout)
 
-    # Save turn result
     parsed["_orchestrator"] = {
         "task_name": task_name,
         "turn_name": turn_name,
@@ -364,7 +612,6 @@ def execute_agy_turn(
     }
     save_json(result_file, parsed)
 
-    # Save turn log
     log_content = (
         f"TITAN AGENT TURN LOG\n"
         f"Task: {task_name}\n"
@@ -396,136 +643,57 @@ def execute_agy_turn(
     }
 
 
-def run_verification(verify_commands: list, default_timeout_seconds: int = 600):
-    """
-    Executes each verification command with exact subprocess timeout handling.
-    Captures command, exit code, stdout, stderr, duration.
-    """
-    results = []
-    all_passed = True
-
-    for item in verify_commands:
-        if isinstance(item, str):
-            cmd_str = item
-            cmd_cwd = ROOT
-            timeout_sec = default_timeout_seconds
-        elif isinstance(item, dict):
-            cmd_str = item.get("command", "")
-            cwd_val = item.get("cwd")
-            cmd_cwd = (ROOT / cwd_val) if cwd_val else ROOT
-            timeout_sec = item.get("timeout_seconds", default_timeout_seconds)
-        else:
-            continue
-
-        if not cmd_str.strip():
-            continue
-
-        start_t = time.time()
-        is_timeout = False
-        rc = 0
-        stdout = ""
-        stderr = ""
-
-        try:
-            proc = subprocess.Popen(
-                cmd_str,
-                shell=True,
-                cwd=cmd_cwd,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                encoding="utf-8",
-                errors="replace"
-            )
-            stdout, stderr = proc.communicate(timeout=timeout_sec)
-            rc = proc.returncode
-        except subprocess.TimeoutExpired:
-            is_timeout = True
-            rc = 124
-            proc.kill()
-            try:
-                stdout, stderr = proc.communicate(timeout=5)
-            except Exception:
-                pass
-
-        duration = round(time.time() - start_t, 2)
-        passed = (rc == 0 and not is_timeout)
-        if not passed:
-            all_passed = False
-
-        cwd_rel = str(cmd_cwd.relative_to(ROOT)).replace("\\", "/") if cmd_cwd != ROOT else "."
-        results.append({
-            "command": cmd_str,
-            "cwd": cwd_rel,
-            "exit_code": rc,
-            "passed": passed,
-            "is_timeout": is_timeout,
-            "duration_seconds": duration,
-            "stdout": stdout,
-            "stderr": stderr
-        })
-
-    return all_passed, results
-
-
-def format_verification_failure_report(verify_results: list) -> str:
-    """Formats verification failure output for injection into repair prompt."""
-    lines = []
-    for i, r in enumerate(verify_results, 1):
-        status_str = "PASSED" if r["passed"] else ("TIMEOUT" if r["is_timeout"] else f"FAILED (exit code {r['exit_code']})")
-        lines.append(f"Command #{i}: `{r['command']}` (cwd: `{r['cwd']}`) -> {status_str} in {r['duration_seconds']}s")
-        if not r["passed"]:
-            if r["stdout"].strip():
-                stdout_snippet = r["stdout"].strip()
-                if len(stdout_snippet) > 4000:
-                    stdout_snippet = stdout_snippet[:2000] + "\n... [truncated] ...\n" + stdout_snippet[-2000:]
-                lines.append("STDOUT:")
-                lines.append(f"```\n{stdout_snippet}\n```")
-            if r["stderr"].strip():
-                stderr_snippet = r["stderr"].strip()
-                if len(stderr_snippet) > 4000:
-                    stderr_snippet = stderr_snippet[:2000] + "\n... [truncated] ...\n" + stderr_snippet[-2000:]
-                lines.append("STDERR:")
-                lines.append(f"```\n{stderr_snippet}\n```")
-    return "\n".join(lines)
-
-
 def print_dry_run(task: dict, cfg: dict):
-    """Outputs execution plan without invoking agent."""
+    """Outputs V4 execution plan without invoking agent."""
     name = task.get("name", "unnamed-task")
+    template_name = task.get("template", "None (Direct task definition)")
+    variables = task.get("variables", {})
     scope = task.get("scope", cfg.get("allowed_scope", []))
     models = task.get("models", [cfg.get("default_model", "gemini-3.6-flash-medium")])
-    verify_cmds = task.get("verify", [])
+    gates = normalize_verification_gates(task, cfg.get("verify_timeout_seconds", 600))
     timeout_mins = task.get("timeout_minutes", cfg.get("timeout_minutes", 20))
-    verify_timeout = task.get("verify_timeout_seconds", cfg.get("verify_timeout_seconds", 600))
     max_repairs = task.get("max_repairs", cfg.get("max_repairs", 2))
 
+    # Pre-flight check during dry-run
+    is_valid, avail_models, missing_models = validate_model_preflight(models)
+    if is_valid:
+        model_avail_str = f"VALID (all {len(models)} model(s) verified via agy models)"
+    elif avail_models:
+        model_avail_str = f"INVALID (missing: {', '.join(missing_models)})"
+    else:
+        model_avail_str = "UNVERIFIED (could not reach agy models)"
+
     print("============================================================")
-    print("TITAN TASK DRY RUN")
+    print("TITAN V4 TASK DRY RUN")
     print("============================================================")
     print(f"Task: {name}")
+    print(f"Template: {template_name}")
+    if variables:
+        print(f"Resolved variables ({len(variables)}):")
+        for k, v in variables.items():
+            print(f"  - {k}: {v}")
     print(f"Scope ({len(scope)} path{'s' if len(scope) != 1 else ''}):")
     for s in scope:
         print(f"  - {s}")
+    print(f"Models ({len(models)}): {', '.join(models)}")
+    print(f"Model availability: {model_avail_str}")
     print("Model Sequence:")
     print(f"  - Attempt 1 (Initial): {resolve_model(models, 0, cfg.get('default_model'))}")
     for r in range(1, max_repairs + 1):
         print(f"  - Repair {r}: {resolve_model(models, r, cfg.get('default_model'))}")
-    print(f"Verification Commands ({len(verify_cmds)}):")
-    for i, c in enumerate(verify_cmds, 1):
-        cmd_text = c if isinstance(c, str) else c.get("command", "")
-        cwd_text = f" (cwd: {c.get('cwd')})" if isinstance(c, dict) and "cwd" in c else ""
-        print(f"  {i}. {cmd_text}{cwd_text}")
-    print(f"Agent Timeout: {timeout_mins} minutes")
-    print(f"Verification Timeout: {verify_timeout} seconds per command")
-    print(f"Maximum Repair Attempts: {max_repairs}")
+    print(f"Verification Gates ({len(gates)}):")
+    for i, g in enumerate(gates, 1):
+        cwd_str = f" (cwd: {g['cwd']})" if g.get("cwd") and g["cwd"] != "." else ""
+        print(f"  Gate {i} [{g['name']}]: `{g['command']}`{cwd_str} [timeout: {g['timeout_seconds']}s]")
+    print(f"Max repairs: {max_repairs}")
+    print(f"Timeout: {timeout_mins} minutes per agent turn")
     print("============================================================")
 
 
 def task_command(args):
     """
-    Executes the full V3 autonomous implementation/verification/repair loop.
+    Executes the V4 autonomous implementation/verification/repair loop with
+    model pre-flight validation, template resolution, and multi-stage verification gates.
     """
     cfg = load_json(CFG, DEFAULT_CONFIG)
 
@@ -536,24 +704,53 @@ def task_command(args):
     if not t_path.exists():
         raise SystemExit(f"Error: Task file not found: {t_path}")
 
-    task = load_json(t_path, None)
-    if not task or not isinstance(task, dict):
+    raw_task = load_json(t_path, None)
+    if not raw_task or not isinstance(raw_task, dict):
         raise SystemExit(f"Error: Failed to parse valid JSON task from {t_path}")
+
+    # 2. Resolve template inheritance and variable substitutions
+    try:
+        task = resolve_template_and_task(raw_task, base_dir=ROOT)
+    except ValueError as e:
+        raise SystemExit(f"Template Error: {e}")
 
     task_name = task.get("name") or t_path.stem
     task_scope = task.get("scope", cfg.get("allowed_scope", []))
-    verify_commands = task.get("verify", [])
+    gates = normalize_verification_gates(task, cfg.get("verify_timeout_seconds", 600))
     max_repairs = int(task.get("max_repairs", cfg.get("max_repairs", 2)))
     models = task.get("models") or [cfg.get("default_model", "gemini-3.6-flash-medium")]
     timeout_mins = int(task.get("timeout_minutes", cfg.get("timeout_minutes", 20)))
-    verify_timeout = int(task.get("verify_timeout_seconds", cfg.get("verify_timeout_seconds", 600)))
 
-    # 2. Dry run handling
+    # 3. Dry run handling
     if args.dry_run:
         print_dry_run(task, cfg)
         return
 
-    # 3. Resolve initial prompt
+    # 4. Live Model Pre-flight Validation
+    is_valid, available_models, missing_models = validate_model_preflight(models)
+    if not is_valid:
+        print("\n============================================================")
+        print("PRE-FLIGHT FAILURE: INVALID_MODEL_CONFIGURATION")
+        print("============================================================")
+        print(f"Requested models: {models}")
+        print(f"Available models: {available_models if available_models else '(none discovered)'}")
+        print(f"Missing models:   {missing_models}")
+        print("Agent invocation blocked.")
+        print("============================================================")
+
+        state = load_json(STATE, {})
+        state.update({
+            "project": "TITAN",
+            "status": "INVALID_MODEL_CONFIGURATION",
+            "phase": "preflight_failed",
+            "task": task_name,
+            "current_task": task_name,
+            "finished_at": datetime.now().isoformat(timespec="seconds")
+        })
+        save_json(STATE, state)
+        raise SystemExit(1)
+
+    # 5. Resolve prompt
     if task.get("prompt"):
         initial_prompt = task["prompt"]
     elif task.get("prompt_file"):
@@ -564,7 +761,7 @@ def task_command(args):
             raise SystemExit(f"Error: Prompt file referenced in task not found: {pf}")
         initial_prompt = pf.read_text(encoding="utf-8")
     else:
-        raise SystemExit("Error: Task definition must specify 'prompt' or 'prompt_file'.")
+        raise SystemExit("Error: Task definition must specify 'prompt', 'prompt_file', or a valid 'template'.")
 
     # Safety check for forbidden git operations in prompt
     lower_prompt = initial_prompt.lower()
@@ -572,7 +769,7 @@ def task_command(args):
     if bad_ops:
         raise SystemExit(f"BLOCKED: Task prompt contains forbidden Git operation(s): {bad_ops}")
 
-    # 4. Record baseline Git state before any agent invocation
+    # 6. Record baseline Git state before any agent invocation
     before_rc, before_raw = run_shell("git status --short")
     before_map = parse_git_status(before_raw)
 
@@ -606,7 +803,7 @@ def task_command(args):
     save_json(STATE, state)
 
     print(f"\n============================================================")
-    print(f"TITAN V3 ORCHESTRATOR — TASK: {task_name}")
+    print(f"TITAN V4 ORCHESTRATOR — TASK: {task_name}")
     print(f"============================================================")
 
     # ------------------------------------------------------------
@@ -667,24 +864,23 @@ def task_command(args):
     verification_passed = False
 
     while True:
-        # Run verification commands
         state.update({"phase": "verification", "verification_status": "RUNNING"})
         save_json(STATE, state)
 
-        print(f"\n>>> Running Verification ({len(verify_commands)} checks)...")
-        v_passed, v_results = run_verification(verify_commands, default_timeout_seconds=verify_timeout)
+        print(f"\n>>> Running Verification Pipeline ({len(gates)} gate{'s' if len(gates) != 1 else ''})...")
+        v_passed, v_results, failed_gate = execute_verification_pipeline(gates, base_dir=ROOT)
 
         for r in v_results:
             tag = "PASS" if r["passed"] else ("TIMEOUT" if r["is_timeout"] else f"FAIL ({r['exit_code']})")
-            print(f"  [{tag}] {r['command']} ({r['duration_seconds']}s)")
+            print(f"  [{tag}] Gate: {r['name']} -> `{r['command']}` ({r['duration_seconds']}s)")
 
         if v_passed:
             verification_passed = True
-            print(f"\n>>> VERIFICATION SUCCESSFUL! All checks passed.")
+            print(f"\n>>> ALL VERIFICATION GATES PASSED!")
             break
 
         # Verification Failed
-        print(f"\n>>> VERIFICATION FAILED (Attempt {repair_count + 1})")
+        print(f"\n>>> VERIFICATION GATE FAILED: '{failed_gate['name']}' (Attempt {repair_count + 1})")
         if repair_count >= max_repairs:
             print(f"\n>>> Maximum repair attempts ({max_repairs}) exhausted.")
             break
@@ -692,7 +888,7 @@ def task_command(args):
         # Proceed to Repair Turn
         repair_count += 1
         repair_model = resolve_model(models, repair_count, cfg.get("default_model"))
-        print(f"\n>>> [REPAIR TURN {repair_count}/{max_repairs}] Escalating to model: {repair_model}")
+        print(f"\n>>> [REPAIR TURN {repair_count}/{max_repairs}] Model Escalation: {repair_model}")
 
         state.update({
             "phase": f"repair_{repair_count}",
@@ -703,16 +899,16 @@ def task_command(args):
         })
         save_json(STATE, state)
 
-        failure_report = format_verification_failure_report(v_results)
+        failure_report = format_gate_failure_report(v_results, failed_gate)
         scope_str = "\n".join(f"- {s}" for s in task_scope) if task_scope else "(all non-protected files)"
 
         repair_prompt = (
             f"# TITAN REPAIR REQUEST (Attempt {repair_count}/{max_repairs})\n"
             f"Task: {task_name}\n"
             f"Authorized Scope:\n{scope_str}\n\n"
-            f"The verification commands executed by the orchestrator failed:\n\n"
+            f"The verification pipeline executed by the orchestrator failed at Gate '{failed_gate['name']}':\n\n"
             f"{failure_report}\n\n"
-            f"Please diagnose the failures and repair ONLY files within the authorized scope:\n"
+            f"Please diagnose the failure and repair ONLY files within the authorized scope:\n"
             f"{scope_str}\n\n"
             f"Do NOT modify any files outside this scope.\n"
             f"Do NOT execute git add, git commit, git push, or git reset."
@@ -809,7 +1005,7 @@ def init_command(_):
         "preexisting_changes": []
     }
     save_json(STATE, state)
-    for d in (LOGDIR, PROMPTDIR, RESULTDIR, TASKSDIR):
+    for d in (LOGDIR, PROMPTDIR, RESULTDIR, TASKSDIR, TEMPLATESDIR):
         d.mkdir(parents=True, exist_ok=True)
     print("TITAN Agent Orchestrator initialized.")
 
@@ -855,7 +1051,6 @@ def checkpoint_command(_):
 def run_task(args):
     cfg = load_json(CFG, DEFAULT_CONFIG)
 
-    # 1. Validate prompt arguments
     if args.prompt and args.prompt_file:
         raise SystemExit("Error: Specify exactly one of --prompt or --prompt-file, not both.")
     if not args.prompt and not args.prompt_file:
@@ -874,22 +1069,18 @@ def run_task(args):
     if not prompt_text.strip():
         raise SystemExit("Error: Prompt is empty.")
 
-    # 2. Safety filter for forbidden Git operations in prompt
     lower_prompt = prompt_text.lower()
     bad_ops = [op for op in FORBIDDEN_OPERATIONS if op in lower_prompt]
     if bad_ops:
         raise SystemExit(f"BLOCKED: Prompt contains forbidden operation(s): {bad_ops}")
 
-    # 3. Model resolution
     model = args.model or cfg.get("default_model", "gemini-3.6-flash-medium")
 
-    # 4. Record Git state before execution
     before_rc, before_raw = run_shell("git status --short")
     before_map = parse_git_status(before_raw)
 
     timeout_mins = int(args.timeout or cfg.get("timeout_minutes", 20))
 
-    # 5. Execute single turn
     res = execute_agy_turn(
         task_name=args.name,
         turn_name="single",
@@ -901,13 +1092,11 @@ def run_task(args):
         cfg=cfg
     )
 
-    # 6. Record Git state after execution & compute delta
     after_rc, after_raw = run_shell("git status --short")
     after_map = parse_git_status(after_raw)
     delta = compute_git_delta(before_map, after_map)
     violations = check_scope_violations(delta["all_changed_files"], cfg.get("allowed_scope", []), cfg)
 
-    # 7. Determine final status
     parsed = res["parsed"]
     rc = res["exit_code"]
     if violations:
@@ -919,7 +1108,6 @@ def run_task(args):
     else:
         final_status = parsed.get("status", "FAILED")
 
-    # 8. Update state
     state = load_json(STATE, {})
     state.update({
         "project": "TITAN",

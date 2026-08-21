@@ -1,0 +1,28 @@
+{
+  "name": "v4-model-smoke",
+  "scope": [
+    "project_titan/apps/titan_reader",
+    "project_titan/docs/applications/titan_reader"
+  ],
+  "prompt": "Respond with 'V4 MODEL SMOKE TEST VERIFIED' and do not modify any files.",
+  "models": [
+    "gemini-3.6-flash-medium",
+    "gemini-3.6-flash-high"
+  ],
+  "max_repairs": 2,
+  "timeout_minutes": 5,
+  "verification_gates": [
+    {
+      "name": "Pre-flight Check Gate",
+      "command": "py -c \"print('V4 Gate 1 passed: Pre-flight check')\"",
+      "cwd": ".",
+      "timeout_seconds": 30
+    },
+    {
+      "name": "Git Status Scope Gate",
+      "command": "git status --short",
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ]
+}
