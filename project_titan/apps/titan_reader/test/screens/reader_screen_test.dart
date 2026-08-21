@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:titan_reader/src/data/document_library_repository.dart';
 import 'package:titan_reader/src/data/reading_position_repository.dart';
+import 'package:titan_reader/src/domain/entities/pdf_visual_signature.dart';
 import 'package:titan_reader/src/domain/entities/reader_bookmark.dart';
 import 'package:titan_reader/src/domain/entities/reading_position.dart';
 import 'package:titan_reader/src/pdf/pdf_engine_contracts.dart';
@@ -10,6 +11,7 @@ import 'package:titan_reader/src/providers/reader_providers.dart';
 import 'package:titan_reader/src/screens/reader_screen.dart';
 import 'package:titan_reader/src/services/library_service.dart';
 import 'package:titan_reader/src/services/reading_history_service.dart';
+import 'package:titan_reader/src/services/signature_service.dart';
 import 'package:titan_reader/src/widgets/document_search_bar.dart';
 import 'package:titan_storage/titan_storage.dart';
 
@@ -313,5 +315,53 @@ void main() {
 
     expect(find.byType(DocumentSearchBar), findsOneWidget);
     expect(handle.searchQueries, contains('Neural Networks and Deep Learning'));
+  });
+
+  testWidgets('Phase 6E-1: opens signature library and enters placement mode',
+      (tester) async {
+    final libraryService = service();
+    final document = await libraryService.importFile(
+      filePath: fakePdfPath,
+      fileName: 'sample.pdf',
+      sizeBytes: 1024,
+      at: DateTime.utc(2026, 8, 1),
+      headerBytes: pdfHeader,
+    );
+
+    // Seed a saved signature in the service
+    final sigService = SignatureService(storage);
+    await sigService.saveSignature(PdfVisualSignature.typed(
+      id: 'sig_test_reader',
+      name: 'Executive Sign',
+      text: 'Jane Doe',
+    ));
+
+    await tester.pumpWidget(buildSubject(document.id));
+    await tester.pumpAndSettle();
+
+    final sigButton = find.byKey(const Key('signatures-panel-button'));
+    expect(sigButton, findsOneWidget);
+
+    await tester.tap(sigButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Signature Library'), findsOneWidget);
+    expect(find.text('Executive Sign'), findsOneWidget);
+
+    // Tap place button
+    await tester.tap(find.text('Place'));
+    await tester.pumpAndSettle();
+
+    // Now SignaturePlacementOverlay should be visible
+    expect(find.text('Place "Executive Sign"'), findsOneWidget);
+    expect(find.text('Jane Doe'), findsOneWidget);
+    expect(find.byKey(const Key('confirm-signature-placement-button')),
+        findsOneWidget);
+
+    // Cancel placement
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Place "Executive Sign"'), findsNothing);
   });
 }

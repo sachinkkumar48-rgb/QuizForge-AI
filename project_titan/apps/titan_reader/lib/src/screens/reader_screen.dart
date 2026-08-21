@@ -6,16 +6,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/entities/ai_reading_task.dart';
+import '../domain/entities/normalized_page_rect.dart';
 import '../domain/entities/reader_annotation.dart';
 import '../domain/entities/reader_bookmark.dart';
 import '../domain/entities/reader_document.dart';
 import '../domain/entities/reader_note.dart';
+import '../domain/entities/pdf_visual_signature.dart';
 import '../domain/entities/reading_position.dart';
 import '../domain/word_normalizer.dart';
 import '../navigation/reader_routes.dart';
 import '../pdf/pdf_engine_contracts.dart';
 import '../providers/dictionary_providers.dart';
 import '../providers/reader_providers.dart';
+import '../providers/signature_providers.dart';
 import '../services/library_service.dart';
 import '../domain/entities/pdf_manipulation_result.dart';
 import '../widgets/ai_assistant_panel.dart';
@@ -29,6 +32,7 @@ import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
 import '../widgets/organize_pages_dialog.dart';
 import '../widgets/outline_sidebar.dart';
+import '../widgets/signatures/signature_dialogs.dart';
 import '../widgets/thumbnail_sidebar.dart';
 
 /// Full-screen PDF reader: rendering, page navigation, zoom, fit modes,
@@ -105,6 +109,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   bool _outlineSidebarOpen = false;
   bool _openedRecorded = false;
   bool _hasSelection = false;
+  PdfVisualSignature? _placingSignature;
 
   /// Color applied to annotations created from the selection toolbar.
   ReaderAnnotationColor _activeColor = ReaderAnnotationColor.yellow;
@@ -489,6 +494,29 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     if (!done && mounted) _placeholder('Nothing to redo.');
   }
 
+  Future<void> _applySignatureStamp(
+      PdfVisualSignature signature, NormalizedPageRect rect) async {
+    final pageIndex = (_page ?? 1) - 1;
+    final document =
+        ref.read(documentByIdProvider(widget.documentId)).valueOrNull;
+    if (document == null) return;
+    try {
+      await ref.read(signatureServiceProvider).stampSignatureOnPdf(
+            sourceFilePath: document.filePath,
+            pageIndex: pageIndex,
+            rect: rect,
+            signature: signature,
+          );
+      if (mounted) {
+        _placeholder('Signature placed on page ${pageIndex + 1}.');
+      }
+    } catch (e) {
+      if (mounted) {
+        _placeholder('Failed to place signature: $e');
+      }
+    }
+  }
+
   void _placeholder(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -728,6 +756,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             ),
           ),
           IconButton(
+            key: const Key('signatures-panel-button'),
+            tooltip: 'Signatures & Stamps',
+            icon: const Icon(Icons.draw_outlined),
+            onPressed: () async {
+              final sig = await showDialog<PdfVisualSignature>(
+                context: context,
+                builder: (context) => SignatureLibraryDialog(
+                  service: ref.read(signatureServiceProvider),
+                ),
+              );
+              if (sig != null && mounted) {
+                setState(() => _placingSignature = sig);
+              }
+            },
+          ),
+          IconButton(
             tooltip: _searchOpen ? 'Close search' : 'Search document',
             icon: const Icon(Icons.search),
             onPressed: () => setState(() => _searchOpen = !_searchOpen),
@@ -794,104 +838,125 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          if (_searchOpen)
-            DocumentSearchBar(
-              handle: handle,
-              onClose: () => setState(() => _searchOpen = false),
-            ),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_thumbnailSidebarOpen)
-                  ThumbnailSidebar(
-                    filePath: document.filePath,
-                    pageCount: _pageCount ?? 1,
-                    currentPage: page,
-                    handle: handle,
-                    onPageSelected: (p) => handle.goToPage(p),
-                    onClose: () =>
-                        setState(() => _thumbnailSidebarOpen = false),
-                    width: MediaQuery.of(context).size.width >= 720 ? 220 : 180,
-                  ),
-                if (_outlineSidebarOpen)
-                  OutlineSidebar(
-                    handle: handle,
-                    currentPage: page,
-                    onEntrySelected: (entry) {
-                      if (entry.pageNumber != null) {
-                        handle.goToPage(entry.pageNumber!);
-                      }
-                    },
-                    onClose: () => setState(() => _outlineSidebarOpen = false),
-                    width: MediaQuery.of(context).size.width >= 720 ? 260 : 210,
-                  ),
-                Expanded(
-                  child: ref.read(pdfEngineProvider).buildViewer(
-                        filePath: document.filePath,
-                        settings: PdfViewerSettings(
-                          initialPage: _initialPage,
-                          selectionActions: _SelectionActionIds.all,
-                          onSelectionAction: _onSelectionAction,
-                        ),
-                        handle: handle,
-                      ),
+          Column(
+            children: [
+              if (_searchOpen)
+                DocumentSearchBar(
+                  handle: handle,
+                  onClose: () => setState(() => _searchOpen = false),
                 ),
-              ],
-            ),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_thumbnailSidebarOpen)
+                      ThumbnailSidebar(
+                        filePath: document.filePath,
+                        pageCount: _pageCount ?? 1,
+                        currentPage: page,
+                        handle: handle,
+                        onPageSelected: (p) => handle.goToPage(p),
+                        onClose: () =>
+                            setState(() => _thumbnailSidebarOpen = false),
+                        width: MediaQuery.of(context).size.width >= 720
+                            ? 220
+                            : 180,
+                      ),
+                    if (_outlineSidebarOpen)
+                      OutlineSidebar(
+                        handle: handle,
+                        currentPage: page,
+                        onEntrySelected: (entry) {
+                          if (entry.pageNumber != null) {
+                            handle.goToPage(entry.pageNumber!);
+                          }
+                        },
+                        onClose: () =>
+                            setState(() => _outlineSidebarOpen = false),
+                        width: MediaQuery.of(context).size.width >= 720
+                            ? 260
+                            : 210,
+                      ),
+                    Expanded(
+                      child: ref.read(pdfEngineProvider).buildViewer(
+                            filePath: document.filePath,
+                            settings: PdfViewerSettings(
+                              initialPage: _initialPage,
+                              selectionActions: _SelectionActionIds.all,
+                              onSelectionAction: _onSelectionAction,
+                            ),
+                            handle: handle,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_hasSelection)
+                DocumentSelectionToolbar(
+                  handle: handle,
+                  activeColor: _activeColor,
+                  onColorChanged: (c) => setState(() => _activeColor = c),
+                  onAction: _onSelectionAction,
+                  onClose: () => setState(() => _hasSelection = false),
+                ),
+              SafeArea(
+                top: false,
+                child: Container(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        tooltip: 'Zoom out',
+                        icon: const Icon(Icons.zoom_out),
+                        onPressed: handle.zoomOut,
+                      ),
+                      Expanded(
+                        child: Slider(
+                          value: page.toDouble(),
+                          min: 1,
+                          max: pageCount.toDouble().clamp(1, double.infinity),
+                          divisions: pageCount > 1 ? pageCount - 1 : null,
+                          label: '$page',
+                          onChanged: (value) {
+                            setState(() => _page = value.round());
+                            handle.goToPage(value.round());
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Zoom in',
+                        icon: const Icon(Icons.zoom_in),
+                        onPressed: handle.zoomIn,
+                      ),
+                      SizedBox(
+                        width: 88,
+                        child: Text(
+                          '$page / ${_pageCount ?? '–'}',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          if (_hasSelection)
-            DocumentSelectionToolbar(
-              handle: handle,
-              activeColor: _activeColor,
-              onColorChanged: (c) => setState(() => _activeColor = c),
-              onAction: _onSelectionAction,
-              onClose: () => setState(() => _hasSelection = false),
-            ),
-          SafeArea(
-            top: false,
-            child: Container(
-              color: theme.colorScheme.surfaceContainerHighest,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: 'Zoom out',
-                    icon: const Icon(Icons.zoom_out),
-                    onPressed: handle.zoomOut,
-                  ),
-                  Expanded(
-                    child: Slider(
-                      value: page.toDouble(),
-                      min: 1,
-                      max: pageCount.toDouble().clamp(1, double.infinity),
-                      divisions: pageCount > 1 ? pageCount - 1 : null,
-                      label: '$page',
-                      onChanged: (value) {
-                        setState(() => _page = value.round());
-                        handle.goToPage(value.round());
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Zoom in',
-                    icon: const Icon(Icons.zoom_in),
-                    onPressed: handle.zoomIn,
-                  ),
-                  SizedBox(
-                    width: 88,
-                    child: Text(
-                      '$page / ${_pageCount ?? '–'}',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ),
-                ],
+          if (_placingSignature != null)
+            Positioned.fill(
+              child: SignaturePlacementOverlay(
+                signature: _placingSignature!,
+                onConfirm: (rect) async {
+                  final sig = _placingSignature!;
+                  setState(() => _placingSignature = null);
+                  await _applySignatureStamp(sig, rect);
+                },
+                onCancel: () => setState(() => _placingSignature = null),
               ),
             ),
-          ),
         ],
       ),
     );
