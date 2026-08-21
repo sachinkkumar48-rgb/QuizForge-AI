@@ -8,6 +8,7 @@
 /// - Zero external database, network, or persistence dependencies.
 library;
 
+import '../domain/entities/recommendation_effectiveness.dart';
 import '../domain/entities/recommendation_instance.dart';
 import '../domain/entities/recommendation_interaction.dart';
 import '../domain/entities/recommendation_lifecycle_state.dart';
@@ -32,6 +33,9 @@ class InMemoryRecommendationLifecycleRepository
 
   /// Internal store: instanceId → RecommendationOutcome (one outcome per instance)
   final Map<String, RecommendationOutcome> _outcomes = {};
+
+  /// Internal store: instanceId → RecommendationEffectiveness (one evaluation per instance)
+  final Map<String, RecommendationEffectiveness> _effectiveness = {};
 
   // ---------------------------------------------------------------------------
   // Instance Operations
@@ -167,6 +171,43 @@ class InMemoryRecommendationLifecycleRepository
   }
 
   // ---------------------------------------------------------------------------
+  // Effectiveness Operations
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<void> saveEffectiveness(
+    RecommendationEffectiveness effectiveness,
+  ) async {
+    _effectiveness[effectiveness.instanceId] =
+        _copyEffectiveness(effectiveness);
+  }
+
+  @override
+  Future<RecommendationEffectiveness?> getEffectivenessForInstance(
+    String instanceId,
+  ) async {
+    final stored = _effectiveness[instanceId];
+    return stored != null ? _copyEffectiveness(stored) : null;
+  }
+
+  @override
+  Future<List<RecommendationEffectiveness>> getEffectivenessForLearner(
+    String learnerId,
+  ) async {
+    final results = _effectiveness.values
+        .where((eff) => eff.learnerId == learnerId)
+        .toList();
+
+    // Deterministic ordering: evaluatedAt ascending, instanceId lexicographic tie-breaking.
+    results.sort((a, b) {
+      final timeCmp = a.evaluatedAt.compareTo(b.evaluatedAt);
+      return timeCmp != 0 ? timeCmp : a.instanceId.compareTo(b.instanceId);
+    });
+
+    return results.map(_copyEffectiveness).toList();
+  }
+
+  // ---------------------------------------------------------------------------
   // Clear
   // ---------------------------------------------------------------------------
 
@@ -176,6 +217,7 @@ class InMemoryRecommendationLifecycleRepository
     _interactions.clear();
     _links.clear();
     _outcomes.clear();
+    _effectiveness.clear();
   }
 
   // ---------------------------------------------------------------------------
@@ -201,4 +243,10 @@ class InMemoryRecommendationLifecycleRepository
   /// Deep-copies a [RecommendationOutcome] via JSON round-trip.
   static RecommendationOutcome _copyOutcome(RecommendationOutcome outcome) =>
       RecommendationOutcome.fromJson(outcome.toJson());
+
+  /// Deep-copies a [RecommendationEffectiveness] via JSON round-trip.
+  static RecommendationEffectiveness _copyEffectiveness(
+    RecommendationEffectiveness eff,
+  ) =>
+      RecommendationEffectiveness.fromJson(eff.toJson());
 }

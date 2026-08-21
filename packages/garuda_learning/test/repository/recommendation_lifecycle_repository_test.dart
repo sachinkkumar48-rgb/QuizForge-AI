@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:garuda_learning/domain/entities/dismissal_reason.dart';
+import 'package:garuda_learning/domain/entities/recommendation_effectiveness.dart';
 import 'package:garuda_learning/domain/entities/recommendation_instance.dart';
 import 'package:garuda_learning/domain/entities/recommendation_interaction.dart';
 import 'package:garuda_learning/domain/entities/recommendation_lifecycle_state.dart';
@@ -422,6 +423,115 @@ void main() {
     });
 
     // -----------------------------------------------------------------------
+    // Effectiveness Operations
+    // -----------------------------------------------------------------------
+
+    group('effectiveness operations', () {
+      test('save and retrieve effectiveness for instance', () async {
+        final effectiveness = RecommendationEffectiveness(
+          instanceId: 'inst_1',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.45,
+          baselineAttemptsCount: 10,
+          followUpAccuracy: 0.85,
+          followUpAttemptsCount: 10,
+          evaluatedAt: baseTime,
+        );
+        await repo.saveEffectiveness(effectiveness);
+
+        final retrieved = await repo.getEffectivenessForInstance('inst_1');
+        expect(retrieved, isNotNull);
+        expect(retrieved!.instanceId, equals('inst_1'));
+        expect(retrieved.baselineAccuracy, equals(0.45));
+        expect(retrieved.followUpAccuracy, equals(0.85));
+        expect(retrieved.category,
+            equals(EffectivenessCategory.observedImprovement));
+      });
+
+      test('returns null for missing effectiveness record', () async {
+        final result = await repo.getEffectivenessForInstance('nonexistent');
+        expect(result, isNull);
+      });
+
+      test('getEffectivenessForLearner returns deterministically ordered list',
+          () async {
+        final eff1 = RecommendationEffectiveness(
+          instanceId: 'inst_b',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.40,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.80,
+          followUpAttemptsCount: 5,
+          evaluatedAt: baseTime.add(const Duration(hours: 2)),
+        );
+
+        final eff2 = RecommendationEffectiveness(
+          instanceId: 'inst_a',
+          objectiveId: 'lo_2',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.50,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.90,
+          followUpAttemptsCount: 5,
+          evaluatedAt: baseTime,
+        );
+
+        final effOther = RecommendationEffectiveness(
+          instanceId: 'inst_other',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_2',
+          baselineAccuracy: 0.50,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.60,
+          followUpAttemptsCount: 5,
+          evaluatedAt: baseTime,
+        );
+
+        await repo.saveEffectiveness(eff1);
+        await repo.saveEffectiveness(eff2);
+        await repo.saveEffectiveness(effOther);
+
+        final results = await repo.getEffectivenessForLearner('learner_1');
+        expect(results.length, equals(2));
+        expect(results[0].instanceId, equals('inst_a'));
+        expect(results[1].instanceId, equals('inst_b'));
+      });
+
+      test('save overwrites existing effectiveness for same instance',
+          () async {
+        final first = RecommendationEffectiveness(
+          instanceId: 'inst_1',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.50,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.60,
+          followUpAttemptsCount: 5,
+          evaluatedAt: baseTime,
+        );
+        await repo.saveEffectiveness(first);
+
+        final second = RecommendationEffectiveness(
+          instanceId: 'inst_1',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.50,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.90,
+          followUpAttemptsCount: 10,
+          evaluatedAt: baseTime.add(const Duration(hours: 1)),
+        );
+        await repo.saveEffectiveness(second);
+
+        final retrieved = await repo.getEffectivenessForInstance('inst_1');
+        expect(retrieved!.followUpAccuracy, equals(0.90));
+        expect(retrieved.followUpAttemptsCount, equals(10));
+      });
+    });
+
+    // -----------------------------------------------------------------------
     // Clear
     // -----------------------------------------------------------------------
 
@@ -448,6 +558,16 @@ void main() {
           isCompleted: true,
           evaluatedAt: baseTime,
         ));
+        await repo.saveEffectiveness(RecommendationEffectiveness(
+          instanceId: 'inst_1',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.5,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.8,
+          followUpAttemptsCount: 5,
+          evaluatedAt: baseTime,
+        ));
 
         await repo.clear();
 
@@ -455,6 +575,7 @@ void main() {
         expect(await repo.getInteractionsForInstance('inst_1'), isEmpty);
         expect(await repo.getLinksForInstance('inst_1'), isEmpty);
         expect(await repo.getOutcomeForInstance('inst_1'), isNull);
+        expect(await repo.getEffectivenessForInstance('inst_1'), isNull);
       });
     });
 
@@ -556,6 +677,26 @@ void main() {
         expect(r1, equals(r2));
         expect(identical(r1, r2), isFalse);
       });
+
+      test('retrieved effectiveness is isolated from repository state',
+          () async {
+        await repo.saveEffectiveness(RecommendationEffectiveness(
+          instanceId: 'inst_1',
+          objectiveId: 'lo_1',
+          learnerId: 'learner_1',
+          baselineAccuracy: 0.5,
+          baselineAttemptsCount: 5,
+          followUpAccuracy: 0.8,
+          followUpAttemptsCount: 5,
+          evaluatedAt: baseTime,
+        ));
+
+        final r1 = await repo.getEffectivenessForInstance('inst_1');
+        final r2 = await repo.getEffectivenessForInstance('inst_1');
+
+        expect(r1, equals(r2));
+        expect(identical(r1, r2), isFalse);
+      });
     });
 
     // -----------------------------------------------------------------------
@@ -626,6 +767,29 @@ void main() {
         expect(retrieved.totalQuestionsScheduled, equals(20));
         expect(retrieved.totalQuestionsAttempted, equals(15));
         expect(retrieved.sessionAccuracy, closeTo(0.8, 0.0001));
+      });
+
+      test('effectiveness survives JSON round-trip via repository', () async {
+        final eff = RecommendationEffectiveness(
+          instanceId: 'inst_rt',
+          objectiveId: 'lo_rt',
+          learnerId: 'learner_rt',
+          baselineAccuracy: 0.4,
+          baselineAttemptsCount: 8,
+          followUpAccuracy: 0.9,
+          followUpAttemptsCount: 10,
+          measurementWindow: const Duration(days: 14),
+          evaluatedAt: baseTime,
+          metadata: const {'source': 'p22_test'},
+        );
+        await repo.saveEffectiveness(eff);
+
+        final retrieved = await repo.getEffectivenessForInstance('inst_rt');
+        expect(retrieved!.instanceId, equals('inst_rt'));
+        expect(retrieved.baselineAccuracy, equals(0.4));
+        expect(retrieved.followUpAccuracy, equals(0.9));
+        expect(retrieved.measurementWindow, equals(const Duration(days: 14)));
+        expect(retrieved.metadata['source'], equals('p22_test'));
       });
     });
   });

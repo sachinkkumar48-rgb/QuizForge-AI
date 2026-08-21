@@ -11,6 +11,7 @@
 /// - Safe missing-record semantics (null returns for absent records)
 library;
 
+import '../domain/entities/recommendation_effectiveness.dart';
 import '../domain/entities/recommendation_instance.dart';
 import '../domain/entities/recommendation_interaction.dart';
 import '../domain/entities/recommendation_lifecycle_state.dart';
@@ -72,6 +73,21 @@ abstract interface class RecommendationLifecycleRepository {
   /// or null if no outcome has been recorded.
   Future<RecommendationOutcome?> getOutcomeForInstance(String instanceId);
 
-  /// Clears all persisted lifecycle records (instances, interactions, links, outcomes).
+  /// Persists a [RecommendationEffectiveness] evaluation record.
+  Future<void> saveEffectiveness(RecommendationEffectiveness effectiveness);
+
+  /// Retrieves the [RecommendationEffectiveness] for a given [instanceId],
+  /// or null if no evaluation has been recorded.
+  Future<RecommendationEffectiveness?> getEffectivenessForInstance(
+    String instanceId,
+  );
+
+  /// Retrieves all [RecommendationEffectiveness] records for a given [learnerId],
+  /// ordered deterministically by [evaluatedAt] ascending, [instanceId] tie-breaking.
+  Future<List<RecommendationEffectiveness>> getEffectivenessForLearner(
+    String learnerId,
+  );
+
+  /// Clears all persisted lifecycle records (instances, interactions, links, outcomes, effectiveness).
   Future<void> clear();
 }
