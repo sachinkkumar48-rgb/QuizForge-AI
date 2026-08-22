@@ -7,27 +7,30 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/entities/ai_reading_task.dart';
 import '../domain/entities/normalized_page_rect.dart';
+import '../domain/entities/pdf_encryption_options.dart';
+import '../domain/entities/pdf_manipulation_result.dart';
+import '../domain/entities/pdf_visual_signature.dart';
 import '../domain/entities/reader_annotation.dart';
 import '../domain/entities/reader_bookmark.dart';
 import '../domain/entities/reader_document.dart';
 import '../domain/entities/reader_note.dart';
-import '../domain/entities/pdf_visual_signature.dart';
 import '../domain/entities/reading_position.dart';
 import '../domain/word_normalizer.dart';
 import '../navigation/reader_routes.dart';
 import '../pdf/pdf_engine_contracts.dart';
 import '../providers/dictionary_providers.dart';
+import '../providers/encryption_providers.dart';
 import '../providers/print_providers.dart';
 import '../providers/reader_providers.dart';
 import '../providers/signature_providers.dart';
 import '../services/library_service.dart';
-import '../domain/entities/pdf_manipulation_result.dart';
 import '../widgets/ai_assistant_panel.dart';
 import '../widgets/annotations_panel.dart';
 import '../widgets/bookmarks_panel.dart';
 import '../widgets/dictionary_panel.dart';
 import '../widgets/document_search_bar.dart';
 import '../widgets/document_selection_toolbar.dart';
+import '../widgets/encryption/protect_pdf_dialog.dart';
 import '../widgets/grammar_panel.dart';
 import '../widgets/note_editor_dialog.dart';
 import '../widgets/notes_panel.dart';
@@ -835,9 +838,42 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                     _placeholder(
                         'Pages organized (${result.pageCount} pages). Saved to ${result.primaryOutputPath}');
                   }
+                case 'protect-pdf':
+                  final config = await showDialog<PdfEncryptionConfig>(
+                    context: context,
+                    builder: (context) =>
+                        ProtectPdfDialog(documentTitle: document.title),
+                  );
+                  if (config != null && mounted) {
+                    final encryptionService =
+                        ref.read(pdfEncryptionServiceProvider);
+                    final targetPath = '${document.filePath}.protected.pdf';
+                    final result = await encryptionService.encryptPdfFile(
+                      sourceFilePath: document.filePath,
+                      targetFilePath: targetPath,
+                      config: config,
+                    );
+                    if (mounted) {
+                      if (result.isSuccess) {
+                        _placeholder(
+                            'PDF protected with password. Saved to $targetPath');
+                      } else {
+                        _placeholder(
+                            'Failed to protect PDF: ${result.errorMessage}');
+                      }
+                    }
+                  }
               }
             },
             itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'protect-pdf',
+                child: ListTile(
+                  leading: Icon(Icons.lock_outline),
+                  title: Text('Protect PDF (Encrypt)'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
               PopupMenuItem<String>(
                 value: 'print',
                 child: ListTile(
