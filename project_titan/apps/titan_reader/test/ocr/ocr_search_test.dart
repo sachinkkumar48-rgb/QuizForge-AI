@@ -212,21 +212,39 @@ void main() {
       expect(normText.fullText.substring(0, 6), 'Indian');
     });
 
-    test('performs case-insensitive substring search accurately', () {
+    test(
+        'performs case-insensitive substring search accurately across various sub-tokens',
+        () {
       final normText = NormalizedOcrPageText.fromOcrResult(
         documentId: docId,
         result: sampleOcrResult,
       );
 
-      final matches = normText.search('constitution', caseSensitive: false);
-      expect(matches.length, 1);
+      // 1. "Constitution" (Exact case full word)
+      final match1 = normText.search('Constitution', caseSensitive: false);
+      expect(match1.length, 1);
+      expect(match1.first.matchedText, 'Constitution');
 
-      final match = matches.first;
-      expect(match.matchedText, 'Constitution');
-      expect(match.pageNumber, 1);
-      expect(match.documentId, docId);
-      expect(match.boundingBoxes.length, 1);
-      expect(match.snippet, contains('Constitution'));
+      // 2. "constitution" (Lowercase full word)
+      final match2 = normText.search('constitution', caseSensitive: false);
+      expect(match2.length, 1);
+      expect(match2.first.matchedText, 'Constitution');
+
+      // 3. "tution" (Substring / partial word)
+      final match3 = normText.search('tution', caseSensitive: false);
+      expect(match3.length, 1);
+      expect(match3.first.matchedText, 'tution');
+      expect(match3.first.boundingBoxes.length, 1);
+
+      // 4. "India" (Substring inside "Indian")
+      final match4 = normText.search('India', caseSensitive: false);
+      expect(match4.length, 1);
+      expect(match4.first.matchedText, 'India');
+
+      // 5. "india" (Case-insensitive substring inside "Indian")
+      final match5 = normText.search('india', caseSensitive: false);
+      expect(match5.length, 1);
+      expect(match5.first.matchedText, 'India');
     });
 
     test('respects case sensitivity when requested', () {

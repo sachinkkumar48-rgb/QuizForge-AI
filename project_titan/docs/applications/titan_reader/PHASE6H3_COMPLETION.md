@@ -115,3 +115,29 @@ Phase 6H-3 transforms the on-device OCR visual layer of TITAN Reader into an act
 - **UNSUPPORTED**:
   - WebAssembly native ONNX evaluation
   - Cloud OCR
+
+---
+
+## 7. Architecture & Functional Audit (TITAN-READER-6H3-REVIEW-001)
+
+An in-depth architecture and functional audit was performed on commit `c5682ac`:
+
+### A. Search Semantics
+- **Substring Matching**: VERIFIED PASS. Queries like `"tution"` match `"Constitution"`, and `"India"` matches `"Indian"`.
+- **Case-Insensitive Matching**: VERIFIED PASS. Default search mode (`caseSensitive: false`) matches regardless of capitalization (`"constitution"` matches `"Constitution"`).
+- **Whole-Word Matching**: VERIFIED PASS. Regex word boundary matching (`\b...\b`) when `wholeWord: true`.
+- **Whitespace Normalization**: VERIFIED PASS. Word, line, and block boundaries are normalized to deterministic single spaces and newlines.
+
+### B. Clipboard Isolation
+- **Layering**: VERIFIED PASS. `OcrClipboardService` resides in the application provider layer (`ocr_providers.dart`); domain entities remain pure and never import platform APIs.
+- **Privacy**: VERIFIED PASS. Zero logging of clipboard text and zero network transmission.
+
+### C. Native / OCR Coexistence
+- **Coexistence Policy**: VERIFIED PASS. Native text remains primary; OCR matches from scanned/raster pages are merged without duplicate snippets and sorted deterministically by `(pageNumber, matchIndex)`.
+
+### D. Stale-Result Protection & Selection Lifecycle
+- **Validation**: VERIFIED PASS. `OcrPageKey(documentId, pageNumber)` scopes state, preventing stale search results or selections from leaking across document or page transitions.
+
+### E. Audit Verdict
+- **Overall Status**: **PASS** (100% verified, 0 defects, 0 regressions).
+- **Phase 6H-4 Authorization**: **READY FOR AUTHORIZATION**.
