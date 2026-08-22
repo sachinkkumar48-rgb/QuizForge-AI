@@ -7,10 +7,11 @@ import '../../domain/entities/ocr/ocr_page_state.dart';
 import '../../domain/entities/ocr/ocr_result.dart';
 import '../../domain/entities/ocr/ocr_search_selection.dart';
 import '../../domain/entities/ocr/ocr_text_region.dart';
+import '../../domain/entities/unified_text_context.dart';
 
 /// Overlay widget rendering non-destructive OCR text bounding boxes, confidence badges,
-/// visual text layers, search match highlights, text selection layers, and progress indicators
-/// directly over a rendered PDF page.
+/// visual text layers, search match highlights, text selection layers, progress indicators,
+/// and language service actions directly over a rendered PDF page.
 class OcrOverlayLayer extends StatelessWidget {
   /// 1-based page number.
   final int pageNumber;
@@ -54,6 +55,10 @@ class OcrOverlayLayer extends StatelessWidget {
   /// Callback when the user triggers the copy action on the selection.
   final void Function(OcrTextSelection selection)? onCopySelection;
 
+  /// Callback when a language action (define, grammar, vocabulary, copy) is triggered.
+  final void Function(String action, UnifiedTextContext context)?
+      onContextAction;
+
   /// Callback to retry OCR processing on failure.
   final VoidCallback? onRetry;
 
@@ -85,6 +90,7 @@ class OcrOverlayLayer extends StatelessWidget {
     this.onBlockTap,
     this.onSelectionChanged,
     this.onCopySelection,
+    this.onContextAction,
     this.onRetry,
     this.onCancel,
     this.onDisplayModeChanged,
@@ -439,6 +445,10 @@ class OcrOverlayLayer extends StatelessWidget {
         selection.selectedText.replaceAll(RegExp(r'\s+'), ' ').trim();
     final charCount = selection.selectedText.length;
 
+    final unifiedContext = UnifiedTextContext.fromOcrSelection(
+      selection: selection,
+    );
+
     // Calculate approximate position above the selection
     final firstBox = selection.boundingBoxes.isNotEmpty
         ? selection.boundingBoxes.first
@@ -447,7 +457,7 @@ class OcrOverlayLayer extends StatelessWidget {
     final topPx = (firstBox.top * viewportSize.height - 48.0)
         .clamp(8.0, viewportSize.height - 50.0);
     final leftPx = (firstBox.left * viewportSize.width)
-        .clamp(8.0, (viewportSize.width - 240.0).clamp(8.0, double.infinity));
+        .clamp(8.0, (viewportSize.width - 320.0).clamp(8.0, double.infinity));
 
     return Positioned(
       top: topPx,
@@ -466,7 +476,7 @@ class OcrOverlayLayer extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 6, right: 4),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 120),
+                    constraints: const BoxConstraints(maxWidth: 100),
                     child: Text(
                       snippet,
                       maxLines: 1,
@@ -489,6 +499,7 @@ class OcrOverlayLayer extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
+              // Copy Button
               IconButton(
                 key: const Key('ocr-copy-selection-button'),
                 icon: const Icon(Icons.copy, size: 16),
@@ -496,12 +507,44 @@ class OcrOverlayLayer extends StatelessWidget {
                 onPressed: () async {
                   if (onCopySelection != null) {
                     onCopySelection!(selection);
+                  } else if (onContextAction != null) {
+                    onContextAction!('copy', unifiedContext);
                   } else {
                     await Clipboard.setData(
                         ClipboardData(text: selection.selectedText));
                   }
                 },
               ),
+              // Dictionary (Define) Button for Single Word
+              if (unifiedContext.isSingleWord)
+                IconButton(
+                  key: const Key('ocr-define-button'),
+                  icon: const Icon(Icons.menu_book_outlined, size: 16),
+                  tooltip: 'Define word',
+                  onPressed: () {
+                    onContextAction?.call('dictionary', unifiedContext);
+                  },
+                ),
+              // Grammar Button for Phrases
+              if (!unifiedContext.isSingleWord)
+                IconButton(
+                  key: const Key('ocr-grammar-button'),
+                  icon: const Icon(Icons.spellcheck, size: 16),
+                  tooltip: 'Check grammar',
+                  onPressed: () {
+                    onContextAction?.call('grammar', unifiedContext);
+                  },
+                ),
+              // Save to Vocabulary Button for Single Word
+              if (unifiedContext.isSingleWord)
+                IconButton(
+                  key: const Key('ocr-vocab-button'),
+                  icon: const Icon(Icons.bookmark_add_outlined, size: 16),
+                  tooltip: 'Save to Vocabulary',
+                  onPressed: () {
+                    onContextAction?.call('vocabulary', unifiedContext);
+                  },
+                ),
               IconButton(
                 key: const Key('ocr-clear-selection-button'),
                 icon: const Icon(Icons.close, size: 16),
