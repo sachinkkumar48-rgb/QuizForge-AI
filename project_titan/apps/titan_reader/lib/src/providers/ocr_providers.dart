@@ -1,13 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/entities/ocr/ocr_error.dart';
 import '../domain/entities/ocr/ocr_page_state.dart';
 import '../domain/entities/ocr/ocr_request.dart';
+import '../domain/entities/ocr/ocr_search_selection.dart';
 import '../domain/entities/ocr/page_text_classification.dart';
 import '../ocr/ocr_engine.dart';
 import '../ocr/onnx/onnx_ocr_engine.dart';
 import '../ocr/page_text_classifier.dart';
+import '../pdf/pdf_engine_contracts.dart';
 import '../services/ocr_service.dart';
 
 /// Provider for the abstract [PageTextClassifier] instance.
@@ -212,3 +215,122 @@ final ocrPageStateProvider =
     initialDisplayMode: globalMode,
   );
 });
+
+/// Provider family computing the [NormalizedOcrPageText] model for an OCR-completed page.
+final ocrNormalizedTextProvider =
+    Provider.family<NormalizedOcrPageText?, OcrPageKey>((ref, key) {
+  final pageState = ref.watch(ocrPageStateProvider(key));
+  final result = pageState.result;
+  if (result == null || !result.isSuccess) return null;
+  return NormalizedOcrPageText.fromOcrResult(
+    documentId: key.documentId,
+    result: result,
+  );
+});
+
+/// Active search query string for OCR in-page search.
+final ocrSearchQueryProvider = StateProvider<String>((ref) => '');
+
+/// Whether OCR search should be case sensitive.
+final ocrSearchCaseSensitiveProvider = StateProvider<bool>((ref) => false);
+
+/// Whether OCR search should match whole words only.
+final ocrSearchWholeWordProvider = StateProvider<bool>((ref) => false);
+
+/// Provider family returning the list of [OcrSearchMatch] for a specific page.
+final ocrPageSearchMatchesProvider =
+    Provider.family<List<OcrSearchMatch>, OcrPageKey>((ref, key) {
+  final normText = ref.watch(ocrNormalizedTextProvider(key));
+  if (normText == null) return const [];
+  final query = ref.watch(ocrSearchQueryProvider);
+  if (query.trim().isEmpty) return const [];
+  final caseSensitive = ref.watch(ocrSearchCaseSensitiveProvider);
+  final wholeWord = ref.watch(ocrSearchWholeWordProvider);
+  return normText.search(
+    query,
+    caseSensitive: caseSensitive,
+    wholeWord: wholeWord,
+  );
+});
+
+/// Active OCR search match index on a specific page.
+final ocrActiveSearchMatchIndexProvider =
+    StateProvider.family<int?, OcrPageKey>((ref, key) => null);
+
+/// Active OCR text selection on a specific page.
+final ocrActiveSelectionProvider =
+    StateProvider.family<OcrTextSelection?, OcrPageKey>((ref, key) => null);
+
+/// Service for copying OCR text selections safely to the system clipboard.
+class OcrClipboardService {
+  const OcrClipboardService();
+
+  /// Copies the selected text to the clipboard without external logging.
+  Future<bool> copySelection(OcrTextSelection? selection) async {
+    if (selection == null || selection.selectedText.isEmpty) return false;
+    try {
+      await Clipboard.setData(ClipboardData(text: selection.selectedText));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+}
+
+/// Provider for the [OcrClipboardService] instance.
+final ocrClipboardServiceProvider = Provider<OcrClipboardService>((ref) {
+  return const OcrClipboardService();
+});
+
+/// Utility for combining native PDF search matches and OCR search matches
+/// according to the TITAN Reader coexistence policy.
+class UnifiedSearchCoexistence {
+  const UnifiedSearchCoexistence();
+
+  /// Merges native search matches and OCR search matches.
+  ///
+  /// - Native text matches remain authoritative.
+  /// - OCR matches on image-only or scanned pages are included.
+  /// - Obvious duplicates on the same page with identical snippet text are filtered.
+  /// - Results are ordered deterministically by page number and match index.
+  static List<PdfSearchMatch> mergeMatches({
+    required List<PdfSearchMatch> nativeMatches,
+    required List<OcrSearchMatch> ocrMatches,
+    Set<int> nativeTextPages = const {},
+  }) {
+    final unified = <PdfSearchMatch>[];
+    final seenPageSnippets = <String>{};
+
+    // 1. Add authoritative native matches
+    for (final match in nativeMatches) {
+      unified.add(match);
+      seenPageSnippets.add('${match.pageNumber}:${match.snippet.trim()}');
+    }
+
+    // 2. Add non-duplicate OCR matches
+    for (final match in ocrMatches) {
+      final key = '${match.pageNumber}:${match.snippet.trim()}';
+      if (!seenPageSnippets.contains(key)) {
+        seenPageSnippets.add(key);
+        unified.add(match.toPdfSearchMatch(unified.length));
+      }
+    }
+
+    // 3. Sort deterministically by page number, then original match index
+    unified.sort((a, b) {
+      final pageComp = a.pageNumber.compareTo(b.pageNumber);
+      if (pageComp != 0) return pageComp;
+      return a.index.compareTo(b.index);
+    });
+
+    // 4. Re-index sequentially
+    return List.unmodifiable([
+      for (var i = 0; i < unified.length; i++)
+        PdfSearchMatch(
+          index: i,
+          pageNumber: unified[i].pageNumber,
+          snippet: unified[i].snippet,
+        ),
+    ]);
+  }
+}

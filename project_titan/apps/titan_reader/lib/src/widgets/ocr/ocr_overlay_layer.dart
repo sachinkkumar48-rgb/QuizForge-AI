@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../domain/entities/normalized_page_rect.dart';
 import '../../domain/entities/ocr/ocr_confidence.dart';
 import '../../domain/entities/ocr/ocr_page_state.dart';
 import '../../domain/entities/ocr/ocr_result.dart';
+import '../../domain/entities/ocr/ocr_search_selection.dart';
 import '../../domain/entities/ocr/ocr_text_region.dart';
 
 /// Overlay widget rendering non-destructive OCR text bounding boxes, confidence badges,
-/// visual text layers, and progress indicators directly over a rendered PDF page.
+/// visual text layers, search match highlights, text selection layers, and progress indicators
+/// directly over a rendered PDF page.
 class OcrOverlayLayer extends StatelessWidget {
   /// 1-based page number.
   final int pageNumber;
@@ -26,6 +30,15 @@ class OcrOverlayLayer extends StatelessWidget {
   /// Active visual display mode.
   final OcrOverlayDisplayMode displayMode;
 
+  /// Active search matches on this page.
+  final List<OcrSearchMatch> searchMatches;
+
+  /// Index of the currently active search match on this page.
+  final int? activeSearchMatchIndex;
+
+  /// Active text selection on this page.
+  final OcrTextSelection? activeSelection;
+
   /// Callback when a recognized word token is tapped.
   final void Function(OcrWord word)? onWordTap;
 
@@ -34,6 +47,12 @@ class OcrOverlayLayer extends StatelessWidget {
 
   /// Callback when a recognized text block is tapped.
   final void Function(OcrBlock block)? onBlockTap;
+
+  /// Callback when the active OCR text selection changes.
+  final void Function(OcrTextSelection? selection)? onSelectionChanged;
+
+  /// Callback when the user triggers the copy action on the selection.
+  final void Function(OcrTextSelection selection)? onCopySelection;
 
   /// Callback to retry OCR processing on failure.
   final VoidCallback? onRetry;
@@ -47,6 +66,9 @@ class OcrOverlayLayer extends StatelessWidget {
   /// Whether to render the floating OCR status and summary badge.
   final bool showControlBadge;
 
+  /// Whether to render the floating selection toolbar/pill when a selection is active.
+  final bool showSelectionToolbar;
+
   const OcrOverlayLayer({
     super.key,
     required this.pageNumber,
@@ -55,13 +77,19 @@ class OcrOverlayLayer extends StatelessWidget {
     this.result,
     this.pageState,
     this.displayMode = OcrOverlayDisplayMode.textAndBoxes,
+    this.searchMatches = const [],
+    this.activeSearchMatchIndex,
+    this.activeSelection,
     this.onWordTap,
     this.onLineTap,
     this.onBlockTap,
+    this.onSelectionChanged,
+    this.onCopySelection,
     this.onRetry,
     this.onCancel,
     this.onDisplayModeChanged,
     this.showControlBadge = true,
+    this.showSelectionToolbar = true,
   });
 
   @override
@@ -84,19 +112,32 @@ class OcrOverlayLayer extends StatelessWidget {
             effectiveResult.isSuccess)
           ..._buildRegions(context, effectiveResult, effectiveMode),
 
-        // 2. In-Page Progress Indicator Card
+        // 2. Search Match Highlights
+        if (searchMatches.isNotEmpty)
+          ..._buildSearchHighlights(context, viewportSize),
+
+        // 3. Selection Highlights
+        if (activeSelection != null)
+          ..._buildSelectionHighlights(context, activeSelection!, viewportSize),
+
+        // 4. In-Page Progress Indicator Card
         if (isProcessing) _buildProgressIndicator(context),
 
-        // 3. In-Page Error & Retry Banner
+        // 5. In-Page Error & Retry Banner
         if (isError) _buildErrorCard(context),
 
-        // 4. Floating OCR Summary & Mode Control Badge
+        // 6. Floating OCR Summary & Mode Control Badge
         if (showControlBadge &&
             effectiveMode != OcrOverlayDisplayMode.hidden &&
             effectiveResult != null &&
             effectiveResult.isSuccess &&
-            !isProcessing)
+            !isProcessing &&
+            activeSelection == null)
           _buildSummaryBadge(context, effectiveResult, effectiveMode),
+
+        // 7. Floating Selection Quick-Action Toolbar
+        if (showSelectionToolbar && activeSelection != null && !isProcessing)
+          _buildSelectionToolbar(context, activeSelection!),
       ],
     );
   }
@@ -145,6 +186,22 @@ class OcrOverlayLayer extends StatelessWidget {
     final tooltipText =
         '${word.text} (${(word.confidence.value * 100).toStringAsFixed(1)}% conf)';
 
+    void handleWordTap() {
+      onWordTap?.call(word);
+      if (onSelectionChanged != null) {
+        final selection = OcrTextSelection(
+          documentId: pageState?.documentId ?? '',
+          pageNumber: pageNumber,
+          selectedText: word.text,
+          startOffset: 0,
+          endOffset: word.text.length,
+          selectedTokenIndices: [word.wordIndex],
+          boundingBoxes: [word.boundingBox],
+        );
+        onSelectionChanged?.call(selection);
+      }
+    }
+
     if (mode == OcrOverlayDisplayMode.invisibleSelectable) {
       return Positioned(
         key: Key('ocr-word-${word.wordIndex}-${word.text}'),
@@ -155,7 +212,7 @@ class OcrOverlayLayer extends StatelessWidget {
         child: Tooltip(
           message: tooltipText,
           child: InkWell(
-            onTap: () => onWordTap?.call(word),
+            onTap: handleWordTap,
             child: Container(
               color: Colors.transparent,
             ),
@@ -175,7 +232,7 @@ class OcrOverlayLayer extends StatelessWidget {
       child: Tooltip(
         message: tooltipText,
         child: InkWell(
-          onTap: () => onWordTap?.call(word),
+          onTap: handleWordTap,
           child: Container(
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
@@ -290,6 +347,168 @@ class OcrOverlayLayer extends StatelessWidget {
               border: Border.all(color: color, width: 1.5),
               borderRadius: BorderRadius.circular(4.0),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildSearchHighlights(
+      BuildContext context, Size viewportDimensions) {
+    final widgets = <Widget>[];
+    final scaleX = viewportDimensions.width;
+    final scaleY = viewportDimensions.height;
+
+    for (final match in searchMatches) {
+      final isActive = match.index == activeSearchMatchIndex;
+      final borderCol = isActive ? Colors.deepOrange : Colors.amber.shade800;
+      final fillCol = isActive
+          ? Colors.deepOrangeAccent.withValues(alpha: 0.55)
+          : Colors.amber.withValues(alpha: 0.40);
+
+      for (var boxIdx = 0; boxIdx < match.boundingBoxes.length; boxIdx++) {
+        final b = match.boundingBoxes[boxIdx];
+        final left = b.left * scaleX;
+        final top = b.top * scaleY;
+        final width = (b.right - b.left) * scaleX;
+        final height = (b.bottom - b.top) * scaleY;
+
+        widgets.add(Positioned(
+          key: Key('ocr-search-match-${match.index}-$boxIdx'),
+          left: left,
+          top: top,
+          width: width.clamp(4.0, double.infinity),
+          height: height.clamp(4.0, double.infinity),
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                color: fillCol,
+                border: Border.all(
+                  color: borderCol,
+                  width: isActive ? 2.0 : 1.2,
+                ),
+                borderRadius: BorderRadius.circular(2.0),
+              ),
+            ),
+          ),
+        ));
+      }
+    }
+
+    return widgets;
+  }
+
+  List<Widget> _buildSelectionHighlights(BuildContext context,
+      OcrTextSelection selection, Size viewportDimensions) {
+    final widgets = <Widget>[];
+    final scaleX = viewportDimensions.width;
+    final scaleY = viewportDimensions.height;
+
+    for (var i = 0; i < selection.boundingBoxes.length; i++) {
+      final b = selection.boundingBoxes[i];
+      final left = b.left * scaleX;
+      final top = b.top * scaleY;
+      final width = (b.right - b.left) * scaleX;
+      final height = (b.bottom - b.top) * scaleY;
+
+      widgets.add(Positioned(
+        key: Key('ocr-selection-box-$i'),
+        left: left,
+        top: top,
+        width: width.clamp(4.0, double.infinity),
+        height: height.clamp(4.0, double.infinity),
+        child: IgnorePointer(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.blueAccent.withValues(alpha: 0.30),
+              border: Border.all(color: Colors.blueAccent, width: 1.5),
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+          ),
+        ),
+      ));
+    }
+
+    return widgets;
+  }
+
+  Widget _buildSelectionToolbar(
+      BuildContext context, OcrTextSelection selection) {
+    final theme = Theme.of(context);
+    final snippet =
+        selection.selectedText.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final charCount = selection.selectedText.length;
+
+    // Calculate approximate position above the selection
+    final firstBox = selection.boundingBoxes.isNotEmpty
+        ? selection.boundingBoxes.first
+        : const NormalizedPageRect(
+            left: 0.1, top: 0.1, right: 0.2, bottom: 0.15);
+    final topPx = (firstBox.top * viewportSize.height - 48.0)
+        .clamp(8.0, viewportSize.height - 50.0);
+    final leftPx = (firstBox.left * viewportSize.width)
+        .clamp(8.0, (viewportSize.width - 240.0).clamp(8.0, double.infinity));
+
+    return Positioned(
+      top: topPx,
+      left: leftPx,
+      child: Material(
+        key: const Key('ocr-selection-toolbar'),
+        elevation: 6,
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(24.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (snippet.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 6, right: 4),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 120),
+                    child: Text(
+                      snippet,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$charCount ch',
+                  style: theme.textTheme.labelSmall?.copyWith(fontSize: 10),
+                ),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                key: const Key('ocr-copy-selection-button'),
+                icon: const Icon(Icons.copy, size: 16),
+                tooltip: 'Copy OCR text',
+                onPressed: () async {
+                  if (onCopySelection != null) {
+                    onCopySelection!(selection);
+                  } else {
+                    await Clipboard.setData(
+                        ClipboardData(text: selection.selectedText));
+                  }
+                },
+              ),
+              IconButton(
+                key: const Key('ocr-clear-selection-button'),
+                icon: const Icon(Icons.close, size: 16),
+                tooltip: 'Clear selection',
+                onPressed: () => onSelectionChanged?.call(null),
+              ),
+            ],
           ),
         ),
       ),
