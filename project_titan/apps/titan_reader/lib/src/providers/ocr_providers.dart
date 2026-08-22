@@ -12,6 +12,7 @@ import '../ocr/onnx/onnx_ocr_engine.dart';
 import '../ocr/page_text_classifier.dart';
 import '../pdf/pdf_engine_contracts.dart';
 import '../services/ocr_service.dart';
+import '../services/pdf_searchable_export_service.dart';
 
 /// Provider for the abstract [PageTextClassifier] instance.
 final pageClassifierProvider = Provider<PageTextClassifier>((ref) {
@@ -37,6 +38,12 @@ final ocrServiceProvider = Provider<OcrService>((ref) {
     engine: engine,
     classifier: classifier,
   );
+});
+
+/// Provider for the [PdfSearchableExportService] coordinator.
+final searchablePdfExportServiceProvider =
+    Provider<PdfSearchableExportService>((ref) {
+  return const PdfSearchableExportService();
 });
 
 /// Composite immutable key identifying an OCR page task by document and page number.
