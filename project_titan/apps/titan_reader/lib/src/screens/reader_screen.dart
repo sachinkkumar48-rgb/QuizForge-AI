@@ -26,6 +26,7 @@ import '../providers/signature_providers.dart';
 import '../services/library_service.dart';
 import '../widgets/ai_assistant_panel.dart';
 import '../widgets/annotations_panel.dart';
+import '../widgets/attachments_panel.dart';
 import '../widgets/bookmarks_panel.dart';
 import '../widgets/dictionary_panel.dart';
 import '../widgets/document_search_bar.dart';
@@ -803,6 +804,16 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             },
           ),
           IconButton(
+            key: const Key('attachments-panel-button'),
+            tooltip: 'Embedded attachments',
+            icon: const Icon(Icons.attach_file),
+            onPressed: () => showAttachmentsPanel(
+              context,
+              filePath: document.filePath,
+              documentTitle: document.title,
+            ),
+          ),
+          IconButton(
             key: const Key('print-document-button'),
             tooltip: 'Print document',
             icon: const Icon(Icons.print_outlined),
@@ -817,6 +828,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             tooltip: 'View options',
             onSelected: (value) async {
               switch (value) {
+                case 'attachments':
+                  showAttachmentsPanel(
+                    context,
+                    filePath: document.filePath,
+                    documentTitle: document.title,
+                  );
                 case 'print':
                   await _printDocument();
                 case 'fit-width':
@@ -866,6 +883,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               }
             },
             itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'attachments',
+                child: ListTile(
+                  leading: Icon(Icons.attach_file),
+                  title: Text('Attachments'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
               PopupMenuItem<String>(
                 value: 'protect-pdf',
                 child: ListTile(
