@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 
 import '../../pdf/pdf_engine_contracts.dart';
 import '../word_normalizer.dart';
+import 'ai_reading_models.dart';
+import 'ai_reading_task.dart';
 import 'normalized_page_rect.dart';
 import 'ocr/ocr_search_selection.dart';
 
@@ -137,6 +139,31 @@ class UnifiedTextContext {
           .map((rect) =>
               PdfSelectionFragment(pageNumber: pageNumber, rect: rect))
           .toList(),
+    );
+  }
+
+  /// Converts this unified context into a standard [AIReadingRequest] for the AI Assistant.
+  AIReadingRequest toAIReadingRequest({
+    required AIReadingTask task,
+    AIContextScope contextScope = AIContextScope.selection,
+    String? userQuestion,
+    AISummaryLength summaryLength = AISummaryLength.medium,
+    AISimplifyLevel simplifyLevel = AISimplifyLevel.simple,
+    String? targetLanguage,
+    String? customInstruction,
+  }) {
+    return AIReadingRequest(
+      task: task,
+      text: selectedText,
+      contextScope: contextScope,
+      documentId: documentId,
+      documentName: documentName,
+      pageNumber: pageNumber,
+      userQuestion: userQuestion,
+      summaryLength: summaryLength,
+      simplifyLevel: simplifyLevel,
+      targetLanguage: targetLanguage,
+      customInstruction: customInstruction,
     );
   }
 

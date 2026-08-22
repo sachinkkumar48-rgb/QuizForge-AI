@@ -545,6 +545,15 @@ class OcrOverlayLayer extends StatelessWidget {
                     onContextAction?.call('vocabulary', unifiedContext);
                   },
                 ),
+              // AI Assistant Action Button
+              IconButton(
+                key: const Key('ocr-ai-button'),
+                icon: const Icon(Icons.auto_awesome, size: 16),
+                tooltip: 'Ask AI Assistant',
+                onPressed: () {
+                  onContextAction?.call('ai', unifiedContext);
+                },
+              ),
               IconButton(
                 key: const Key('ocr-clear-selection-button'),
                 icon: const Icon(Icons.close, size: 16),

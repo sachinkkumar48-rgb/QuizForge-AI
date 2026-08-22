@@ -3,11 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/dictionary_errors.dart';
+import '../domain/entities/ai_reading_models.dart';
+import '../domain/entities/ai_reading_task.dart';
 import '../domain/entities/grammar_issue.dart';
 import '../domain/entities/unified_text_context.dart';
 import '../domain/entities/vocabulary_word.dart';
+import '../widgets/ai_assistant_panel.dart';
 import '../widgets/dictionary_panel.dart';
 import '../widgets/grammar_panel.dart';
+import 'ai_reading_service.dart';
 import 'dictionary_service.dart';
 import 'grammar_service.dart';
 import 'vocabulary_service.dart';
@@ -106,6 +110,73 @@ class LanguageServicesBridge {
     }
 
     return saved;
+  }
+
+  /// Creates a validated [AIReadingRequest] from [textContext].
+  AIReadingRequest createAIRequest(
+    UnifiedTextContext textContext, {
+    required AIReadingTask task,
+    AIContextScope contextScope = AIContextScope.selection,
+    String? userQuestion,
+    AISummaryLength summaryLength = AISummaryLength.medium,
+    AISimplifyLevel simplifyLevel = AISimplifyLevel.simple,
+    String? targetLanguage,
+    String? customInstruction,
+  }) {
+    return textContext.toAIReadingRequest(
+      task: task,
+      contextScope: contextScope,
+      userQuestion: userQuestion,
+      summaryLength: summaryLength,
+      simplifyLevel: simplifyLevel,
+      targetLanguage: targetLanguage,
+      customInstruction: customInstruction,
+    );
+  }
+
+  /// Executes an AI reading task on [aiService] using [textContext].
+  Future<AIReadingResponse> executeAITask(
+    AIReadingService aiService,
+    UnifiedTextContext textContext, {
+    required AIReadingTask task,
+    AIContextScope contextScope = AIContextScope.selection,
+    String? userQuestion,
+    AISummaryLength summaryLength = AISummaryLength.medium,
+    AISimplifyLevel simplifyLevel = AISimplifyLevel.simple,
+    String? targetLanguage,
+    String? customInstruction,
+  }) async {
+    final request = createAIRequest(
+      textContext,
+      task: task,
+      contextScope: contextScope,
+      userQuestion: userQuestion,
+      summaryLength: summaryLength,
+      simplifyLevel: simplifyLevel,
+      targetLanguage: targetLanguage,
+      customInstruction: customInstruction,
+    );
+    return aiService.processTask(request);
+  }
+
+  /// Opens the existing Reader AI Assistant bottom sheet panel for [textContext].
+  void showAIUI(
+    BuildContext context,
+    UnifiedTextContext textContext, {
+    AIReadingTask initialTask = AIReadingTask.explain,
+    void Function(int pageNumber)? onNavigateToPage,
+  }) {
+    if (textContext.selectedText.trim().isEmpty) return;
+
+    showAIAssistantPanel(
+      context,
+      text: textContext.selectedText,
+      initialTask: initialTask,
+      documentId: textContext.documentId,
+      documentName: textContext.documentName,
+      pageNumber: textContext.pageNumber,
+      onNavigateToPage: onNavigateToPage,
+    );
   }
 
   /// Copies the text in [textContext] safely to the system clipboard without logging.
