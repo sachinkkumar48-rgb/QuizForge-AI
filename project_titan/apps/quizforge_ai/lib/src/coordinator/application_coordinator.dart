@@ -166,6 +166,73 @@ class ApplicationCoordinator {
     }
   }
 
+  /// Generates a smart assessment directly from a [LearningDocument] using an [AssessmentBlueprint]
+  /// and [AssessmentGenerator], enforcing strict source grounding and validation.
+  Future<QuizSession> generateSmartAssessment({
+    required LearningDocument document,
+    required AssessmentBlueprint blueprint,
+    required AssessmentGenerator assessmentGenerator,
+    AssessmentCancellationToken? cancellationToken,
+    SessionConfiguration sessionConfig = const SessionConfiguration.standard(),
+    void Function(QuizWorkflowStage stage)? onStageChanged,
+  }) async {
+    _state = const ApplicationState.loading();
+
+    try {
+      cancellationToken?.throwIfCancelled();
+
+      // Step 1: Register document & chunks into repository
+      onStageChanged?.call(QuizWorkflowStage.importingPdf);
+      final pdfDoc = await AssessmentDocumentBridge.registerLearningDocument(
+        document: document,
+        pdfRepository: _pdfRepository,
+      );
+
+      cancellationToken?.throwIfCancelled();
+
+      // Step 2: Convert LearningDocumentChunks to AssessmentSources
+      const sourceBridge = AssessmentSourceBridge();
+      final sources = sourceBridge.fromLearningDocument(
+        document: document,
+        blueprint: blueprint,
+      );
+
+      // Step 3: Transition to Generating Quiz & invoke AssessmentGenerator
+      _state = const ApplicationState.generatingQuiz();
+      onStageChanged?.call(QuizWorkflowStage.generatingQuiz);
+
+      final genRequest = AssessmentGenerationRequest(
+        blueprint: blueprint.copyWith(documentId: pdfDoc.id),
+        sources: sources,
+        cancellationToken: cancellationToken,
+      );
+
+      final genResult =
+          await assessmentGenerator.generateAssessment(genRequest);
+
+      cancellationToken?.throwIfCancelled();
+
+      // Persist quiz to repository
+      await _quizRepository.saveQuiz(genResult.quiz);
+
+      // Step 4: Create Quiz Session
+      onStageChanged?.call(QuizWorkflowStage.creatingSession);
+      final session = await _quizSessionRepository.createSession(
+        genResult.quiz,
+        configuration: sessionConfig,
+      );
+
+      // Step 5: Transition to Ready state and return QuizSession
+      _state = ApplicationState.ready(session);
+      onStageChanged?.call(QuizWorkflowStage.ready);
+      return session;
+    } catch (e, st) {
+      final appEx = _mapToApplicationException(e, st);
+      _state = ApplicationState.error(appEx.message, appEx);
+      throw appEx;
+    }
+  }
+
   /// Attempts a question within an active session.
   Future<QuizSession> answerQuestion({
     required String sessionId,

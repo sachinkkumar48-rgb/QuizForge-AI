@@ -187,10 +187,12 @@ void main() {
         () async {
       final extractor = DefaultPdfTextExtractor(
         nativeExtractor: (source, pageNumber) async {
-          if (pageNumber == 1)
+          if (pageNumber == 1) {
             return 'Parliament consists of President, Lok Sabha, and Rajya Sabha.';
-          if (pageNumber == 2)
+          }
+          if (pageNumber == 2) {
             return 'संसद में राष्ट्रपति, लोक सभा और राज्य सभा शामिल हैं।';
+          }
           return 'Mixed bilingual text: भारत का संविधान (Constitution of India).';
         },
         pageCountResolver: (source) async => 3,

@@ -28,3 +28,23 @@ class JsonValidationException extends QuizGenerationException {
 class JsonParsingException extends QuizGenerationException {
   const JsonParsingException(super.message, [super.cause, super.stackTrace]);
 }
+
+/// Thrown when assessment generation is cancelled by the caller.
+class AssessmentCancellationException extends QuizGenerationException {
+  const AssessmentCancellationException(super.message,
+      [super.cause, super.stackTrace]);
+}
+
+/// Thrown when a generated question fails source grounding verification.
+class SourceGroundingException extends QuizGenerationException {
+  final String questionText;
+  final String invalidChunkId;
+
+  const SourceGroundingException(
+    super.message, {
+    required this.questionText,
+    required this.invalidChunkId,
+    Object? cause,
+    StackTrace? stackTrace,
+  });
+}
