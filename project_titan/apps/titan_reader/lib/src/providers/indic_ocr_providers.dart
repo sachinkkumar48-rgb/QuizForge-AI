@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/entities/ocr/indic_language_pack.dart';
 import '../domain/entities/ocr/indic_pack_download_state.dart';
 import '../ocr/indic/bilingual_ocr_router.dart';
+import '../ocr/indic/indic_ocr_model_loader.dart';
 import '../ocr/indic/indic_ocr_session_manager.dart';
 import '../ocr/indic/line_script_classifier.dart';
 import '../services/indic_language_pack_downloader.dart';
@@ -42,11 +43,18 @@ final lineScriptClassifierProvider = Provider<LineScriptClassifier>((ref) {
   return const UnicodeLineScriptClassifier();
 });
 
+/// Provider for the [IndicOcrModelLoader] service.
+final indicOcrModelLoaderProvider = Provider<IndicOcrModelLoader>((ref) {
+  return const DefaultIndicOcrModelLoader();
+});
+
 /// Provider for the [IndicOcrSessionManager] coordinator.
 final indicOcrSessionManagerProvider = Provider<IndicOcrSessionManager>((ref) {
   final packManager = ref.watch(indicLanguagePackManagerProvider);
+  final modelLoader = ref.watch(indicOcrModelLoaderProvider);
   final sessionManager = IndicOcrSessionManager(
     packManager: packManager,
+    modelLoader: modelLoader,
     maxActiveSessions: 2,
   );
   ref.onDispose(() {

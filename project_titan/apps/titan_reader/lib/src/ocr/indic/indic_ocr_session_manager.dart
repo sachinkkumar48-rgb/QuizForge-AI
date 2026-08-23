@@ -7,6 +7,7 @@ import '../../domain/entities/ocr/ocr_error.dart';
 import '../../domain/entities/ocr/ocr_text_region.dart';
 import '../../services/indic_language_pack_manager.dart';
 import '../onnx/onnx_ocr_engine.dart';
+import 'indic_ocr_model_loader.dart';
 
 /// Represents an active, in-memory OCR recognition session bound to a verified language pack.
 class IndicOcrSession {
@@ -129,6 +130,9 @@ class IndicOcrSessionManager {
   /// The underlying language pack discovery and integrity manager.
   final IndicLanguagePackManager packManager;
 
+  /// Model loader responsible for validating and initializing runtime sessions.
+  final IndicOcrModelLoader modelLoader;
+
   /// Optional factory for instantiating native runners in test or custom environments.
   final OnnxRunnerFactory? runnerFactory;
 
@@ -138,6 +142,7 @@ class IndicOcrSessionManager {
   IndicOcrSessionManager({
     required this.packManager,
     this.maxActiveSessions = 2,
+    this.modelLoader = const DefaultIndicOcrModelLoader(),
     this.runnerFactory,
   });
 
@@ -180,19 +185,10 @@ class IndicOcrSessionManager {
       await _evictOldestIdleSession();
     }
 
-    // Load native runner if linked
-    OnnxSessionRunner? runner;
-    if (runnerFactory != null) {
-      runner = runnerFactory!(pack);
-      if (pack.modelFilePath != null) {
-        await runner.loadSession(pack.modelFilePath!);
-      }
-    }
-
-    final session = IndicOcrSession(
-      sessionKey: key,
-      pack: pack,
-      runner: runner,
+    // Load session via IndicOcrModelLoader
+    final session = await modelLoader.loadModelSession(
+      pack,
+      runnerFactory: runnerFactory,
     );
 
     _activeSessions[key] = session;
