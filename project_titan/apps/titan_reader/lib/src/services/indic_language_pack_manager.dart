@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
 import '../domain/entities/ocr/indic_language_pack.dart';
@@ -255,7 +253,6 @@ class IndicLanguagePackManager {
   ///
   /// Prevents directory traversal (`../`, `..\`), absolute paths, UNC paths,
   /// control characters, null bytes, and dangerous executable file extensions.
-  @visibleForTesting
   static void validatePackFileName(String fileName, String packDirectoryPath) {
     if (fileName.trim().isEmpty) {
       throw const IndicPackSecurityException('File name cannot be empty.');
