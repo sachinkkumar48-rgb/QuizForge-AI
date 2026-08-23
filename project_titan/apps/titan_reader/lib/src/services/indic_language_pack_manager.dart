@@ -249,6 +249,12 @@ class IndicLanguagePackManager {
     _packs[pack.packId] = pack;
   }
 
+  /// Unregisters a pack from memory.
+  void unregisterPack(String packId) {
+    _packs.remove(packId);
+    _accessQueue.remove(packId);
+  }
+
   /// Validates and sanitizes a relative file name inside a pack directory.
   ///
   /// Prevents directory traversal (`../`, `..\`), absolute paths, UNC paths,

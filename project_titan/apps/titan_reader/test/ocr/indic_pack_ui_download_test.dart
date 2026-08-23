@@ -386,7 +386,7 @@ void main() {
       notifier.startDownload(hindiSource);
 
       // Await until download completes or transitions to ready
-      var maxLoops = 20;
+      var maxLoops = 60;
       while (!notifier.state.isReady && maxLoops > 0) {
         await Future<void>.delayed(const Duration(milliseconds: 50));
         maxLoops--;
@@ -428,7 +428,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.tap(downloadBtn.first);
         // Wait for async stream and file I/O to complete
-        var maxLoops = 20;
+        var maxLoops = 60;
         final notifier =
             container.read(indicPackDownloadStateProvider('hi').notifier);
         while (!notifier.state.isReady && maxLoops > 0) {

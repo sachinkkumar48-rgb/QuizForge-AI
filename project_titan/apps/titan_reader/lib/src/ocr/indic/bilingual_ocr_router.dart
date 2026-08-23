@@ -48,8 +48,9 @@ class BilingualOcrRouter {
     required int pageNumber,
     required List<LineCandidate> lineCandidates,
     bool isCancelled = false,
+    bool Function()? isCancelledCallback,
   }) async {
-    if (isCancelled) {
+    if (isCancelled || isCancelledCallback?.call() == true) {
       return OcrResult.cancelled(pageNumber: pageNumber);
     }
 
@@ -68,7 +69,7 @@ class BilingualOcrRouter {
 
     try {
       for (int i = 0; i < lineCandidates.length; i++) {
-        if (isCancelled) {
+        if (isCancelled || isCancelledCallback?.call() == true) {
           return OcrResult.cancelled(pageNumber: pageNumber);
         }
 
