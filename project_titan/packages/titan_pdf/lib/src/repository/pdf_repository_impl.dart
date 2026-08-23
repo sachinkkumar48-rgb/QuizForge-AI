@@ -1,5 +1,4 @@
 import 'package:titan_domain/titan_domain.dart';
-import 'package:titan_storage/titan_storage.dart';
 
 import '../exceptions/pdf_exception.dart';
 import '../models/chunk_options.dart';

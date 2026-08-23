@@ -112,6 +112,60 @@ class ApplicationCoordinator {
     }
   }
 
+  /// Ingests a pre-processed [LearningDocument] from TITAN's document intelligence pipeline
+  /// and generates an AI quiz session.
+  Future<QuizSession> importLearningDocument({
+    required LearningDocument document,
+    QuizCategory category = QuizCategory.upsc,
+    QuizDifficulty difficulty = QuizDifficulty.medium,
+    QuizLanguage language = QuizLanguage.english,
+    int questionsPerChunk = 5,
+    SessionConfiguration sessionConfig = const SessionConfiguration.standard(),
+    void Function(QuizWorkflowStage stage)? onStageChanged,
+  }) async {
+    _state = const ApplicationState.loading();
+
+    try {
+      // Step 1: Register document & chunks via AssessmentDocumentBridge
+      onStageChanged?.call(QuizWorkflowStage.importingPdf);
+      final pdfDoc = await AssessmentDocumentBridge.registerLearningDocument(
+        document: document,
+        pdfRepository: _pdfRepository,
+      );
+
+      // Step 2: Transition to Generating Quiz state & Generate Quiz via AI
+      _state = const ApplicationState.generatingQuiz();
+      onStageChanged?.call(QuizWorkflowStage.generatingQuiz);
+
+      final genRequest = QuizGenerationRequest(
+        documentId: pdfDoc.id,
+        category: category,
+        difficulty: difficulty,
+        language: language,
+        questionsPerChunk: questionsPerChunk,
+      );
+
+      final genResult =
+          await _quizGenerationRepository.generateQuiz(genRequest);
+
+      // Step 3: Create Quiz Session
+      onStageChanged?.call(QuizWorkflowStage.creatingSession);
+      final session = await _quizSessionRepository.createSession(
+        genResult.quiz,
+        configuration: sessionConfig,
+      );
+
+      // Step 4: Transition to Ready state and return QuizSession
+      _state = ApplicationState.ready(session);
+      onStageChanged?.call(QuizWorkflowStage.ready);
+      return session;
+    } catch (e, st) {
+      final appEx = _mapToApplicationException(e, st);
+      _state = ApplicationState.error(appEx.message, appEx);
+      throw appEx;
+    }
+  }
+
   /// Attempts a question within an active session.
   Future<QuizSession> answerQuestion({
     required String sessionId,

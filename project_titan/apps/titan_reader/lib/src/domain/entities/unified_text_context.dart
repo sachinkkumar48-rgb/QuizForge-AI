@@ -7,14 +7,9 @@ import 'ai_reading_task.dart';
 import 'normalized_page_rect.dart';
 import 'ocr/ocr_search_selection.dart';
 
-/// Identifies the originating source of a text selection.
-enum TextProvenance {
-  /// Extracted natively from digital PDF content streams (PDFium / pdfrx).
-  nativePdf,
+import 'package:titan_pdf/titan_pdf.dart' show TextProvenance;
 
-  /// Recognized by on-device OCR from raster/scanned image content.
-  ocr,
-}
+export 'package:titan_pdf/titan_pdf.dart' show TextProvenance;
 
 /// An engine-independent, unified representation of selected text within
 /// TITAN Reader, providing a stable contract for language services
