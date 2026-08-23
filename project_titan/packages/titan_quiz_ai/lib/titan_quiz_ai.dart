@@ -32,3 +32,11 @@ export 'src/services/default_assessment_generator.dart';
 export 'src/services/fake_assessment_generator.dart';
 export 'src/validators/assessment_validator.dart';
 export 'src/validators/question_deduplicator.dart';
+
+// Phase 8C Interactive Assessment & Remedial Study Loop exports
+export 'src/models/answer_status.dart';
+export 'src/models/assessment_performance.dart';
+export 'src/models/interactive_question_state.dart';
+export 'src/models/remedial_study_recommendation.dart';
+export 'src/models/retry_mode.dart';
+export 'src/services/assessment_performance_analyzer.dart';

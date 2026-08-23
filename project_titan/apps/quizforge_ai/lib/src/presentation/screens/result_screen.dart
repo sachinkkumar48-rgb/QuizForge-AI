@@ -16,9 +16,12 @@ import '../widgets/responsive_layout.dart';
 import '../widgets/result/mentor_result_card.dart';
 import '../widgets/result/mistake_analysis_card.dart';
 import '../widgets/result/pyq_card.dart';
+import '../widgets/result/remedial_study_card.dart';
 import '../widgets/result/revision_card.dart';
 import '../widgets/result/score_card.dart';
 import '../widgets/result/topic_analysis_card.dart';
+import '../providers/interactive_quiz_controller.dart';
+import 'package:titan_quiz_ai/titan_quiz_ai.dart';
 
 /// Intelligent Results Dashboard screen using Clean Architecture via [ResultController].
 class ResultScreen extends ConsumerStatefulWidget {
@@ -60,11 +63,48 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     }
   }
 
+  Future<void> _handleRetryIncorrect() async {
+    try {
+      final coordinator = ref.read(applicationCoordinatorProvider);
+      final retrySession = await coordinator.createRetrySession(
+        originalSessionId: widget.sessionId,
+        retryMode: RetryMode.incorrect,
+      );
+      if (mounted) {
+        context.goNamed(
+          AppRoutes.quiz,
+          pathParameters: {'id': retrySession.sessionId},
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to create retry session: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleStudySource(RemedialStudyRecommendation rec) async {
+    if (rec.deepLinkRequest == null) return;
+    final coordinator = ref.read(applicationCoordinatorProvider);
+    final success =
+        await coordinator.navigateToReaderSource(rec.deepLinkRequest!);
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Document source unavailable (Page ${rec.primaryPageNumber}).')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = ref.watch(applicationStateProvider);
     final result = appState.currentResult;
     final resultState = ref.watch(resultControllerProvider);
+    final interactiveState = ref.watch(interactiveQuizControllerProvider);
 
     if (result == null) {
       return Scaffold(
@@ -86,11 +126,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         title: const Text(AppLocalization.navResult),
       ),
       body: ResponsiveLayout(
-        mobile: _buildContent(context, resultState, result),
+        mobile: _buildContent(context, resultState, result, interactiveState),
         desktop: Center(
           child: SizedBox(
             width: 720,
-            child: _buildContent(context, resultState, result),
+            child:
+                _buildContent(context, resultState, result, interactiveState),
           ),
         ),
       ),
@@ -98,7 +139,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildContent(
-      BuildContext context, dynamic resultState, dynamic result) {
+    BuildContext context,
+    dynamic resultState,
+    dynamic result,
+    InteractiveQuizState interactiveState,
+  ) {
     if (resultState.isLoading) {
       return const LoadingScreen(message: 'Analyzing performance metrics...');
     }
@@ -138,23 +183,31 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           ScoreCard(metrics: analytics.scoreMetrics),
           const SizedBox(height: AppSpacing.md),
 
-          // 2. AI Mentor Result Card
+          // 2. Remedial Study Card (TITAN Reader Deep Link & Retry)
+          RemedialStudyCard(
+            recommendations: interactiveState.recommendations,
+            onStudySource: _handleStudySource,
+            onRetryIncorrect: _handleRetryIncorrect,
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // 3. AI Mentor Result Card
           MentorResultCard(feedback: analytics.mentorFeedback),
           const SizedBox(height: AppSpacing.md),
 
-          // 3. Topic Analysis Card
+          // 4. Topic Analysis Card
           TopicAnalysisCard(topics: analytics.topicPerformances),
           const SizedBox(height: AppSpacing.md),
 
-          // 4. Mistake Analysis Card
+          // 5. Mistake Analysis Card
           MistakeAnalysisCard(mistakeAnalysis: analytics.mistakeAnalysis),
           const SizedBox(height: AppSpacing.md),
 
-          // 5. Revision Card
+          // 6. Revision Card
           RevisionCard(revision: analytics.revisionRecommendation),
           const SizedBox(height: AppSpacing.md),
 
-          // 6. PYQ Correlation Card
+          // 7. PYQ Correlation Card
           PYQCard(pyq: analytics.pyqCorrelation),
           const SizedBox(height: AppSpacing.xl),
 

@@ -13,6 +13,7 @@ class ApplicationCoordinator {
   final QuizGenerationRepository _quizGenerationRepository;
   final QuizSessionRepository _quizSessionRepository;
   final QuizRepository _quizRepository;
+  final ReaderDeepLinkHandler _readerDeepLinkHandler;
 
   ApplicationState _state = const ApplicationState.idle();
 
@@ -21,13 +22,118 @@ class ApplicationCoordinator {
     required QuizGenerationRepository quizGenerationRepository,
     required QuizSessionRepository quizSessionRepository,
     required QuizRepository quizRepository,
+    ReaderDeepLinkHandler? readerDeepLinkHandler,
   })  : _pdfRepository = pdfRepository,
         _quizGenerationRepository = quizGenerationRepository,
         _quizSessionRepository = quizSessionRepository,
-        _quizRepository = quizRepository;
+        _quizRepository = quizRepository,
+        _readerDeepLinkHandler =
+            readerDeepLinkHandler ?? InMemoryReaderDeepLinkHandler();
 
   /// Returns the current immutable application state.
   ApplicationState get state => _state;
+
+  /// Returns the configured [ReaderDeepLinkHandler].
+  ReaderDeepLinkHandler get readerDeepLinkHandler => _readerDeepLinkHandler;
+
+  /// Returns the configured [QuizRepository].
+  QuizRepository get quizRepository => _quizRepository;
+
+  /// Returns the configured [QuizSessionRepository].
+  QuizSessionRepository get quizSessionRepository => _quizSessionRepository;
+
+  /// Returns the configured [PdfRepository].
+  PdfRepository get pdfRepository => _pdfRepository;
+
+  /// Returns the configured [QuizGenerationRepository].
+  QuizGenerationRepository get quizGenerationRepository =>
+      _quizGenerationRepository;
+
+  /// Navigates to a source document/page/chunk in TITAN Reader via shared navigation contract.
+  Future<bool> navigateToReaderSource(ReaderDeepLinkRequest request) async {
+    try {
+      return await _readerDeepLinkHandler.openReaderToSource(request);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Creates a new retry session filtered to either incorrect questions, unanswered questions,
+  /// or marked review questions from an existing session.
+  Future<QuizSession> createRetrySession({
+    required String originalSessionId,
+    RetryMode retryMode = RetryMode.incorrect,
+    SessionConfiguration sessionConfig = const SessionConfiguration.standard(),
+  }) async {
+    _state = const ApplicationState.loading();
+    try {
+      final originalSession =
+          await _quizSessionRepository.loadSession(originalSessionId);
+      if (originalSession == null) {
+        throw ApplicationException(
+          'Original session [$originalSessionId] not found.',
+          code: 'SESSION_NOT_FOUND',
+        );
+      }
+
+      final originalQuiz =
+          await _quizRepository.loadQuiz(originalSession.quizId);
+      if (originalQuiz == null) {
+        throw ApplicationException(
+          'Original quiz [${originalSession.quizId}] not found.',
+          code: 'QUIZ_NOT_FOUND',
+        );
+      }
+
+      final targetQuestions = <QuizQuestion>[];
+      for (final q in originalQuiz.questions) {
+        final attempt = originalSession.answers.firstWhere(
+          (a) => a.questionId == q.id,
+          orElse: () => QuestionAttempt.unanswered(q.id),
+        );
+
+        if (retryMode == RetryMode.incorrect) {
+          if (attempt.isAnswered &&
+              attempt.selectedOptionId != '${q.correctAnswerIndex}') {
+            targetQuestions.add(q);
+          }
+        } else if (retryMode == RetryMode.unanswered) {
+          if (!attempt.isAnswered) {
+            targetQuestions.add(q);
+          }
+        } else if (retryMode == RetryMode.all) {
+          targetQuestions.add(q);
+        }
+      }
+
+      if (targetQuestions.isEmpty) {
+        throw ApplicationException(
+          'No matching questions found for retry mode [${retryMode.name}].',
+          code: 'NO_RETRY_QUESTIONS',
+        );
+      }
+
+      final retryQuiz = originalQuiz.copyWith(
+        id: 'retry_${originalQuiz.id}_${DateTime.now().millisecondsSinceEpoch}',
+        title:
+            '${originalQuiz.title} (${retryMode == RetryMode.incorrect ? "Retry Incorrect" : "Retry"})',
+        questions: targetQuestions,
+      );
+
+      await _quizRepository.saveQuiz(retryQuiz);
+      final newSession = await _quizSessionRepository.createSession(
+        retryQuiz,
+        configuration: sessionConfig,
+      );
+
+      _state = ApplicationState.ready(newSession);
+      return newSession;
+    } catch (e, st) {
+      final appEx = _mapToApplicationException(e, st);
+      _state = ApplicationState.error(appEx.message, appEx);
+      throw appEx;
+    }
+  }
 
   /// Executes the complete PDF to Quiz Session pipeline flow.
   ///

@@ -16,6 +16,8 @@ export 'src/models/pdf_import_result.dart';
 export 'src/models/pdf_metadata.dart';
 export 'src/models/pdf_status.dart';
 export 'src/models/text_provenance.dart';
+export 'src/navigation/reader_deep_link_handler.dart';
+export 'src/navigation/reader_deep_link_request.dart';
 export 'src/repository/pdf_repository.dart';
 export 'src/repository/pdf_repository_impl.dart';
 export 'src/services/document_intelligence_service.dart';
