@@ -96,21 +96,38 @@ class PdfSearchableExportResult {
   factory PdfSearchableExportResult.encrypted({
     String? message,
     int totalPagesCount = 0,
+    Duration elapsed = Duration.zero,
   }) =>
       PdfSearchableExportResult(
         status: PdfSearchableExportStatus.encrypted,
         totalPagesCount: totalPagesCount,
         errorMessage:
             message ?? 'Source PDF is encrypted or password-protected.',
+        elapsed: elapsed,
       );
 
   /// Convenience constructor for missing or invalid document files.
   factory PdfSearchableExportResult.invalidDocument({
     required String message,
+    Duration elapsed = Duration.zero,
   }) =>
       PdfSearchableExportResult(
         status: PdfSearchableExportStatus.invalidDocument,
         errorMessage: message,
+        elapsed: elapsed,
+      );
+
+  /// Convenience constructor for unsupported PDF features.
+  factory PdfSearchableExportResult.unsupported({
+    required String reason,
+    int totalPagesCount = 0,
+    Duration elapsed = Duration.zero,
+  }) =>
+      PdfSearchableExportResult(
+        status: PdfSearchableExportStatus.unsupported,
+        totalPagesCount: totalPagesCount,
+        errorMessage: 'Unsupported PDF structure: $reason',
+        elapsed: elapsed,
       );
 
   /// Convenience constructor for cancelled export operations.
