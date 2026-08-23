@@ -40,3 +40,21 @@ export 'src/models/interactive_question_state.dart';
 export 'src/models/remedial_study_recommendation.dart';
 export 'src/models/retry_mode.dart';
 export 'src/services/assessment_performance_analyzer.dart';
+
+// Phase 8D Adaptive Learning & Remedial Intelligence exports
+export 'src/models/adaptive_assessment_plan.dart';
+export 'src/models/adaptive_remedial_plan.dart';
+export 'src/models/learner_profile.dart';
+export 'src/models/mastery_trend.dart';
+export 'src/models/retention_signal.dart';
+export 'src/models/review_schedule_item.dart';
+export 'src/models/study_next_recommendation.dart';
+export 'src/models/topic_mastery.dart';
+export 'src/repository/learner_profile_repository.dart';
+export 'src/repository/review_schedule_repository.dart';
+export 'src/services/adaptive_assessment_strategy.dart';
+export 'src/services/adaptive_remedial_engine.dart';
+export 'src/services/difficulty_adapter.dart';
+export 'src/services/learner_profile_engine.dart';
+export 'src/services/review_scheduler.dart';
+export 'src/services/study_next_engine.dart';

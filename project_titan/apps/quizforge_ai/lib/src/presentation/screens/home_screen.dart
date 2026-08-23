@@ -1,24 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:titan_pdf/titan_pdf.dart';
 
 import '../localization/app_localization.dart';
 import '../navigation/app_routes.dart';
+import '../providers/adaptive_learning_controller.dart';
 import '../providers/application_provider.dart';
 import '../providers/quiz_provider.dart';
 import '../theme/app_spacing.dart';
+import '../widgets/adaptive/learner_mastery_card.dart';
+import '../widgets/adaptive/practice_weak_areas_card.dart';
+import '../widgets/adaptive/review_schedule_card.dart';
+import '../widgets/adaptive/study_next_hero_card.dart';
 import '../widgets/responsive_layout.dart';
 import '../../states/application_state.dart';
 import '../../states/quiz_workflow_state.dart';
 
-/// Main home dashboard screen.
+/// Main home dashboard screen integrating Adaptive Learning, Spaced Repetition, and Smart Assessments.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  Future<void> _handleOpenSource(BuildContext context, WidgetRef ref,
+      ReaderDeepLinkRequest request) async {
+    final coordinator = ref.read(applicationCoordinatorProvider);
+    final success = await coordinator.navigateToReaderSource(request);
+    if (!success && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Document source unavailable (Page ${request.pageNumber}).')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(applicationStateProvider);
     final workflowState = ref.watch(quizProvider);
+    final adaptiveState = ref.watch(adaptiveLearningProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -38,11 +58,13 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: ResponsiveLayout(
-        mobile: _buildBody(context, appState, workflowState, theme),
+        mobile: _buildBody(
+            context, ref, appState, workflowState, adaptiveState, theme),
         desktop: Center(
           child: SizedBox(
             width: 800,
-            child: _buildBody(context, appState, workflowState, theme),
+            child: _buildBody(
+                context, ref, appState, workflowState, adaptiveState, theme),
           ),
         ),
       ),
@@ -51,8 +73,10 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildBody(
     BuildContext context,
+    WidgetRef ref,
     ApplicationState appState,
     QuizWorkflowState workflowState,
+    AdaptiveLearningState adaptiveState,
     ThemeData theme,
   ) {
     final session = workflowState.session ?? appState.currentSession;
@@ -62,6 +86,26 @@ class HomeScreen extends ConsumerWidget {
       padding: AppSpacing.paddingMd,
       child: ListView(
         children: [
+          // 1. Study Next Hero Action
+          if (adaptiveState.studyNext != null) ...[
+            StudyNextHeroCard(
+              recommendation: adaptiveState.studyNext!,
+              onOpenSource: (req) => _handleOpenSource(context, ref, req),
+              onPrimaryAction: () {
+                if (session != null) {
+                  context.pushNamed(
+                    AppRoutes.quiz,
+                    pathParameters: {'id': session.sessionId},
+                  );
+                } else {
+                  context.pushNamed(AppRoutes.importPdf);
+                }
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // 2. Document Import Card
           Semantics(
             label: 'PDF import workflow',
             child: Card(
@@ -111,6 +155,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ),
+
           if (session != null) ...[
             const SizedBox(height: AppSpacing.md),
             Card(
@@ -129,6 +174,52 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ],
+
+          const SizedBox(height: AppSpacing.md),
+
+          // 3. Practice Weak Areas Card
+          if (adaptiveState.profile.hasWeakTopics) ...[
+            PracticeWeakAreasCard(
+              weakTopics: adaptiveState.profile.weakTopics,
+              recommendedDifficulty: ref
+                  .read(applicationCoordinatorProvider)
+                  .adaptiveRemedialEngine
+                  .difficultyAdapter
+                  .recommendOverallDifficulty(adaptiveState.profile),
+              onStartPractice: () {
+                if (session != null) {
+                  context.pushNamed(
+                    AppRoutes.quiz,
+                    pathParameters: {'id': session.sessionId},
+                  );
+                } else {
+                  context.pushNamed(AppRoutes.importPdf);
+                }
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // 4. Learner Mastery Profile Card
+          LearnerMasteryCard(profile: adaptiveState.profile),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // 5. Spaced Review Schedule Card
+          ReviewScheduleCard(
+            items: adaptiveState.dueReviewItems,
+            onOpenSource: (req) => _handleOpenSource(context, ref, req),
+            onReviewItem: (item) {
+              if (session != null) {
+                context.pushNamed(
+                  AppRoutes.quiz,
+                  pathParameters: {'id': session.sessionId},
+                );
+              } else {
+                context.pushNamed(AppRoutes.importPdf);
+              }
+            },
+          ),
         ],
       ),
     );

@@ -14,6 +14,12 @@ class ApplicationCoordinator {
   final QuizSessionRepository _quizSessionRepository;
   final QuizRepository _quizRepository;
   final ReaderDeepLinkHandler _readerDeepLinkHandler;
+  final LearnerProfileRepository _learnerProfileRepository;
+  final ReviewScheduleRepository _reviewScheduleRepository;
+  final LearnerProfileEngine _learnerProfileEngine;
+  final StudyNextEngine _studyNextEngine;
+  final AdaptiveAssessmentStrategy _adaptiveStrategy;
+  final AdaptiveRemedialEngine _adaptiveRemedialEngine;
 
   ApplicationState _state = const ApplicationState.idle();
 
@@ -23,12 +29,29 @@ class ApplicationCoordinator {
     required QuizSessionRepository quizSessionRepository,
     required QuizRepository quizRepository,
     ReaderDeepLinkHandler? readerDeepLinkHandler,
+    LearnerProfileRepository? learnerProfileRepository,
+    ReviewScheduleRepository? reviewScheduleRepository,
+    LearnerProfileEngine? learnerProfileEngine,
+    StudyNextEngine? studyNextEngine,
+    AdaptiveAssessmentStrategy? adaptiveStrategy,
+    AdaptiveRemedialEngine? adaptiveRemedialEngine,
   })  : _pdfRepository = pdfRepository,
         _quizGenerationRepository = quizGenerationRepository,
         _quizSessionRepository = quizSessionRepository,
         _quizRepository = quizRepository,
         _readerDeepLinkHandler =
-            readerDeepLinkHandler ?? InMemoryReaderDeepLinkHandler();
+            readerDeepLinkHandler ?? InMemoryReaderDeepLinkHandler(),
+        _learnerProfileRepository =
+            learnerProfileRepository ?? InMemoryLearnerProfileRepository(),
+        _reviewScheduleRepository =
+            reviewScheduleRepository ?? InMemoryReviewScheduleRepository(),
+        _learnerProfileEngine =
+            learnerProfileEngine ?? const LearnerProfileEngine(),
+        _studyNextEngine = studyNextEngine ?? const StudyNextEngine(),
+        _adaptiveStrategy =
+            adaptiveStrategy ?? const AdaptiveAssessmentStrategy(),
+        _adaptiveRemedialEngine =
+            adaptiveRemedialEngine ?? const AdaptiveRemedialEngine();
 
   /// Returns the current immutable application state.
   ApplicationState get state => _state;
@@ -48,6 +71,182 @@ class ApplicationCoordinator {
   /// Returns the configured [QuizGenerationRepository].
   QuizGenerationRepository get quizGenerationRepository =>
       _quizGenerationRepository;
+
+  /// Returns the configured [LearnerProfileRepository].
+  LearnerProfileRepository get learnerProfileRepository =>
+      _learnerProfileRepository;
+
+  /// Returns the configured [ReviewScheduleRepository].
+  ReviewScheduleRepository get reviewScheduleRepository =>
+      _reviewScheduleRepository;
+
+  /// Returns the configured [LearnerProfileEngine].
+  LearnerProfileEngine get learnerProfileEngine => _learnerProfileEngine;
+
+  /// Returns the configured [StudyNextEngine].
+  StudyNextEngine get studyNextEngine => _studyNextEngine;
+
+  /// Returns the configured [AdaptiveAssessmentStrategy].
+  AdaptiveAssessmentStrategy get adaptiveStrategy => _adaptiveStrategy;
+
+  /// Returns the configured [AdaptiveRemedialEngine].
+  AdaptiveRemedialEngine get adaptiveRemedialEngine => _adaptiveRemedialEngine;
+
+  /// Retrieves the [LearnerProfile] for [learnerId], creating an empty baseline if none exists.
+  Future<LearnerProfile> getLearnerProfile({
+    String learnerId = 'default_learner',
+  }) async {
+    final existing = await _learnerProfileRepository.getProfile(learnerId);
+    if (existing != null) return existing;
+    final empty = LearnerProfile.empty(learnerId: learnerId);
+    await _learnerProfileRepository.saveProfile(empty);
+    return empty;
+  }
+
+  /// Updates learner profile and registers review schedule items upon completing an assessment session.
+  Future<LearnerProfile> updateLearnerProfileAfterAssessment({
+    required String sessionId,
+    required AssessmentPerformance performance,
+    required Map<String, InteractiveQuestionState> questionStates,
+    String learnerId = 'default_learner',
+  }) async {
+    final session = await _quizSessionRepository.loadSession(sessionId);
+    if (session == null) {
+      throw ApplicationException('Session [$sessionId] not found.',
+          code: 'SESSION_NOT_FOUND');
+    }
+    final quiz = await _quizRepository.loadQuiz(session.quizId);
+    if (quiz == null) {
+      throw ApplicationException(
+          'Associated quiz [${session.quizId}] not found.',
+          code: 'QUIZ_NOT_FOUND');
+    }
+
+    final currentProfile = await getLearnerProfile(learnerId: learnerId);
+    final updatedProfile = _learnerProfileEngine.updateProfile(
+      currentProfile: currentProfile,
+      quiz: quiz,
+      performance: performance,
+      questionStates: questionStates,
+    );
+
+    await _learnerProfileRepository.saveProfile(updatedProfile);
+
+    // Automatically register review schedule items for weak/incorrect questions
+    final scheduler = _adaptiveRemedialEngine.reviewScheduler;
+    for (final q in quiz.questions) {
+      final state = questionStates[q.id];
+      final isCorrect = state?.status == AnswerStatus.correct;
+      final topic =
+          q.topic?.trim().isNotEmpty == true ? q.topic!.trim() : 'General';
+      final itemId = 'rev_${learnerId}_${q.id}';
+
+      final existingItems =
+          await _reviewScheduleRepository.getItems(learnerId: learnerId);
+      final existingItem = existingItems.cast<ReviewScheduleItem?>().firstWhere(
+            (item) => item?.id == itemId,
+            orElse: () => null,
+          );
+
+      if (existingItem != null) {
+        final updatedItem = scheduler.markAttempt(
+          item: existingItem,
+          isCorrect: isCorrect,
+        );
+        await _reviewScheduleRepository.saveItem(updatedItem,
+            learnerId: learnerId);
+      } else if (!isCorrect || performance.weakTopics.contains(topic)) {
+        final newItem = scheduler.scheduleItem(
+          id: itemId,
+          topic: topic,
+          questionId: q.id,
+          sourceChunkId: state?.sourceChunkId,
+          pageNumber: state?.pageNumber ?? q.pageReference,
+          documentId: quiz.sourceDocumentId,
+        );
+        await _reviewScheduleRepository.saveItem(newItem, learnerId: learnerId);
+      }
+    }
+
+    return updatedProfile;
+  }
+
+  /// Evaluates learner profile and due reviews to determine the single highest-priority Study Next recommendation.
+  Future<StudyNextRecommendation> getStudyNextRecommendation({
+    String learnerId = 'default_learner',
+    String? activeDocumentId,
+  }) async {
+    final profile = await getLearnerProfile(learnerId: learnerId);
+    final dueItems =
+        await _reviewScheduleRepository.getDueItems(learnerId: learnerId);
+    return _studyNextEngine.recommendNext(
+      profile: profile,
+      dueReviewItems: dueItems,
+      activeDocumentId: activeDocumentId,
+    );
+  }
+
+  /// Constructs a complete [AdaptiveRemedialPlan] from a completed assessment session.
+  Future<AdaptiveRemedialPlan> getAdaptiveRemedialPlan({
+    required String sessionId,
+    required AssessmentPerformance performance,
+    required Map<String, InteractiveQuestionState> questionStates,
+    String learnerId = 'default_learner',
+    AssessmentBlueprint? baseBlueprint,
+  }) async {
+    final session = await _quizSessionRepository.loadSession(sessionId);
+    if (session == null) {
+      throw ApplicationException('Session [$sessionId] not found.',
+          code: 'SESSION_NOT_FOUND');
+    }
+    final quiz = await _quizRepository.loadQuiz(session.quizId);
+    if (quiz == null) {
+      throw ApplicationException(
+          'Associated quiz [${session.quizId}] not found.',
+          code: 'QUIZ_NOT_FOUND');
+    }
+
+    final profile = await getLearnerProfile(learnerId: learnerId);
+    final reviewItems =
+        await _reviewScheduleRepository.getItems(learnerId: learnerId);
+
+    return _adaptiveRemedialEngine.generateRemedialPlan(
+      profile: profile,
+      quiz: quiz,
+      performance: performance,
+      questionStates: questionStates,
+      existingReviewItems: reviewItems,
+      baseBlueprint: baseBlueprint,
+    );
+  }
+
+  /// Creates an adaptive practice session targeting weak areas and due review topics.
+  Future<QuizSession> createAdaptivePracticeSession({
+    required LearningDocument document,
+    required AssessmentBlueprint baseBlueprint,
+    required AssessmentGenerator assessmentGenerator,
+    String learnerId = 'default_learner',
+    SessionConfiguration sessionConfig = const SessionConfiguration.standard(),
+    void Function(QuizWorkflowStage stage)? onStageChanged,
+  }) async {
+    final profile = await getLearnerProfile(learnerId: learnerId);
+    final dueItems =
+        await _reviewScheduleRepository.getDueItems(learnerId: learnerId);
+
+    final adaptivePlan = _adaptiveStrategy.createPlan(
+      profile: profile,
+      baseBlueprint: baseBlueprint,
+      dueReviewItems: dueItems,
+    );
+
+    return generateSmartAssessment(
+      document: document,
+      blueprint: adaptivePlan.blueprint,
+      assessmentGenerator: assessmentGenerator,
+      sessionConfig: sessionConfig,
+      onStageChanged: onStageChanged,
+    );
+  }
 
   /// Navigates to a source document/page/chunk in TITAN Reader via shared navigation contract.
   Future<bool> navigateToReaderSource(ReaderDeepLinkRequest request) async {

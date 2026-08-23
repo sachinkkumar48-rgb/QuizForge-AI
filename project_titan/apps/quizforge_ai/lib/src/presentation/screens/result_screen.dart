@@ -20,6 +20,7 @@ import '../widgets/result/remedial_study_card.dart';
 import '../widgets/result/revision_card.dart';
 import '../widgets/result/score_card.dart';
 import '../widgets/result/topic_analysis_card.dart';
+import '../providers/adaptive_learning_controller.dart';
 import '../providers/interactive_quiz_controller.dart';
 import 'package:titan_quiz_ai/titan_quiz_ai.dart';
 
@@ -60,6 +61,20 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         percentage: summary.percentage,
       );
       ref.read(resultControllerProvider.notifier).analyzeQuizResult(quizResult);
+
+      final interactiveState = ref.read(interactiveQuizControllerProvider);
+      if (interactiveState.performance != null) {
+        final coordinator = ref.read(applicationCoordinatorProvider);
+        coordinator
+            .updateLearnerProfileAfterAssessment(
+          sessionId: widget.sessionId,
+          performance: interactiveState.performance!,
+          questionStates: interactiveState.questionStates,
+        )
+            .then((_) {
+          ref.read(adaptiveLearningProvider.notifier).refresh();
+        }).catchError((_) {});
+      }
     }
   }
 
