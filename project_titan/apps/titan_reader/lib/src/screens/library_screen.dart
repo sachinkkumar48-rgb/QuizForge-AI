@@ -159,13 +159,21 @@ class LibraryScreen extends ConsumerWidget {
       return;
     }
     final file = result?.files.single;
-    final path = file?.path;
-    if (file == null || path == null || path.isEmpty) return;
+    if (file == null) return;
+    final path = file.path;
+    final bytes = file.bytes;
+    if ((path == null || path.isEmpty) && (bytes == null || bytes.isEmpty)) {
+      return;
+    }
 
     try {
-      final headerBytes = await _readHeaderBytes(path);
-      final document = await ref.read(libraryServiceProvider).importFile(
-            filePath: path,
+      final headerBytes = bytes != null && bytes.length >= 1024
+          ? bytes.sublist(0, 1024)
+          : (path != null ? await _readHeaderBytes(path) : bytes);
+
+      final document = await ref.read(libraryServiceProvider).importPickedFile(
+            sourceFilePath: path,
+            fileBytes: bytes,
             fileName: file.name,
             sizeBytes: file.size,
             at: DateTime.now(),
@@ -191,6 +199,7 @@ class LibraryScreen extends ConsumerWidget {
   static Future<List<int>?> _readHeaderBytes(String path) async {
     try {
       final file = File(path);
+      if (!file.existsSync()) return null;
       final bytes = await file.openRead(0, 1024).first;
       return bytes;
     } catch (_) {

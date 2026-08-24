@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:titan_storage/titan_storage.dart';
 
 import '../data/annotation_repository.dart';
@@ -55,6 +56,7 @@ final Provider<LibraryService> libraryServiceProvider =
     library: ref.watch(documentLibraryRepositoryProvider),
     positions: ref.watch(readingPositionRepositoryProvider),
     history: ref.watch(readingHistoryServiceProvider),
+    getDocumentsDirectory: getApplicationDocumentsDirectory,
   );
 });
 

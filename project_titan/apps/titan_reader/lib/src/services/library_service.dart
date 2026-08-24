@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:titan_pdf/titan_pdf.dart';
 
 import '../data/document_library_repository.dart';
@@ -16,16 +18,85 @@ class LibraryService {
   final ReadingPositionRepository _positions;
   final ReadingHistoryService _history;
   final PdfValidationService _validation;
+  final Future<Directory> Function()? _getDocumentsDirectory;
 
   LibraryService({
     required DocumentLibraryRepository library,
     required ReadingPositionRepository positions,
     required ReadingHistoryService history,
     PdfValidationService validation = const PdfValidationService(),
+    Future<Directory> Function()? getDocumentsDirectory,
   })  : _library = library,
         _positions = positions,
         _history = history,
-        _validation = validation;
+        _validation = validation,
+        _getDocumentsDirectory = getDocumentsDirectory;
+
+  /// Imports a picked PDF file (from file picker or external source) by
+  /// copying it into TITAN Reader's secure, application-private document storage.
+  ///
+  /// This guarantees that the PDF has a permanent, canonical filesystem path,
+  /// is immune to temporary cache purges (such as Android file_picker cache
+  /// cleanup), and conforms to Android Scoped Storage POSIX requirements for
+  /// the PDFium rendering engine.
+  Future<ReaderDocument> importPickedFile({
+    String? sourceFilePath,
+    List<int>? fileBytes,
+    required String fileName,
+    required int sizeBytes,
+    required DateTime at,
+    List<int>? headerBytes,
+  }) async {
+    _validation.validatePdf(
+      filePath: sourceFilePath ?? fileName,
+      sizeBytes: sizeBytes,
+      headerBytes: headerBytes,
+    );
+
+    String canonicalPath;
+    final docId = sourceFilePath != null && sourceFilePath.isNotEmpty
+        ? _idForFilePath(sourceFilePath)
+        : _idForFileNameAndSize(fileName, sizeBytes);
+
+    if (_getDocumentsDirectory != null) {
+      final appDocsDir = await _getDocumentsDirectory();
+      final privateDir = Directory('${appDocsDir.path}/documents');
+      if (!await privateDir.exists()) {
+        await privateDir.create(recursive: true);
+      }
+      canonicalPath = '${privateDir.path}/$docId.pdf';
+
+      if (sourceFilePath != null &&
+          sourceFilePath.isNotEmpty &&
+          sourceFilePath != canonicalPath &&
+          File(sourceFilePath).existsSync()) {
+        await File(sourceFilePath).copy(canonicalPath);
+      } else if (fileBytes != null && fileBytes.isNotEmpty) {
+        final destFile = File(canonicalPath);
+        await destFile.writeAsBytes(fileBytes, flush: true);
+      } else if (sourceFilePath != null && sourceFilePath.isNotEmpty) {
+        canonicalPath = sourceFilePath;
+      }
+    } else {
+      canonicalPath = sourceFilePath ?? '/documents/$docId.pdf';
+      if (fileBytes != null && fileBytes.isNotEmpty) {
+        final destFile = File(canonicalPath);
+        if (destFile.parent.existsSync() || destFile.parent.path.isEmpty) {
+          try {
+            await destFile.writeAsBytes(fileBytes, flush: true);
+          } catch (_) {}
+        }
+      }
+    }
+
+    return importFile(
+      filePath: canonicalPath,
+      fileName: fileName,
+      sizeBytes: sizeBytes,
+      at: at,
+      headerBytes: headerBytes,
+    );
+  }
 
   /// Imports the PDF at [filePath] into the library.
   ///
@@ -120,6 +191,12 @@ class LibraryService {
   /// Deterministic library id derived from the file path.
   static String _idForFilePath(String filePath) {
     final hash = filePath.toLowerCase().hashCode.toUnsigned(32);
+    return 'doc_${hash.toRadixString(36)}';
+  }
+
+  /// Deterministic library id derived from filename and size when path is absent or transient.
+  static String _idForFileNameAndSize(String fileName, int sizeBytes) {
+    final hash = '$fileName:$sizeBytes'.toLowerCase().hashCode.toUnsigned(32);
     return 'doc_${hash.toRadixString(36)}';
   }
 
