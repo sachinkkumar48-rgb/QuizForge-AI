@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'storage_entry.dart';
 import 'storage_exception.dart';
 import 'storage_key.dart';
@@ -47,6 +47,12 @@ class HiveStorageService implements StorageService {
       if (_box == null || !_box!.isOpen) {
         if (path != null && path!.isNotEmpty) {
           Hive.init(path);
+        } else {
+          try {
+            await Hive.initFlutter();
+          } catch (_) {
+            // Graceful fallback when running in non-Flutter Dart runtime environments (tests/CLI)
+          }
         }
         _box = await Hive.openBox<dynamic>(boxName);
       }

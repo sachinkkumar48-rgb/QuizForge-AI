@@ -24,7 +24,7 @@ abstract class TitanStorageBootstrap {
       allowOverride: true,
     );
 
-    final StorageService service = storageService ??
+    StorageService service = storageService ??
         (useInMemory
             ? InMemoryStorageService()
             : HiveStorageService(
@@ -33,7 +33,19 @@ abstract class TitanStorageBootstrap {
               ));
 
     if (!service.isInitialized) {
-      await service.initialize();
+      try {
+        await service.initialize();
+      } catch (_) {
+        // Resilient fallback: if default persistent Hive storage fails during startup
+        // (e.g. disk permissions or OS restrictions), fallback to in-memory storage
+        // to guarantee the application can always complete bootstrap and render UI.
+        if (!useInMemory && storageService == null) {
+          service = InMemoryStorageService();
+          await service.initialize();
+        } else {
+          rethrow;
+        }
+      }
     }
 
     serviceLocator.registerSingleton<StorageService>(
