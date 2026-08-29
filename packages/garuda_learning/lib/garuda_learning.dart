@@ -56,6 +56,14 @@ export 'domain/entities/recommendation_lifecycle_state.dart';
 export 'domain/entities/recommendation_outcome.dart';
 export 'domain/entities/recommendation_session_link.dart';
 
+// P24 Domain Entities
+export 'domain/entities/daily_study_agenda.dart';
+export 'domain/entities/study_agenda_item.dart';
+export 'domain/entities/study_allocation_type.dart';
+export 'domain/entities/study_plan.dart';
+export 'domain/entities/study_plan_request.dart';
+export 'domain/entities/study_time_budget.dart';
+
 // Evaluators
 export 'evaluation/answer_evaluator.dart';
 export 'evaluation/manual_evaluator.dart';
@@ -92,6 +100,8 @@ export 'service/recommendation_engine.dart';
 export 'service/recommendation_lifecycle_service.dart';
 export 'service/session_manager.dart';
 export 'service/spaced_repetition_service.dart';
+export 'service/deterministic_study_planner_service.dart';
+export 'service/study_planner_engine.dart';
 
 // Validation
 export 'validation/curriculum_validation_result.dart';
