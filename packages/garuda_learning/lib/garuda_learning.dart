@@ -64,6 +64,13 @@ export 'domain/entities/study_plan.dart';
 export 'domain/entities/study_plan_request.dart';
 export 'domain/entities/study_time_budget.dart';
 
+// P25 Domain Entities
+export 'domain/entities/content_origin.dart';
+export 'domain/entities/remedial_binding.dart';
+export 'domain/entities/remedial_lesson.dart';
+export 'domain/entities/remedial_practice_session_config.dart';
+export 'domain/entities/source_reference.dart';
+
 // Evaluators
 export 'evaluation/answer_evaluator.dart';
 export 'evaluation/manual_evaluator.dart';
@@ -84,6 +91,7 @@ export 'repository/learner_repository.dart';
 export 'repository/progress_repository.dart';
 export 'repository/recommendation_lifecycle_repository.dart';
 export 'repository/recommendation_repository.dart';
+export 'repository/remedial_lesson_repository.dart';
 export 'repository/review_schedule_repository.dart';
 
 // Data Seed
@@ -93,14 +101,17 @@ export 'data/curriculum_seed_data.dart';
 export 'service/adaptive_recommendation_service.dart';
 export 'service/assessment_service.dart';
 export 'service/curriculum_service.dart';
+export 'service/deterministic_remedial_lesson_service.dart';
 export 'service/deterministic_sequence_resolver.dart';
+export 'service/deterministic_study_planner_service.dart';
 export 'service/progress_tracker.dart';
 export 'service/recommendation_effectiveness_evaluator.dart';
 export 'service/recommendation_engine.dart';
 export 'service/recommendation_lifecycle_service.dart';
+export 'service/remedial_content_adapter.dart';
+export 'service/remedial_lesson_service.dart';
 export 'service/session_manager.dart';
 export 'service/spaced_repetition_service.dart';
-export 'service/deterministic_study_planner_service.dart';
 export 'service/study_planner_engine.dart';
 
 // Validation
