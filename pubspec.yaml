@@ -19,6 +19,8 @@ dependencies:
     path: ./packages/garuda_acts
   garuda_pyq:
     path: ./packages/garuda_pyq
+  garuda_learning:
+    path: ./packages/garuda_learning
   knowledge_engine:
     path: ./packages/knowledge_engine
   titan_core:

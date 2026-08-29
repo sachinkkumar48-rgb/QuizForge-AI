@@ -15,6 +15,7 @@ import '../evaluation/manual_evaluator.dart';
 import '../evaluation/multiple_choice_evaluator.dart';
 import '../evaluation/short_answer_evaluator.dart';
 import '../evaluation/true_false_evaluator.dart';
+import '../provider/question_provider.dart';
 import '../repository/attempt_repository.dart';
 import '../repository/learner_repository.dart';
 import 'curriculum_service.dart';
@@ -25,16 +26,19 @@ class AssessmentService {
   final LearnerRepository _learnerRepository;
   final AttemptRepository _attemptRepository;
   final CurriculumService _curriculumService;
-  final QuestionKnowledgeProductService _questionService;
+  final QuestionProvider _questionProvider;
+  final QuestionKnowledgeProductService? _legacyQuestionService;
   final ProgressTracker _progressTracker;
   final SessionManager? _sessionManager;
 
   final Map<EvaluationMethod, AnswerEvaluator> _evaluators;
+  static int _attemptCounter = 0;
 
   AssessmentService({
     required LearnerRepository learnerRepository,
     required AttemptRepository attemptRepository,
     required CurriculumService curriculumService,
+    QuestionProvider? questionProvider,
     QuestionKnowledgeProductService? questionService,
     required ProgressTracker progressTracker,
     SessionManager? sessionManager,
@@ -42,7 +46,12 @@ class AssessmentService {
   })  : _learnerRepository = learnerRepository,
         _attemptRepository = attemptRepository,
         _curriculumService = curriculumService,
-        _questionService = questionService ?? QuestionKnowledgeProductService(),
+        _questionProvider = questionProvider ??
+            CaseLawQuestionProvider(
+              questionService:
+                  questionService ?? QuestionKnowledgeProductService(),
+            ),
+        _legacyQuestionService = questionService,
         _progressTracker = progressTracker,
         _sessionManager = sessionManager,
         _evaluators = customEvaluators ??
@@ -86,7 +95,7 @@ class AssessmentService {
 
     // 4. Create QuestionAttempt
     final id = attemptId ??
-        'att_${learnerId}_${questionId}_${DateTime.now().toUtc().millisecondsSinceEpoch}';
+        'att_${learnerId}_${questionId}_${DateTime.now().toUtc().microsecondsSinceEpoch}_${_attemptCounter++}';
 
     final attempt = QuestionAttempt(
       attemptId: id,
@@ -131,12 +140,17 @@ class AssessmentService {
     return result;
   }
 
-  /// Resolves a P15 question across all available question products.
+  /// Resolves a question across available question providers and legacy products.
   LegalQuestion? _resolveQuestion(String questionId) {
-    final allProducts = _questionService.buildAll();
-    for (final product in allProducts) {
-      for (final q in product.questions) {
-        if (q.questionId == questionId) return q;
+    final q = _questionProvider.getQuestionById(questionId);
+    if (q is LegalQuestion) return q as LegalQuestion;
+
+    if (_legacyQuestionService != null) {
+      final allProducts = _legacyQuestionService!.buildAll();
+      for (final product in allProducts) {
+        for (final item in product.questions) {
+          if (item.questionId == questionId) return item;
+        }
       }
     }
     return null;

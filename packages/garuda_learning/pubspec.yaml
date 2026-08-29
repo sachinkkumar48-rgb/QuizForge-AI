@@ -10,6 +10,8 @@ dependencies:
   meta: ^1.11.0
   garuda_case_law:
     path: ../garuda_case_law
+  garuda_pyq:
+    path: ../garuda_pyq
 
 dev_dependencies:
   flutter_test:

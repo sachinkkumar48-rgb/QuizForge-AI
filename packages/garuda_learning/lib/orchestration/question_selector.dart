@@ -8,19 +8,29 @@ import 'package:garuda_case_law/garuda_case_law.dart'
     show LegalQuestion, QuestionKnowledgeProductService;
 
 import '../domain/entities/question_selection_policy.dart';
+import '../provider/question_provider.dart';
 import '../repository/attempt_repository.dart';
 import '../service/curriculum_service.dart';
 
 class QuestionSelector {
-  final QuestionKnowledgeProductService _questionService;
+  final QuestionProvider _questionProvider;
+  final QuestionKnowledgeProductService? _questionService;
   final CurriculumService _curriculumService;
   final AttemptRepository? _attemptRepository;
+  final bool _hasCustomProvider;
 
   QuestionSelector({
+    QuestionProvider? questionProvider,
     QuestionKnowledgeProductService? questionService,
     required CurriculumService curriculumService,
     AttemptRepository? attemptRepository,
-  })  : _questionService = questionService ?? QuestionKnowledgeProductService(),
+  })  : _hasCustomProvider = questionProvider != null,
+        _questionProvider = questionProvider ??
+            CaseLawQuestionProvider(
+              questionService:
+                  questionService ?? QuestionKnowledgeProductService(),
+            ),
+        _questionService = questionService,
         _curriculumService = curriculumService,
         _attemptRepository = attemptRepository;
 
@@ -34,43 +44,60 @@ class QuestionSelector {
   }) {
     if (objectiveIds.isEmpty) return const [];
 
-    // 1. Gather all candidate P15 questions for the target objectives
+    // 1. Gather all candidate questions for the target objectives
     final candidateQuestions = <LegalQuestion>[];
     final seenQuestionIds = <String>{};
 
-    final allProducts = _questionService.buildAll();
-    final objectiveMappedProductIds = <String>{};
-
-    for (final objId in objectiveIds) {
-      final obj = _curriculumService.getObjectiveById(objId);
-      if (obj != null) {
-        for (final p in obj.supportedProducts) {
-          objectiveMappedProductIds.add(p.productId);
+    if (_hasCustomProvider) {
+      final fromProvider =
+          _questionProvider.getQuestionsForObjectives(objectiveIds);
+      for (final q in fromProvider) {
+        if (q is LegalQuestion &&
+            seenQuestionIds.add((q as LegalQuestion).questionId)) {
+          candidateQuestions.add(q as LegalQuestion);
         }
       }
-    }
-
-    // Collect questions matching mapped products or objective references
-    for (final product in allProducts) {
-      final isProductMapped =
-          objectiveMappedProductIds.contains(product.productId);
-
-      for (final q in product.questions) {
-        // If question matches mapped product or if no explicit product restriction
-        if (isProductMapped || objectiveMappedProductIds.isEmpty) {
-          if (seenQuestionIds.add(q.questionId)) {
-            candidateQuestions.add(q);
+      if (candidateQuestions.isEmpty) {
+        for (final q in _questionProvider.getAllQuestions()) {
+          if (q is LegalQuestion &&
+              seenQuestionIds.add((q as LegalQuestion).questionId)) {
+            candidateQuestions.add(q as LegalQuestion);
           }
         }
       }
-    }
+    } else {
+      final qService = _questionService ?? QuestionKnowledgeProductService();
+      final allProducts = qService.buildAll();
+      final objectiveMappedProductIds = <String>{};
 
-    // Fallback: If no mapped products match or corpus is empty, collect all available P15 questions deterministically
-    if (candidateQuestions.isEmpty) {
+      for (final objId in objectiveIds) {
+        final obj = _curriculumService.getObjectiveById(objId);
+        if (obj != null) {
+          for (final p in obj.supportedProducts) {
+            objectiveMappedProductIds.add(p.productId);
+          }
+        }
+      }
+
       for (final product in allProducts) {
+        final isProductMapped =
+            objectiveMappedProductIds.contains(product.productId);
+
         for (final q in product.questions) {
-          if (seenQuestionIds.add(q.questionId)) {
-            candidateQuestions.add(q);
+          if (isProductMapped || objectiveMappedProductIds.isEmpty) {
+            if (seenQuestionIds.add(q.questionId)) {
+              candidateQuestions.add(q);
+            }
+          }
+        }
+      }
+
+      if (candidateQuestions.isEmpty) {
+        for (final product in allProducts) {
+          for (final q in product.questions) {
+            if (seenQuestionIds.add(q.questionId)) {
+              candidateQuestions.add(q);
+            }
           }
         }
       }

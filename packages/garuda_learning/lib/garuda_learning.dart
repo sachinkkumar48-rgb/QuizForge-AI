@@ -56,6 +56,12 @@ export 'domain/entities/recommendation_lifecycle_state.dart';
 export 'domain/entities/recommendation_outcome.dart';
 export 'domain/entities/recommendation_session_link.dart';
 
+// Track 1 Question Entities & Providers
+export 'domain/entities/question_entity.dart';
+export 'adapter/legal_question_adapter.dart';
+export 'adapter/pyq_question_adapter.dart';
+export 'provider/question_provider.dart';
+
 // P24 Domain Entities
 export 'domain/entities/daily_study_agenda.dart';
 export 'domain/entities/study_agenda_item.dart';
@@ -71,6 +77,15 @@ export 'domain/entities/remedial_lesson.dart';
 export 'domain/entities/remedial_practice_session_config.dart';
 export 'domain/entities/source_reference.dart';
 
+// P26 Domain Entities
+export 'domain/entities/diagnostic_assessment_request.dart';
+export 'domain/entities/diagnostic_evidence_state.dart';
+export 'domain/entities/diagnostic_objective_result.dart';
+export 'domain/entities/diagnostic_placement_frontier.dart';
+export 'domain/entities/diagnostic_placement_result.dart';
+export 'domain/entities/diagnostic_placement_status.dart';
+export 'domain/entities/diagnostic_threshold_config.dart';
+
 // Evaluators
 export 'evaluation/answer_evaluator.dart';
 export 'evaluation/manual_evaluator.dart';
@@ -85,6 +100,8 @@ export 'orchestration/question_sequencer.dart';
 
 // Repositories
 export 'repository/attempt_repository.dart';
+export 'repository/diagnostic_placement_repository.dart';
+export 'repository/in_memory_diagnostic_placement_repository.dart';
 export 'repository/in_memory_recommendation_lifecycle_repository.dart';
 export 'repository/in_memory_recommendation_repository.dart';
 export 'repository/learner_repository.dart';
@@ -101,9 +118,11 @@ export 'data/curriculum_seed_data.dart';
 export 'service/adaptive_recommendation_service.dart';
 export 'service/assessment_service.dart';
 export 'service/curriculum_service.dart';
+export 'service/deterministic_diagnostic_evaluator.dart';
 export 'service/deterministic_remedial_lesson_service.dart';
 export 'service/deterministic_sequence_resolver.dart';
 export 'service/deterministic_study_planner_service.dart';
+export 'service/diagnostic_assessment_service.dart';
 export 'service/progress_tracker.dart';
 export 'service/recommendation_effectiveness_evaluator.dart';
 export 'service/recommendation_engine.dart';

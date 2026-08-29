@@ -23,10 +23,13 @@ import '../service/session_manager.dart';
 import 'question_selector.dart';
 import 'question_sequencer.dart';
 
+import '../provider/question_provider.dart';
+
 class LearningSessionOrchestrator {
   final LearnerRepository _learnerRepository;
   final CurriculumService _curriculumService;
-  final QuestionKnowledgeProductService _questionService;
+  final QuestionProvider _questionProvider;
+  final QuestionKnowledgeProductService? _legacyQuestionService;
   final AssessmentService _assessmentService;
   final SessionManager _sessionManager;
   final AttemptRepository _attemptRepository;
@@ -38,6 +41,7 @@ class LearningSessionOrchestrator {
   LearningSessionOrchestrator({
     required LearnerRepository learnerRepository,
     required CurriculumService curriculumService,
+    QuestionProvider? questionProvider,
     QuestionKnowledgeProductService? questionService,
     required AssessmentService assessmentService,
     required SessionManager sessionManager,
@@ -47,12 +51,18 @@ class LearningSessionOrchestrator {
     QuestionSequencer? questionSequencer,
   })  : _learnerRepository = learnerRepository,
         _curriculumService = curriculumService,
-        _questionService = questionService ?? QuestionKnowledgeProductService(),
+        _questionProvider = questionProvider ??
+            CaseLawQuestionProvider(
+              questionService:
+                  questionService ?? QuestionKnowledgeProductService(),
+            ),
+        _legacyQuestionService = questionService,
         _assessmentService = assessmentService,
         _sessionManager = sessionManager,
         _attemptRepository = attemptRepository,
         _questionSelector = questionSelector ??
             QuestionSelector(
+              questionProvider: questionProvider,
               questionService: questionService,
               curriculumService: curriculumService,
               attemptRepository: attemptRepository,
@@ -299,12 +309,17 @@ class LearningSessionOrchestrator {
     return List.unmodifiable(list);
   }
 
-  /// Resolves a P15 question ID across all available products.
+  /// Resolves a question ID across available question providers and legacy products.
   LegalQuestion? _resolveQuestion(String questionId) {
-    final allProducts = _questionService.buildAll();
-    for (final product in allProducts) {
-      for (final q in product.questions) {
-        if (q.questionId == questionId) return q;
+    final q = _questionProvider.getQuestionById(questionId);
+    if (q is LegalQuestion) return q as LegalQuestion;
+
+    if (_legacyQuestionService != null) {
+      final allProducts = _legacyQuestionService!.buildAll();
+      for (final product in allProducts) {
+        for (final item in product.questions) {
+          if (item.questionId == questionId) return item;
+        }
       }
     }
     return null;
