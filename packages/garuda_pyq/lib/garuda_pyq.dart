@@ -82,3 +82,6 @@ export 'validators/pyq_validator.dart';
 // Assets & Infrastructure Layer
 export 'assets/pyq_assets_registry.dart';
 export 'infrastructure/local_pyq_storage.dart';
+
+// Multi-Exam PYQ Intelligence Foundation (TITAN P29)
+export 'multi_exam/multi_exam_pyq_intelligence.dart';
