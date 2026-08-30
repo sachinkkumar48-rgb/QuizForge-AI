@@ -85,3 +85,6 @@ export 'infrastructure/local_pyq_storage.dart';
 
 // Multi-Exam PYQ Intelligence Foundation (TITAN P29)
 export 'multi_exam/multi_exam_pyq_intelligence.dart';
+
+// Multi-Exam PYQ Acquisition & Ingestion Engine (TITAN P30)
+export 'acquisition/multi_exam_pyq_acquisition.dart';
