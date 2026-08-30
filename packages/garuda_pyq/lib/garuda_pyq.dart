@@ -88,3 +88,6 @@ export 'multi_exam/multi_exam_pyq_intelligence.dart';
 
 // Multi-Exam PYQ Acquisition & Ingestion Engine (TITAN P30)
 export 'acquisition/multi_exam_pyq_acquisition.dart';
+
+// Multi-Exam PYQ Historical Intelligence Engine (TITAN P31)
+export 'intelligence/pyq_historical_intelligence.dart';
