@@ -93,7 +93,8 @@ export 'evaluation/multiple_choice_evaluator.dart';
 export 'evaluation/short_answer_evaluator.dart';
 export 'evaluation/true_false_evaluator.dart';
 
-// P19 Orchestration Engine
+// P19 Orchestration Engine & Closed-Loop Engine
+export 'orchestration/learning_loop_orchestrator.dart';
 export 'orchestration/learning_session_orchestrator.dart';
 export 'orchestration/question_selector.dart';
 export 'orchestration/question_sequencer.dart';
@@ -132,6 +133,7 @@ export 'service/remedial_lesson_service.dart';
 export 'service/session_manager.dart';
 export 'service/spaced_repetition_service.dart';
 export 'service/study_planner_engine.dart';
+export 'service/weak_spot_diagnostic_evaluator.dart';
 
 // Validation
 export 'validation/curriculum_validation_result.dart';

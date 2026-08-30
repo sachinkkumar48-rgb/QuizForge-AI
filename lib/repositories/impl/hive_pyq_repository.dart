@@ -12,6 +12,8 @@ import '../../models/view/question_with_details.dart';
 import '../../services/generic_dataset_importer.dart';
 import '../../services/pyq_analytics_service.dart';
 import '../../services/pyq_importer_service.dart';
+import 'package:garuda_learning/garuda_learning.dart';
+
 import '../../services/search/inverted_index.dart';
 import '../../services/search/search_query.dart';
 import '../../services/spaced_repetition_scheduler.dart';
@@ -28,6 +30,21 @@ class HivePyqRepository implements PyqRepository {
 
   final InvertedIndex _searchIndex = InvertedIndex();
   bool _isIndexBuilt = false;
+
+  final AssessmentService? _assessmentService;
+  final String _defaultLearnerId;
+  final CurriculumService? _curriculumService;
+  final String? Function(PyqQuestionModel question)? _objectiveResolver;
+
+  HivePyqRepository({
+    AssessmentService? assessmentService,
+    String defaultLearnerId = 'default_learner',
+    CurriculumService? curriculumService,
+    String? Function(PyqQuestionModel question)? objectiveResolver,
+  })  : _assessmentService = assessmentService,
+        _defaultLearnerId = defaultLearnerId,
+        _curriculumService = curriculumService,
+        _objectiveResolver = objectiveResolver;
 
   Future<void> _ensureIndexBuilt() async {
     if (_isIndexBuilt) return;
@@ -216,6 +233,23 @@ class HivePyqRepository implements PyqRepository {
   }
 
   @override
+  Future<List<PyqQuestionModel>> getQuestionsForObjective(
+      String objectiveId) async {
+    final all = await getAllQuestions();
+    final normalized =
+        objectiveId.toLowerCase().replaceAll('lo_', '').replaceAll('_', ' ');
+
+    final matched = all.where((q) {
+      final resolved = _resolveObjective(q);
+      if (resolved == objectiveId) return true;
+      final topicClean = q.topic.toLowerCase();
+      return topicClean.contains(normalized) || normalized.contains(topicClean);
+    }).toList();
+
+    return matched;
+  }
+
+  @override
   Future<void> toggleBookmark(String questionId) async {
     final box = await _getBox();
     final jsonString = box.get(questionId);
@@ -231,15 +265,37 @@ class HivePyqRepository implements PyqRepository {
   Future<void> recordAttempt({
     required String questionId,
     required String selectedAnswer,
+    String? learnerId,
+    String? objectiveId,
   }) async {
     final box = await _getBox();
     final jsonString = box.get(questionId);
     if (jsonString != null) {
       final q = PyqQuestionModel.fromJson(jsonDecode(jsonString));
-      final isCorrect = (selectedAnswer.trim().toLowerCase() ==
+      bool isCorrect = (selectedAnswer.trim().toLowerCase() ==
               q.correctAnswer.trim().toLowerCase()) ||
           (selectedAnswer.trim().toUpperCase() ==
               q.officialAnswer.trim().toUpperCase());
+
+      if (_assessmentService != null) {
+        final targetLearnerId = learnerId ?? _defaultLearnerId;
+        final targetObjectiveId =
+            objectiveId ?? _objectiveResolver?.call(q) ?? _resolveObjective(q);
+
+        if (targetObjectiveId != null) {
+          try {
+            final result = _assessmentService!.submitAttempt(
+              learnerId: targetLearnerId,
+              questionId: questionId,
+              objectiveId: targetObjectiveId,
+              submittedAnswer: selectedAnswer,
+            );
+            isCorrect = result.isCorrect;
+          } catch (_) {
+            // Graceful fallback to local evaluation if question not in service provider
+          }
+        }
+      }
 
       final updated = q.copyWith(
         timesAttempted: q.timesAttempted + 1,
@@ -251,6 +307,25 @@ class HivePyqRepository implements PyqRepository {
       await box.put(questionId, jsonEncode(updated.toJson()));
       _isIndexBuilt = false;
     }
+  }
+
+  String? _resolveObjective(PyqQuestionModel q) {
+    if (_objectiveResolver != null) {
+      final custom = _objectiveResolver!(q);
+      if (custom != null) return custom;
+    }
+    if (_curriculumService == null) return null;
+    final topicClean = q.topic.toLowerCase().replaceAll(' ', '_');
+    if (_curriculumService!.getObjectiveById(topicClean) != null) {
+      return topicClean;
+    }
+    for (final obj in _curriculumService!.framework.allObjectives) {
+      if (obj.id.toLowerCase().contains(topicClean) ||
+          obj.title.toLowerCase().contains(q.topic.toLowerCase())) {
+        return obj.id;
+      }
+    }
+    return null;
   }
 
   @override

@@ -24,6 +24,9 @@ abstract class PyqRepository {
   /// Retrieve all incorrectly answered questions (Mistake Bank).
   Future<List<PyqQuestionModel>> getIncorrectQuestions();
 
+  /// Retrieve questions mapped to a specific curriculum [objectiveId].
+  Future<List<PyqQuestionModel>> getQuestionsForObjective(String objectiveId);
+
   /// Search & filter questions by multi-parameters.
   Future<List<PyqQuestionModel>> searchQuestions({
     String? query,
@@ -43,6 +46,8 @@ abstract class PyqRepository {
   Future<void> recordAttempt({
     required String questionId,
     required String selectedAnswer,
+    String? learnerId,
+    String? objectiveId,
   });
 
   /// Generate a custom Mock Test subset of PYQs.

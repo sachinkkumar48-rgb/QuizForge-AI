@@ -1,3 +1,4 @@
+import 'package:titan_core/titan_core.dart';
 import '../models/daily_revision_queue.dart';
 import '../models/pyq_analytics_model.dart';
 import '../models/pyq_question_model.dart';
@@ -8,7 +9,17 @@ class PyqController {
   final PyqRepository _repository;
 
   PyqController({PyqRepository? repository})
-      : _repository = repository ?? HivePyqRepository();
+      : _repository = repository ?? _resolveRepository();
+
+  static PyqRepository _resolveRepository() {
+    try {
+      final locator = TitanServiceLocator.instance;
+      if (locator.isRegistered<PyqRepository>()) {
+        return locator.get<PyqRepository>();
+      }
+    } catch (_) {}
+    return HivePyqRepository();
+  }
 
   Future<void> init() async {
     await _repository.init();
@@ -36,6 +47,10 @@ class PyqController {
 
   Future<List<PyqQuestionModel>> getIncorrectQuestions() async {
     return await _repository.getIncorrectQuestions();
+  }
+
+  Future<List<PyqQuestionModel>> getQuestionsForObjective(String objectiveId) async {
+    return await _repository.getQuestionsForObjective(objectiveId);
   }
 
   Future<List<PyqQuestionModel>> searchQuestions({
@@ -67,10 +82,14 @@ class PyqController {
   Future<void> recordAttempt({
     required String questionId,
     required String selectedAnswer,
+    String? learnerId,
+    String? objectiveId,
   }) async {
     await _repository.recordAttempt(
       questionId: questionId,
       selectedAnswer: selectedAnswer,
+      learnerId: learnerId,
+      objectiveId: objectiveId,
     );
   }
 

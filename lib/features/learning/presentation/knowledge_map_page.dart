@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:garuda_learning/garuda_learning.dart';
 import '../data/lesson_repository.dart';
 import '../widgets/knowledge_node.dart';
 import '../widgets/knowledge_path.dart';
@@ -8,10 +9,12 @@ import 'lesson_player_page.dart';
 /// Knowledge Map Screen visualizing learning journey micro-lessons as a progression tree.
 class KnowledgeMapPage extends StatefulWidget {
   final List<String> completedLessonIds;
+  final DiagnosticPlacementFrontier? diagnosticFrontier;
 
   const KnowledgeMapPage({
     super.key,
     this.completedLessonIds = const ['POL.FR.001'],
+    this.diagnosticFrontier,
   });
 
   @override
@@ -49,6 +52,28 @@ class _KnowledgeMapPageState extends State<KnowledgeMapPage> {
   }
 
   NodeState _getNodeState(int index, String lessonId) {
+    if (widget.diagnosticFrontier != null) {
+      final frontier = widget.diagnosticFrontier!;
+      final normalizedId = lessonId.toLowerCase().replaceAll('.', '_');
+
+      bool matches(List<String> objectiveIds) {
+        return objectiveIds.any((id) {
+          final idNorm = id.toLowerCase();
+          return idNorm.contains(normalizedId) || normalizedId.contains(idNorm);
+        });
+      }
+
+      if (matches(frontier.demonstratedObjectiveIds)) {
+        return NodeState.completed;
+      }
+      if (matches(frontier.remediationTargetObjectiveIds) ||
+          matches(frontier.activeFrontierObjectiveIds) ||
+          matches(frontier.developingObjectiveIds)) {
+        return NodeState.current;
+      }
+      return NodeState.locked;
+    }
+
     if (widget.completedLessonIds.contains(lessonId)) {
       return NodeState.completed;
     }
@@ -143,8 +168,10 @@ class _KnowledgeMapPageState extends State<KnowledgeMapPage> {
                         final lesson = _lessons[index];
                         final lessonId = lesson['id'] ?? 'POL.FR.001';
                         final title = lesson['title'] ?? '';
-                        final estimatedTime = lesson['estimatedTime'] ?? '15 Mins';
-                        final difficulty = lesson['difficulty'] ?? 'Intermediate';
+                        final estimatedTime =
+                            lesson['estimatedTime'] ?? '15 Mins';
+                        final difficulty =
+                            lesson['difficulty'] ?? 'Intermediate';
                         final nodeState = _getNodeState(index, lessonId);
                         final isLastNode = index == _lessons.length - 1;
 

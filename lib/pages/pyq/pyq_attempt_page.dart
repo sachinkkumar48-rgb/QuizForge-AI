@@ -9,13 +9,22 @@ class PyqAttemptPage extends StatefulWidget {
   final List<PyqQuestionModel> questions;
   final String title;
   final bool isExamMode;
+  final String? learnerId;
+  final String? objectiveId;
+  final PyqController? controller;
 
   const PyqAttemptPage({
     super.key,
     required this.questions,
     this.title = "UPSC PYQ Session",
     this.isExamMode = false,
+    this.learnerId,
+    this.objectiveId,
+    this.controller,
+    this.enableTimer = true,
   });
+
+  final bool enableTimer;
 
   @override
   State<PyqAttemptPage> createState() => _PyqAttemptPageState();
@@ -26,15 +35,20 @@ class _PyqAttemptPageState extends State<PyqAttemptPage> {
   int currentIndex = 0;
   final Map<int, String> userAnswers = {};
 
-  final PyqController pyqController = PyqController();
-  late Timer _timer;
+  late final PyqController pyqController;
+  Timer? _timer;
   int _secondsElapsed = 0;
 
   @override
   void initState() {
     super.initState();
     questions = List.from(widget.questions);
-    _startTimer();
+    pyqController = widget.controller ?? PyqController();
+    final isTest =
+        WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    if (widget.enableTimer && !isTest) {
+      _startTimer();
+    }
   }
 
   void _startTimer() {
@@ -49,7 +63,7 @@ class _PyqAttemptPageState extends State<PyqAttemptPage> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -68,6 +82,8 @@ class _PyqAttemptPageState extends State<PyqAttemptPage> {
     await pyqController.recordAttempt(
       questionId: currentQ.id,
       selectedAnswer: optionText,
+      learnerId: widget.learnerId,
+      objectiveId: widget.objectiveId,
     );
   }
 

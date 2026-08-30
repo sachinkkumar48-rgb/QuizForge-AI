@@ -26,7 +26,9 @@ class OverviewCard extends StatelessWidget {
                 children: [
                   Icon(Icons.dashboard_rounded, color: colorScheme.primary),
                   const SizedBox(width: 8),
-                  Text('Learning Overview', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('Learning Overview',
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -38,12 +40,24 @@ class OverviewCard extends StatelessWidget {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
                 children: [
-                  _buildStatTile(theme, 'Mastery', '${(summary.overallMastery * 100).toStringAsFixed(0)}%', Colors.blue),
-                  _buildStatTile(theme, 'Accuracy', '${(summary.overallAccuracy * 100).toStringAsFixed(0)}%', Colors.green),
-                  _buildStatTile(theme, 'Attempted', '${summary.questionsAttempted}', Colors.orange),
-                  _buildStatTile(theme, 'Correct', '${summary.correctAnswers}', Colors.teal),
-                  _buildStatTile(theme, 'Hours', '${summary.studyHours}h', Colors.purple),
-                  _buildStatTile(theme, 'Streak', '${summary.studyStreak}d 🔥', Colors.deepOrange),
+                  _buildStatTile(
+                      theme,
+                      'Mastery',
+                      '${(summary.overallMastery * 100).toStringAsFixed(0)}%',
+                      Colors.blue),
+                  _buildStatTile(
+                      theme,
+                      'Accuracy',
+                      '${(summary.overallAccuracy * 100).toStringAsFixed(0)}%',
+                      Colors.green),
+                  _buildStatTile(theme, 'Attempted',
+                      '${summary.questionsAttempted}', Colors.orange),
+                  _buildStatTile(theme, 'Correct', '${summary.correctAnswers}',
+                      Colors.teal),
+                  _buildStatTile(
+                      theme, 'Hours', '${summary.studyHours}h', Colors.purple),
+                  _buildStatTile(theme, 'Streak', '${summary.studyStreak}d 🔥',
+                      Colors.deepOrange),
                 ],
               ),
             ],
@@ -53,7 +67,8 @@ class OverviewCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatTile(ThemeData theme, String label, String value, Color color) {
+  Widget _buildStatTile(
+      ThemeData theme, String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -63,7 +78,9 @@ class OverviewCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color)),
+          Text(value,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold, color: color)),
           Text(label, style: theme.textTheme.labelSmall),
         ],
       ),
@@ -76,7 +93,8 @@ class MasteryCard extends StatelessWidget {
   final double mastery;
   final String currentTopic;
 
-  const MasteryCard({super.key, required this.mastery, required this.currentTopic});
+  const MasteryCard(
+      {super.key, required this.mastery, required this.currentTopic});
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +121,9 @@ class MasteryCard extends StatelessWidget {
                     backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                   Center(
-                    child: Text('$pct%', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                    child: Text('$pct%',
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -113,9 +133,13 @@ class MasteryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Overall Topic Mastery', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('Overall Topic Mastery',
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(currentTopic, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary)),
+                  Text(currentTopic,
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: colorScheme.primary)),
                 ],
               ),
             ),
@@ -143,14 +167,17 @@ class AccuracyCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Accuracy Trends', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Accuracy Trends',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildAccuracyCol(theme, 'Daily', performance.dailyAccuracy),
                 _buildAccuracyCol(theme, 'Weekly', performance.weeklyAccuracy),
-                _buildAccuracyCol(theme, 'Monthly', performance.monthlyAccuracy),
+                _buildAccuracyCol(
+                    theme, 'Monthly', performance.monthlyAccuracy),
               ],
             ),
           ],
@@ -162,7 +189,9 @@ class AccuracyCard extends StatelessWidget {
   Widget _buildAccuracyCol(ThemeData theme, String label, double value) {
     return Column(
       children: [
-        Text('${(value * 100).toStringAsFixed(0)}%', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.green)),
+        Text('${(value * 100).toStringAsFixed(0)}%',
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold, color: Colors.green)),
         Text(label, style: theme.textTheme.labelSmall),
       ],
     );
@@ -194,8 +223,13 @@ class StudyStreakCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('$streakDays Day Study Streak!', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onPrimaryContainer)),
-                  Text('Keep up the momentum to build long-term memory.', style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer)),
+                  Text('$streakDays Day Study Streak!',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onPrimaryContainer)),
+                  Text('Keep up the momentum to build long-term memory.',
+                      style: theme.textTheme.labelSmall
+                          ?.copyWith(color: colorScheme.onPrimaryContainer)),
                 ],
               ),
             ),
@@ -224,7 +258,9 @@ class TopicHeatmap extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Topic Mastery Heatmap', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Topic Mastery Heatmap',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -233,12 +269,14 @@ class TopicHeatmap extends StatelessWidget {
                 ...topicAnalytics.strongTopics.map((t) => Chip(
                       label: Text(t),
                       backgroundColor: Colors.green.shade100,
-                      avatar: const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      avatar: const Icon(Icons.check_circle,
+                          color: Colors.green, size: 16),
                     )),
                 ...topicAnalytics.weakTopics.map((t) => Chip(
                       label: Text(t),
                       backgroundColor: Colors.red.shade100,
-                      avatar: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 16),
+                      avatar: const Icon(Icons.warning_amber_rounded,
+                          color: Colors.red, size: 16),
                     )),
               ],
             ),
@@ -266,7 +304,9 @@ class ProgressChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Mastery Progress Trend', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Mastery Progress Trend',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             SizedBox(
               height: 100,
@@ -323,18 +363,24 @@ class RevisionCard extends StatelessWidget {
                 Icon(Icons.style_rounded, color: colorScheme.secondary),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('Spaced Repetition Queue', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  child: Text('Spaced Repetition Queue',
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            LinearProgressIndicator(value: revision.completionPct / 100, backgroundColor: colorScheme.surfaceContainerHighest),
+            LinearProgressIndicator(
+                value: revision.completionPct / 100,
+                backgroundColor: colorScheme.surfaceContainerHighest),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Completed: ${revision.completed}/${revision.todaysQueue}', style: theme.textTheme.labelMedium),
-                Text('Ease: ${revision.avgEaseFactor}', style: theme.textTheme.labelMedium),
+                Text('Completed: ${revision.completed}/${revision.todaysQueue}',
+                    style: theme.textTheme.labelMedium),
+                Text('Ease: ${revision.avgEaseFactor}',
+                    style: theme.textTheme.labelMedium),
               ],
             ),
           ],
@@ -347,13 +393,19 @@ class RevisionCard extends StatelessWidget {
 /// 8. RecommendationCard Widget
 class RecommendationCard extends StatelessWidget {
   final RecommendationsDto recs;
+  final VoidCallback? onStartRemedial;
 
-  const RecommendationCard({super.key, required this.recs});
+  const RecommendationCard({
+    super.key,
+    required this.recs,
+    this.onStartRemedial,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isRemedial = onStartRemedial != null;
 
     return Card(
       elevation: 3,
@@ -366,15 +418,36 @@ class RecommendationCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, color: colorScheme.onTertiaryContainer),
+                Icon(Icons.auto_awesome_rounded,
+                    color: colorScheme.onTertiaryContainer),
                 const SizedBox(width: 8),
-                Text('Next Best Action', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onTertiaryContainer)),
+                Text('Next Best Action',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onTertiaryContainer)),
               ],
             ),
             const SizedBox(height: 8),
-            Text(recs.nextBestAction, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onTertiaryContainer)),
+            Text(recs.nextBestAction,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onTertiaryContainer)),
             const SizedBox(height: 4),
-            Text('Goal: ${recs.todaysGoal}', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onTertiaryContainer)),
+            Text('Goal: ${recs.todaysGoal}',
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: colorScheme.onTertiaryContainer)),
+            if (isRemedial) ...[
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: onStartRemedial,
+                icon: const Icon(Icons.healing_rounded),
+                label: const Text('Start Remedial Practice'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -400,13 +473,18 @@ class PlannerCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Today\'s Study Plan', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Today\'s Study Plan',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             ...study.todaysPlan.map((task) => ListTile(
                   dense: true,
                   leading: Icon(
-                    task['completed'] == true ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                    color: task['completed'] == true ? Colors.green : Colors.grey,
+                    task['completed'] == true
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    color:
+                        task['completed'] == true ? Colors.green : Colors.grey,
                   ),
                   title: Text(task['title'] ?? ''),
                   subtitle: Text('${task['type']} • ${task['duration']} mins'),
@@ -435,11 +513,15 @@ class WeeklyProgressCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Weekly Target Progress', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Weekly Target Progress',
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             LinearProgressIndicator(value: weeklyProgress / 100.0),
             const SizedBox(height: 4),
-            Text('${weeklyProgress.toStringAsFixed(0)}% of weekly study target completed', style: theme.textTheme.labelSmall),
+            Text(
+                '${weeklyProgress.toStringAsFixed(0)}% of weekly study target completed',
+                style: theme.textTheme.labelSmall),
           ],
         ),
       ),
@@ -464,11 +546,16 @@ class MonthlyProgressCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Monthly Syllabus Completion', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Monthly Syllabus Completion',
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            LinearProgressIndicator(value: monthlyProgress / 100.0, color: Colors.purple),
+            LinearProgressIndicator(
+                value: monthlyProgress / 100.0, color: Colors.purple),
             const SizedBox(height: 4),
-            Text('${monthlyProgress.toStringAsFixed(0)}% overall monthly target achieved', style: theme.textTheme.labelSmall),
+            Text(
+                '${monthlyProgress.toStringAsFixed(0)}% overall monthly target achieved',
+                style: theme.textTheme.labelSmall),
           ],
         ),
       ),
@@ -479,9 +566,17 @@ class MonthlyProgressCard extends StatelessWidget {
 /// Backward compatibility widgets
 class NextBestActionCard extends StatelessWidget {
   final NextBestActionDto? nba;
-  const NextBestActionCard({super.key, this.nba});
+  final VoidCallback? onStartRemedial;
+
+  const NextBestActionCard({super.key, this.nba, this.onStartRemedial});
+
   @override
   Widget build(BuildContext context) {
+    final hasRemedial = nba?.recType == 'remedial' ||
+        nba?.recType == 'WEAK_TOPIC_REVISION' ||
+        nba?.recType == 'remediation' ||
+        (nba?.title.toLowerCase().contains('remedial') ?? false);
+
     return RecommendationCard(
       recs: RecommendationsDto(
         nextBestAction: nba?.title ?? 'Revise Article 21 Rights',
@@ -491,6 +586,7 @@ class NextBestActionCard extends StatelessWidget {
         suggestedQuiz: '10 Questions Quiz',
         suggestedReading: 'Summary PDF',
       ),
+      onStartRemedial: hasRemedial ? onStartRemedial : null,
     );
   }
 }
@@ -503,7 +599,12 @@ class TodayStudyPlanCard extends StatelessWidget {
     return PlannerCard(
       study: StudyAnalyticsDto(
         todaysPlan: const [
-          {'title': 'Revise Article 21 Rights', 'type': 'revision', 'duration': 30, 'completed': true},
+          {
+            'title': 'Revise Article 21 Rights',
+            'type': 'revision',
+            'duration': 30,
+            'completed': true
+          },
         ],
         completedTasks: 1,
         remainingTasks: 1,
@@ -561,7 +662,9 @@ class RecentConversationsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Recent Tutor Sessions', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Recent Tutor Sessions',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             ...conversations.map((c) => ListTile(
                   title: Text(c.topicName),
                   subtitle: Text(c.lastMessage),
@@ -587,9 +690,12 @@ class PdfLibraryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('PDF Knowledge Library', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('PDF Knowledge Library',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             ...pdfs.map((p) => ListTile(
-                  leading: const Icon(Icons.picture_as_pdf_rounded, color: Colors.red),
+                  leading: const Icon(Icons.picture_as_pdf_rounded,
+                      color: Colors.red),
                   title: Text(p.documentName),
                   subtitle: Text('${p.chunksCount} chunks indexed'),
                   dense: true,
@@ -603,7 +709,14 @@ class PdfLibraryCard extends StatelessWidget {
 
 class QuickActionsCard extends StatelessWidget {
   final ValueChanged<String> onActionSelected;
-  const QuickActionsCard({super.key, required this.onActionSelected});
+  final bool hasRemedialTarget;
+
+  const QuickActionsCard({
+    super.key,
+    required this.onActionSelected,
+    this.hasRemedialTarget = false,
+  });
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -614,11 +727,20 @@ class QuickActionsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Quick Actions', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Quick Actions',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
+                if (hasRemedialTarget)
+                  ActionChip(
+                    avatar: const Icon(Icons.healing_rounded, size: 16),
+                    label: const Text('Start Remedial Practice'),
+                    onPressed: () => onActionSelected('remedial_practice'),
+                  ),
                 ActionChip(
                   avatar: const Icon(Icons.chat_bubble_rounded, size: 16),
                   label: const Text('Ask GARUDA AI'),

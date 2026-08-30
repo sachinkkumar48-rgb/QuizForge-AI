@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:titan_core/titan_core.dart';
 
 /// GARUDA AI DTO: Overview Summary
 class DashboardSummaryDto {
@@ -34,7 +35,8 @@ class DashboardSummaryDto {
       studyStreak: (json['study_streak'] as num? ?? 7).toInt(),
       learningVelocity: (json['learning_velocity'] as num? ?? 0.05).toDouble(),
       confidenceScore: (json['confidence_score'] as num? ?? 3.2).toDouble(),
-      completionPercentage: (json['completion_percentage'] as num? ?? 68.0).toDouble(),
+      completionPercentage:
+          (json['completion_percentage'] as num? ?? 68.0).toDouble(),
     );
   }
 }
@@ -61,8 +63,14 @@ class TopicAnalyticsDto {
 
   factory TopicAnalyticsDto.fromJson(Map<String, dynamic> json) {
     return TopicAnalyticsDto(
-      strongTopics: (json['strong_topics'] as List? ?? ['Polity Preamble', 'Panchayati Raj']).map((e) => e.toString()).toList(),
-      weakTopics: (json['weak_topics'] as List? ?? ['Article 21 Judicial Precedents', 'Emergency Provisions']).map((e) => e.toString()).toList(),
+      strongTopics: (json['strong_topics'] as List? ??
+              ['Polity Preamble', 'Panchayati Raj'])
+          .map((e) => e.toString())
+          .toList(),
+      weakTopics: (json['weak_topics'] as List? ??
+              ['Article 21 Judicial Precedents', 'Emergency Provisions'])
+          .map((e) => e.toString())
+          .toList(),
       masteryPct: (json['mastery_pct'] as num? ?? 68.0).toDouble(),
       revisionDue: (json['revision_due'] as num? ?? 5).toInt(),
       practiceCount: (json['practice_count'] as num? ?? 185).toInt(),
@@ -130,11 +138,29 @@ class StudyAnalyticsDto {
 
   factory StudyAnalyticsDto.fromJson(Map<String, dynamic> json) {
     return StudyAnalyticsDto(
-      todaysPlan: (json['todays_plan'] as List? ?? [
-        {'title': 'Revise Article 21 Rights', 'type': 'revision', 'duration': 30, 'completed': true},
-        {'title': 'Solve 15 Polity Questions', 'type': 'quiz', 'duration': 30, 'completed': true},
-        {'title': 'Read Emergency Provisions PDF', 'type': 'learning', 'duration': 60, 'completed': false},
-      ]).map((e) => Map<String, dynamic>.from(e as Map)).toList(),
+      todaysPlan: (json['todays_plan'] as List? ??
+              [
+                {
+                  'title': 'Revise Article 21 Rights',
+                  'type': 'revision',
+                  'duration': 30,
+                  'completed': true
+                },
+                {
+                  'title': 'Solve 15 Polity Questions',
+                  'type': 'quiz',
+                  'duration': 30,
+                  'completed': true
+                },
+                {
+                  'title': 'Read Emergency Provisions PDF',
+                  'type': 'learning',
+                  'duration': 60,
+                  'completed': false
+                },
+              ])
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
       completedTasks: (json['completed_tasks'] as num? ?? 2).toInt(),
       remainingTasks: (json['remaining_tasks'] as num? ?? 1).toInt(),
       weeklyProgress: (json['weekly_progress'] as num? ?? 75.0).toDouble(),
@@ -174,7 +200,8 @@ class PerformanceAnalyticsDto {
       monthlyAccuracy: (json['monthly_accuracy'] as num? ?? 0.71).toDouble(),
       avgScore: (json['avg_score'] as num? ?? 74.0).toDouble(),
       bestTopic: json['best_topic'] as String? ?? 'Polity Preamble',
-      weakestTopic: json['weakest_topic'] as String? ?? 'Article 21 Judicial Precedents',
+      weakestTopic:
+          json['weakest_topic'] as String? ?? 'Article 21 Judicial Precedents',
       improvementRate: (json['improvement_rate'] as num? ?? 12.5).toDouble(),
       consistencyScore: (json['consistency_score'] as num? ?? 88.0).toDouble(),
     );
@@ -201,12 +228,18 @@ class RecommendationsDto {
 
   factory RecommendationsDto.fromJson(Map<String, dynamic> json) {
     return RecommendationsDto(
-      nextBestAction: json['next_best_action'] as String? ?? 'Revise Article 21 Rights (Accuracy 52%)',
-      todaysGoal: json['todays_goal'] as String? ?? 'Achieve 80%+ Accuracy on Weak Topics',
-      priorityTopic: json['priority_topic'] as String? ?? 'Article 21 Judicial Precedents',
-      suggestedRevision: json['suggested_revision'] as String? ?? 'Spaced Repetition: 5 Overdue Flashcards',
-      suggestedQuiz: json['suggested_quiz'] as String? ?? '10-Question Polity Practice Test',
-      suggestedReading: json['suggested_reading'] as String? ?? 'Indian_Constitution_Summary.pdf (Page 14)',
+      nextBestAction: json['next_best_action'] as String? ??
+          'Revise Article 21 Rights (Accuracy 52%)',
+      todaysGoal: json['todays_goal'] as String? ??
+          'Achieve 80%+ Accuracy on Weak Topics',
+      priorityTopic:
+          json['priority_topic'] as String? ?? 'Article 21 Judicial Precedents',
+      suggestedRevision: json['suggested_revision'] as String? ??
+          'Spaced Repetition: 5 Overdue Flashcards',
+      suggestedQuiz: json['suggested_quiz'] as String? ??
+          '10-Question Polity Practice Test',
+      suggestedReading: json['suggested_reading'] as String? ??
+          'Indian_Constitution_Summary.pdf (Page 14)',
     );
   }
 }
@@ -322,6 +355,7 @@ abstract class GarudaDashboardRepository {
   Future<LearningProfileDto> fetchLearningProfile(String userId);
   Future<List<RecentConversationDto>> fetchRecentConversations(String userId);
   Future<List<UploadedPdfDto>> fetchPdfLibrary(String userId);
+  Future<String?> getRemediationTargetObjectiveId(String userId);
 }
 
 /// Mock Implementation for Zero-Network Testing & Offline Execution
@@ -372,9 +406,24 @@ class MockGarudaDashboardRepository implements GarudaDashboardRepository {
   Future<StudyAnalyticsDto> fetchStudyAnalytics(String userId) async {
     return const StudyAnalyticsDto(
       todaysPlan: [
-        {'title': 'Revise Article 21 Rights', 'type': 'revision', 'duration': 30, 'completed': true},
-        {'title': 'Solve 15 Polity Questions', 'type': 'quiz', 'duration': 30, 'completed': true},
-        {'title': 'Read Emergency Provisions PDF', 'type': 'learning', 'duration': 60, 'completed': false},
+        {
+          'title': 'Revise Article 21 Rights',
+          'type': 'revision',
+          'duration': 30,
+          'completed': true
+        },
+        {
+          'title': 'Solve 15 Polity Questions',
+          'type': 'quiz',
+          'duration': 30,
+          'completed': true
+        },
+        {
+          'title': 'Read Emergency Provisions PDF',
+          'type': 'learning',
+          'duration': 60,
+          'completed': false
+        },
       ],
       completedTasks: 2,
       remainingTasks: 1,
@@ -386,7 +435,8 @@ class MockGarudaDashboardRepository implements GarudaDashboardRepository {
   }
 
   @override
-  Future<PerformanceAnalyticsDto> fetchPerformanceAnalytics(String userId) async {
+  Future<PerformanceAnalyticsDto> fetchPerformanceAnalytics(
+      String userId) async {
     return const PerformanceAnalyticsDto(
       dailyAccuracy: 0.78,
       weeklyAccuracy: 0.74,
@@ -438,7 +488,8 @@ class MockGarudaDashboardRepository implements GarudaDashboardRepository {
       id: 'nba_01',
       recType: 'WEAK_TOPIC_REVISION',
       title: 'Revise Article 21 Rights',
-      description: 'Mastery score is below target (52%). Socratic review recommended.',
+      description:
+          'Mastery score is below target (52%). Socratic review recommended.',
       priority: 'URGENT',
       reason: 'WEAK_ACCURACY',
       confidenceScore: 0.88,
@@ -457,18 +508,21 @@ class MockGarudaDashboardRepository implements GarudaDashboardRepository {
   }
 
   @override
-  Future<List<RecentConversationDto>> fetchRecentConversations(String userId) async {
+  Future<List<RecentConversationDto>> fetchRecentConversations(
+      String userId) async {
     return [
       RecentConversationDto(
         sessionId: 'sess_01',
         topicName: 'Article 14 Fundamental Rights',
-        lastMessage: 'How does administrative discretion affect equality before law?',
+        lastMessage:
+            'How does administrative discretion affect equality before law?',
         timestamp: DateTime.now().subtract(const Duration(hours: 2)),
       ),
       RecentConversationDto(
         sessionId: 'sess_02',
         topicName: 'Harappan Civilisation Trade',
-        lastMessage: 'What were the key maritime trading ports of Indus Valley?',
+        lastMessage:
+            'What were the key maritime trading ports of Indus Valley?',
         timestamp: DateTime.now().subtract(const Duration(days: 1)),
       ),
     ];
@@ -490,6 +544,11 @@ class MockGarudaDashboardRepository implements GarudaDashboardRepository {
         uploadedAt: DateTime.now().subtract(const Duration(days: 5)),
       ),
     ];
+  }
+
+  @override
+  Future<String?> getRemediationTargetObjectiveId(String userId) async {
+    return 'lo_article_21_foundations';
   }
 }
 
@@ -517,7 +576,17 @@ class DashboardViewModel extends ChangeNotifier {
   List<UploadedPdfDto> _pdfLibrary = [];
 
   DashboardViewModel({GarudaDashboardRepository? repository})
-      : repository = repository ?? MockGarudaDashboardRepository();
+      : repository = repository ?? _resolveRepository();
+
+  static GarudaDashboardRepository _resolveRepository() {
+    try {
+      final locator = TitanServiceLocator.instance;
+      if (locator.isRegistered<GarudaDashboardRepository>()) {
+        return locator.get<GarudaDashboardRepository>();
+      }
+    } catch (_) {}
+    return MockGarudaDashboardRepository();
+  }
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -538,6 +607,33 @@ class DashboardViewModel extends ChangeNotifier {
   List<RecentConversationDto> get recentConversations => _recentConversations;
   List<UploadedPdfDto> get pdfLibrary => _pdfLibrary;
 
+  String? _remediationTargetObjectiveId;
+
+  /// Returns the current active P26 remediation target objective ID, if one exists.
+  String? get activeRemediationObjectiveId {
+    if (_remediationTargetObjectiveId != null) {
+      return _remediationTargetObjectiveId;
+    }
+    if (_nextBestAction?.recType == 'remedial') {
+      final id = _nextBestAction!.id;
+      if (id.startsWith('rec_rem_')) {
+        return id.replaceFirst('rec_rem_', '');
+      }
+      return id;
+    }
+    return null;
+  }
+
+  /// Whether a P26 remediation target is actively flagged for this learner.
+  bool get hasRemedialTarget => activeRemediationObjectiveId != null;
+
+  /// Resolves the current remediation target objective ID directly from repository.
+  Future<String?> getRemediationTargetObjectiveId(String userId) async {
+    final target = await repository.getRemediationTargetObjectiveId(userId);
+    _remediationTargetObjectiveId = target;
+    return target;
+  }
+
   Future<void> loadDashboardData(String userId) async {
     _isLoading = true;
     _errorMessage = null;
@@ -557,6 +653,7 @@ class DashboardViewModel extends ChangeNotifier {
         repository.fetchLearningProfile(userId),
         repository.fetchRecentConversations(userId),
         repository.fetchPdfLibrary(userId),
+        repository.getRemediationTargetObjectiveId(userId),
       ]);
 
       _summary = results[0] as DashboardSummaryDto;
@@ -572,6 +669,7 @@ class DashboardViewModel extends ChangeNotifier {
       _learningProfile = results[9] as LearningProfileDto;
       _recentConversations = results[10] as List<RecentConversationDto>;
       _pdfLibrary = results[11] as List<UploadedPdfDto>;
+      _remediationTargetObjectiveId = results[12] as String?;
 
       _isLoading = false;
     } catch (e) {
