@@ -9,6 +9,7 @@ import '../../domain/usecases/generate_quiz_usecase.dart';
 import '../../domain/usecases/generate_study_plan_usecase.dart';
 import '../../repositories/ai_mentor_repository.dart';
 import '../../repositories/impl/garuda_learning_dashboard_repository.dart';
+import '../../repositories/impl/hive_garuda_learner_evidence_repository.dart';
 import '../../repositories/impl/hive_pyq_repository.dart';
 import '../../repositories/pyq_repository.dart';
 import '../../repositories/quiz_repository.dart';
@@ -151,12 +152,15 @@ void setupServiceLocator() {
   if (!locator.isRegistered<LearnerRepository>()) {
     locator.registerLazySingleton<LearnerRepository>(
       () {
-        final repo = InMemoryLearnerRepository();
-        repo.save(Learner(
-          id: locator.get<ActiveLearnerService>().activeLearnerId,
-          name: 'TITAN UPSC Aspirant',
-          createdAt: DateTime.utc(2026, 8, 29),
-        ));
+        final repo = HiveGarudaLearnerRepository();
+        final activeId = locator.get<ActiveLearnerService>().activeLearnerId;
+        if (!repo.exists(activeId)) {
+          repo.save(Learner(
+            id: activeId,
+            name: 'TITAN UPSC Aspirant',
+            createdAt: DateTime.utc(2026, 8, 29),
+          ));
+        }
         return repo;
       },
       allowOverride: true,
@@ -165,14 +169,23 @@ void setupServiceLocator() {
 
   if (!locator.isRegistered<AttemptRepository>()) {
     locator.registerLazySingleton<AttemptRepository>(
-      () => InMemoryAttemptRepository(),
+      () => HiveGarudaAttemptRepository(),
       allowOverride: true,
     );
   }
 
   if (!locator.isRegistered<ProgressRepository>()) {
     locator.registerLazySingleton<ProgressRepository>(
-      () => InMemoryProgressRepository(),
+      () => HiveGarudaProgressRepository(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<SessionManager>()) {
+    locator.registerLazySingleton<SessionManager>(
+      () => HiveGarudaSessionManager(
+        learnerRepository: locator.get<LearnerRepository>(),
+      ),
       allowOverride: true,
     );
   }
@@ -202,6 +215,7 @@ void setupServiceLocator() {
         curriculumService: locator.get<CurriculumService>(),
         questionProvider: locator.get<QuestionProvider>(),
         progressTracker: locator.get<ProgressTracker>(),
+        sessionManager: locator.get<SessionManager>(),
       ),
       allowOverride: true,
     );
