@@ -152,3 +152,9 @@ export 'adapter/pyq_diagnostic_adapter.dart';
 export 'adapter/pyq_remediation_adapter.dart';
 export 'adapter/pyq_study_plan_adapter.dart';
 export 'service/pyq_learning_priority_engine.dart';
+
+// P33 Adaptive Question Selection Domain Entities & Service
+export 'domain/entities/adaptive_question_candidate.dart';
+export 'domain/entities/adaptive_question_selection_config.dart';
+export 'domain/entities/adaptive_question_selection_result.dart';
+export 'service/adaptive_question_selection_service.dart';
