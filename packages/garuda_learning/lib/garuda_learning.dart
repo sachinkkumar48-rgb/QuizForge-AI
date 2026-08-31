@@ -62,6 +62,9 @@ export 'adapter/legal_question_adapter.dart';
 export 'adapter/pyq_question_adapter.dart';
 export 'provider/question_provider.dart';
 
+// P23 Domain Entities
+export 'domain/entities/weak_spot_profile.dart';
+
 // P24 Domain Entities
 export 'domain/entities/daily_study_agenda.dart';
 export 'domain/entities/study_agenda_item.dart';
@@ -138,3 +141,14 @@ export 'service/weak_spot_diagnostic_evaluator.dart';
 // Validation
 export 'validation/curriculum_validation_result.dart';
 export 'validation/curriculum_validator.dart';
+
+// P32 Domain Entities
+export 'domain/entities/pyq_learning_priority_config.dart';
+export 'domain/entities/pyq_learning_priority_profile.dart';
+export 'domain/entities/pyq_learning_priority_signal.dart';
+
+// P32 Service & Adapters
+export 'adapter/pyq_diagnostic_adapter.dart';
+export 'adapter/pyq_remediation_adapter.dart';
+export 'adapter/pyq_study_plan_adapter.dart';
+export 'service/pyq_learning_priority_engine.dart';
