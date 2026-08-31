@@ -140,6 +140,9 @@ class AdaptiveQuestionCandidate {
   String? get primaryObjectiveId =>
       question.objectiveIds.isNotEmpty ? question.objectiveIds.first : null;
 
+  /// Whether this candidate is a verified historical examination question.
+  bool get isPyq => question.year > 0;
+
   AdaptiveQuestionCandidate copyWith({
     NormalizedQuestion? question,
     double? historicalPriority,
@@ -171,6 +174,7 @@ class AdaptiveQuestionCandidate {
   }
 
   Map<String, dynamic> toJson() => {
+        'question': question.toJson(),
         'questionId': questionId,
         'examId': examId,
         'year': year,
@@ -191,6 +195,50 @@ class AdaptiveQuestionCandidate {
         if (exclusionReason != null) 'exclusionReason': exclusionReason!.name,
         'scoreBreakdown': scoreBreakdown,
       };
+
+  factory AdaptiveQuestionCandidate.fromJson(Map<String, dynamic> json) =>
+      AdaptiveQuestionCandidate(
+        question: json['question'] != null
+            ? NormalizedQuestion.fromJson(
+                json['question'] as Map<String, dynamic>)
+            : NormalizedQuestion(
+                id: json['questionId'] as String? ?? 'q_unknown',
+                examId: json['examId'] as String? ?? 'general',
+                year: json['year'] as int? ?? 2024,
+                paper: json['paper'] as String? ?? 'GS1',
+                normalizedText: 'Text',
+                originalText: 'Text',
+                options: const [],
+                officialAnswer: const Answer(correctOptionKeys: ['A']),
+                source: PyqSourceReference.official(
+                  examId: json['examId'] as String? ?? 'general',
+                  year: json['year'] as int? ?? 2024,
+                  paper: json['paper'] as String? ?? 'GS1',
+                ),
+              ),
+        historicalPriority:
+            (json['historicalPriority'] as num?)?.toDouble() ?? 0.0,
+        learnerWeakness: (json['learnerWeakness'] as num?)?.toDouble() ?? 0.0,
+        exposureCount: json['exposureCount'] as int? ?? 0,
+        lastExposedAt: json['lastExposedAt'] != null
+            ? DateTime.parse(json['lastExposedAt'] as String).toUtc()
+            : null,
+        recencyScore: (json['recencyScore'] as num?)?.toDouble() ?? 1.0,
+        difficultyFit: (json['difficultyFit'] as num?)?.toDouble() ?? 1.0,
+        sourceQualityScore:
+            (json['sourceQualityScore'] as num?)?.toDouble() ?? 1.0,
+        selectionScore: (json['selectionScore'] as num?)?.toDouble() ?? 0.0,
+        isEligible: json['isEligible'] as bool? ?? true,
+        exclusionReason: json['exclusionReason'] != null
+            ? QuestionExclusionReason.values.firstWhere(
+                (r) => r.name == json['exclusionReason'],
+                orElse: () => QuestionExclusionReason.scopeMismatch,
+              )
+            : null,
+        scoreBreakdown:
+            (json['scoreBreakdown'] as Map<String, dynamic>? ?? const {})
+                .map((k, v) => MapEntry(k, (v as num).toDouble())),
+      );
 
   @override
   String toString() =>

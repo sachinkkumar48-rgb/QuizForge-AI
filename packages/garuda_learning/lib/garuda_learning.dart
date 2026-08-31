@@ -158,3 +158,8 @@ export 'domain/entities/adaptive_question_candidate.dart';
 export 'domain/entities/adaptive_question_selection_config.dart';
 export 'domain/entities/adaptive_question_selection_result.dart';
 export 'service/adaptive_question_selection_service.dart';
+
+// P34 Adaptive Practice Session Orchestrator Domain Entities & Service
+export 'domain/entities/adaptive_practice_session_config.dart';
+export 'domain/entities/adaptive_practice_session_spec.dart';
+export 'service/adaptive_practice_session_orchestrator.dart';
