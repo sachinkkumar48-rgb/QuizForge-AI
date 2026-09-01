@@ -163,3 +163,8 @@ export 'service/adaptive_question_selection_service.dart';
 export 'domain/entities/adaptive_practice_session_config.dart';
 export 'domain/entities/adaptive_practice_session_spec.dart';
 export 'service/adaptive_practice_session_orchestrator.dart';
+
+// P35 Adaptive Practice Execution & Feedback Domain Entities & Service
+export 'domain/entities/practice_execution_error.dart';
+export 'domain/entities/practice_execution_state.dart';
+export 'service/adaptive_practice_execution_engine.dart';
