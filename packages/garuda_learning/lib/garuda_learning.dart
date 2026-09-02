@@ -174,3 +174,9 @@ export 'domain/entities/practice_consolidation_error.dart';
 export 'domain/entities/practice_outcome_evidence.dart';
 export 'domain/entities/practice_outcome_consolidation.dart';
 export 'service/practice_outcome_consolidator.dart';
+
+// P37 Adaptive Learning Evidence Feedback Loop & Proposal Domain Entities & Service
+export 'domain/entities/learning_evidence_signal.dart';
+export 'domain/entities/learning_proposal_error.dart';
+export 'domain/entities/learning_state_update_proposal.dart';
+export 'service/learning_state_update_proposer.dart';
