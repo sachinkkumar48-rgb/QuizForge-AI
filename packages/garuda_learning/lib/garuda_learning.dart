@@ -168,3 +168,9 @@ export 'service/adaptive_practice_session_orchestrator.dart';
 export 'domain/entities/practice_execution_error.dart';
 export 'domain/entities/practice_execution_state.dart';
 export 'service/adaptive_practice_execution_engine.dart';
+
+// P36 Practice Outcome Consolidation & Evidence Bridge Domain Entities & Service
+export 'domain/entities/practice_consolidation_error.dart';
+export 'domain/entities/practice_outcome_evidence.dart';
+export 'domain/entities/practice_outcome_consolidation.dart';
+export 'service/practice_outcome_consolidator.dart';
