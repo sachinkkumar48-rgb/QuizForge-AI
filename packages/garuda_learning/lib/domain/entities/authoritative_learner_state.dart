@@ -128,11 +128,13 @@ class AuthoritativeLearnerState {
     required DateTime lastUpdatedAt,
   }) {
     final progressList = repository.getProgressForLearner(learnerId);
+    final sessions =
+        processedSessionIds ?? repository.getProcessedSessionIds(learnerId);
     return AuthoritativeLearnerState.fromProgressList(
       learnerId: learnerId,
       examId: examId,
       progressList: progressList,
-      processedSessionIds: processedSessionIds,
+      processedSessionIds: sessions,
       lastUpdatedAt: lastUpdatedAt,
     );
   }
@@ -143,6 +145,9 @@ class AuthoritativeLearnerState {
 
   /// Retrieves progress for a given objective ID, or null if absent.
   LearnerProgress? getProgress(String objectiveId) => progressMap[objectiveId];
+
+  /// Returns a snapshot list of all learner progress records in this state.
+  List<LearnerProgress> toProgressList() => progressMap.values.toList();
 
   static String _computeFingerprint(
     String learnerId,

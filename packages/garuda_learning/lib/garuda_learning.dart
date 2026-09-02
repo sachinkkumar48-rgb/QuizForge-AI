@@ -187,3 +187,9 @@ export 'domain/entities/reconciliation_decision.dart';
 export 'domain/entities/reconciliation_error.dart';
 export 'domain/entities/reconciled_learning_state_proposal.dart';
 export 'service/adaptive_learning_state_reconciler.dart';
+
+// P39 Authoritative Learning-State Application Gateway Domain Entities & Service
+export 'domain/entities/authoritative_application_decision.dart';
+export 'domain/entities/authoritative_application_error.dart';
+export 'domain/entities/authoritative_application_result.dart';
+export 'service/authoritative_learning_state_gateway.dart';

@@ -79,6 +79,9 @@ class ReconciliationProvenance {
     required this.reconciledAt,
   });
 
+  /// Alias getter for [sourceProposalFingerprint].
+  String get proposalFingerprint => sourceProposalFingerprint;
+
   Map<String, dynamic> toJson() => {
         'proposalId': proposalId,
         'sessionId': sessionId,
