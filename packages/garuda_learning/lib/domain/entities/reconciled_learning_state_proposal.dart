@@ -16,6 +16,7 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'authoritative_learner_state.dart';
 import 'learner_progress.dart';
 import 'reconciliation_decision.dart';
 
@@ -137,6 +138,21 @@ class ReconciledLearningStateProposal {
 
   /// Whether the reconciliation completed successfully.
   bool get isSuccessful => overallDecision.isSuccessful;
+
+  /// Converts this proposal's reconciled progress into an [AuthoritativeLearnerState].
+  ///
+  /// This provides an in-memory adapter representing what the authoritative state becomes
+  /// once downstream persistence (P19) commits this proposal, enabling genuine idempotency
+  /// verification without executing direct database writes.
+  AuthoritativeLearnerState toAuthoritativeLearnerState() {
+    return AuthoritativeLearnerState(
+      learnerId: learnerId,
+      examId: examId,
+      progressMap: reconciledProgress,
+      processedSessionIds: processedSessionIds,
+      lastUpdatedAt: reconciledAt,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'reconciliationId': reconciliationId,

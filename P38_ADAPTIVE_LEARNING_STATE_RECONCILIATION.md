@@ -138,7 +138,7 @@ Measured on single-core Dart VM in Windows environment:
 ## 8. Comprehensive Test Matrix
 
 ### Unit Tests (`packages/garuda_learning/test/p38_adaptive_learning_state_reconciliation_test.dart`)
-* **158 Tests across 22 Groups** (100% Passed):
+* **165 Tests across 23 Groups** (100% Passed):
   1. Group 1: Construction & Serialization (8 tests)
   2. Group 2: No-op & Unchanged Scenarios (8 tests)
   3. Group 3: Additive Objective Evidence (8 tests)
@@ -161,6 +161,7 @@ Measured on single-core Dart VM in Windows environment:
   20. Group 20: Error Handling & Idempotency (8 tests)
   21. Group 21: High-Throughput Benchmarks (8 tests)
   22. Group 22: Property & Deterministic Replay Tests (10 tests)
+  23. Group 23: Authoritative Adapter & Verification Lifecycle (P18/P19 Integration) (7 tests)
 
 ### Integration Tests (`test/p38_learning_state_reconciliation_integration_test.dart`)
 * **5 Tests** (100% Passed):

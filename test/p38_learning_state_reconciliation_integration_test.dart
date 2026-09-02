@@ -543,14 +543,8 @@ void main() {
       expect(r1.overallDecision, equals(ReconciliationDecision.merged));
       expect(r1.reconciledProgress['obj_fr']!.attemptCount, equals(6)); // 5 + 1
 
-      // Intermediate authoritative state
-      final intermediateState = AuthoritativeLearnerState(
-        learnerId: r1.learnerId,
-        examId: r1.examId,
-        progressMap: r1.reconciledProgress,
-        processedSessionIds: r1.processedSessionIds,
-        lastUpdatedAt: r1.reconciledAt,
-      );
+      // Intermediate authoritative state using adapter
+      final intermediateState = r1.toAuthoritativeLearnerState();
 
       // 2nd run
       final r2 = reconciler

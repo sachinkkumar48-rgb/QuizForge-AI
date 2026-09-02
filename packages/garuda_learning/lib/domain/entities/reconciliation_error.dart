@@ -106,6 +106,9 @@ class ReconciliationResult<T> {
   /// The successful value, or null on failure.
   T? get value => _value;
 
+  /// Alias for [value] when working with reconciled proposals.
+  T? get proposal => _value;
+
   /// The error payload, or null on success.
   ReconciliationError? get error => _error;
 

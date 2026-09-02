@@ -42,9 +42,54 @@ class AdaptiveLearningStateReconciler {
     required LearningStateUpdateProposal proposal,
     DateTime? reconciledAt,
     AssessmentThresholdConfig? thresholdConfig,
+    String? expectedBaseStateFingerprint,
   }) {
     final effectiveThresholdConfig = thresholdConfig ?? _defaultThresholdConfig;
     final effectiveReconciledAt = (reconciledAt ?? proposal.proposedAt).toUtc();
+
+    // 0. Input & Fingerprint Pre-conditions
+    if (proposal.proposalId.trim().isEmpty ||
+        proposal.sessionId.trim().isEmpty ||
+        proposal.fingerprint.trim().isEmpty) {
+      return ReconciliationResult.failure(ReconciliationError(
+        code: ReconciliationErrorCode.invalidProposal,
+        message:
+            'Invalid proposal: proposalId, sessionId, and fingerprint must be non-empty.',
+        details: {
+          'proposalId': proposal.proposalId,
+          'sessionId': proposal.sessionId,
+        },
+      ));
+    }
+
+    if (authoritativeState.learnerId.trim().isEmpty ||
+        authoritativeState.examId.trim().isEmpty ||
+        authoritativeState.stateFingerprint.trim().isEmpty) {
+      return ReconciliationResult.failure(ReconciliationError(
+        code: ReconciliationErrorCode.invalidState,
+        message:
+            'Invalid authoritative state: learnerId, examId, and stateFingerprint must be non-empty.',
+        details: {
+          'learnerId': authoritativeState.learnerId,
+          'examId': authoritativeState.examId,
+        },
+      ));
+    }
+
+    if (expectedBaseStateFingerprint != null &&
+        expectedBaseStateFingerprint.trim().isNotEmpty &&
+        authoritativeState.stateFingerprint !=
+            expectedBaseStateFingerprint.trim()) {
+      return ReconciliationResult.failure(ReconciliationError(
+        code: ReconciliationErrorCode.fingerprintMismatch,
+        message:
+            'State fingerprint mismatch: expected "$expectedBaseStateFingerprint" but found "${authoritativeState.stateFingerprint}"',
+        details: {
+          'expected': expectedBaseStateFingerprint,
+          'actual': authoritativeState.stateFingerprint,
+        },
+      ));
+    }
 
     // 1. Identity & Isolation Validations
     if (authoritativeState.examId != proposal.examId) {

@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 
+import '../../repository/progress_repository.dart';
 import 'learner_progress.dart';
 
 /// Immutable snapshot representing authoritative learner state for reconciliation.
@@ -112,6 +113,27 @@ class AuthoritativeLearnerState {
       progressMap: map,
       processedSessionIds: processedSessionIds,
       lastUpdatedAt: lastUpdatedAt.toUtc(),
+    );
+  }
+
+  /// Factory constructing state directly from a [ProgressRepository].
+  ///
+  /// Reuses existing P18/P19 persistence repository representation rather than creating
+  /// a competing model.
+  factory AuthoritativeLearnerState.fromRepository({
+    required ProgressRepository repository,
+    required String learnerId,
+    required String examId,
+    Set<String>? processedSessionIds,
+    required DateTime lastUpdatedAt,
+  }) {
+    final progressList = repository.getProgressForLearner(learnerId);
+    return AuthoritativeLearnerState.fromProgressList(
+      learnerId: learnerId,
+      examId: examId,
+      progressList: progressList,
+      processedSessionIds: processedSessionIds,
+      lastUpdatedAt: lastUpdatedAt,
     );
   }
 
