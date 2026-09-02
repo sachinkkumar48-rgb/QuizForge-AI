@@ -180,3 +180,10 @@ export 'domain/entities/learning_evidence_signal.dart';
 export 'domain/entities/learning_proposal_error.dart';
 export 'domain/entities/learning_state_update_proposal.dart';
 export 'service/learning_state_update_proposer.dart';
+
+// P38 Adaptive Learning State Reconciliation Engine Domain Entities & Service
+export 'domain/entities/authoritative_learner_state.dart';
+export 'domain/entities/reconciliation_decision.dart';
+export 'domain/entities/reconciliation_error.dart';
+export 'domain/entities/reconciled_learning_state_proposal.dart';
+export 'service/adaptive_learning_state_reconciler.dart';
