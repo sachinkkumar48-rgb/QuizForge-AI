@@ -151,3 +151,18 @@ Durable Persisted State (rev N + 1)
    Every execution emits an immutable `ReconciliationAuditTrail` with all changed objective IDs, accepted/rejected counts, tenant context, and a deterministic SHA-256 `auditFingerprint`.
 4. **End-to-End Durability**:
    Verified across application restarts in `test/integration/p39_adaptive_learning_state_reconciliation_integration_test.dart`.
+
+---
+
+## 10. Persistence Service & Recovery Integration (`LearnerStatePersistenceService`)
+
+The `LearnerStatePersistenceService` orchestrates validation, serialization, and repository interaction:
+
+### Responsibilities:
+* `save(state, {expectedRevision})`: Validates domain state invariants (`learnerId`, `examId`, `stateFingerprint`, `revision >= 1`), enforces optimistic concurrency protection against stale revisions, and serializes canonical state with SHA-256 checksums to `LearnerStateRepository.save()`.
+* `load({learnerId, examId})`: Retrieves persisted state, verifies schema and integrity, and reconstructs the domain `AuthoritativeLearnerState`.
+* `recoverOrCreate({learnerId, examId, timestamp, persistIfCreated})`: Safely recovers existing state across application restarts, or initializes a clean `AuthoritativeLearnerState.empty()` at revision 1 on cold starts without overwriting valid state.
+
+### Testing Coverage:
+* `test/p39_learner_state_persistence_test.dart`: 22 tests covering domain construction, deterministic round-trip serialization, corruption rejection, repository operations, concurrency conflicts, and recovery.
+* `test/integration/p39_learner_state_recovery_integration_test.dart`: End-to-end integration test verifying multi-session practice, outcome consolidation, reconciliation, persistence, cold restart recovery, and continued learning.

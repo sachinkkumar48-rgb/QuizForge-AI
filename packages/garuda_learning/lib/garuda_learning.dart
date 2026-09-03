@@ -208,3 +208,4 @@ export 'service/authoritative_state_persistence_coordinator.dart';
 export 'domain/entities/reconciliation_audit_trail.dart';
 export 'domain/entities/reconciliation_pipeline_result.dart';
 export 'service/adaptive_learning_state_reconciliation_pipeline.dart';
+export 'service/learner_state_persistence_service.dart';
