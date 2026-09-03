@@ -193,3 +193,13 @@ export 'domain/entities/authoritative_application_decision.dart';
 export 'domain/entities/authoritative_application_error.dart';
 export 'domain/entities/authoritative_application_result.dart';
 export 'service/authoritative_learning_state_gateway.dart';
+
+// P39 Authoritative State Persistence & Recovery Domain Entities, Repository & Services
+export 'domain/entities/authoritative_persistence_error.dart';
+export 'domain/entities/authoritative_recovery_result.dart';
+export 'domain/entities/persisted_authoritative_learner_state.dart';
+export 'repository/authoritative_learning_state_repository.dart';
+export 'repository/in_memory_authoritative_learning_state_repository.dart';
+export 'service/authoritative_learning_state_recovery_service.dart';
+export 'service/authoritative_schema_migrator.dart';
+export 'service/authoritative_state_persistence_coordinator.dart';

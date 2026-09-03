@@ -40,6 +40,9 @@ class AuthoritativeLearnerState {
   /// Deterministic SHA-256 fingerprint identifying this exact authoritative state.
   final String stateFingerprint;
 
+  /// Monotonic revision sequence number (defaults to 1).
+  final int revision;
+
   AuthoritativeLearnerState({
     required String learnerId,
     required String examId,
@@ -47,6 +50,7 @@ class AuthoritativeLearnerState {
     Set<String>? processedSessionIds,
     required this.lastUpdatedAt,
     String? stateFingerprint,
+    this.revision = 1,
   })  : learnerId = learnerId.trim(),
         examId = examId.trim().toLowerCase(),
         progressMap = Map<String, LearnerProgress>.unmodifiable(
@@ -79,6 +83,9 @@ class AuthoritativeLearnerState {
     if (this.stateFingerprint.trim().isEmpty) {
       throw ArgumentError('stateFingerprint cannot be empty');
     }
+    if (revision < 1) {
+      throw ArgumentError('revision must be >= 1');
+    }
   }
 
   /// Factory creating an initial empty authoritative state for a learner and exam.
@@ -86,6 +93,7 @@ class AuthoritativeLearnerState {
     required String learnerId,
     required String examId,
     required DateTime createdAt,
+    int revision = 1,
   }) =>
       AuthoritativeLearnerState(
         learnerId: learnerId,
@@ -93,6 +101,7 @@ class AuthoritativeLearnerState {
         progressMap: const {},
         processedSessionIds: const {},
         lastUpdatedAt: createdAt.toUtc(),
+        revision: revision,
       );
 
   /// Factory constructing state from a list of [LearnerProgress] records.
@@ -102,6 +111,7 @@ class AuthoritativeLearnerState {
     required List<LearnerProgress> progressList,
     Set<String>? processedSessionIds,
     required DateTime lastUpdatedAt,
+    int revision = 1,
   }) {
     final map = SplayTreeMap<String, LearnerProgress>();
     for (final p in progressList) {
@@ -113,6 +123,7 @@ class AuthoritativeLearnerState {
       progressMap: map,
       processedSessionIds: processedSessionIds,
       lastUpdatedAt: lastUpdatedAt.toUtc(),
+      revision: revision,
     );
   }
 
@@ -126,6 +137,7 @@ class AuthoritativeLearnerState {
     required String examId,
     Set<String>? processedSessionIds,
     required DateTime lastUpdatedAt,
+    int revision = 1,
   }) {
     final progressList = repository.getProgressForLearner(learnerId);
     final sessions =
@@ -136,6 +148,28 @@ class AuthoritativeLearnerState {
       progressList: progressList,
       processedSessionIds: sessions,
       lastUpdatedAt: lastUpdatedAt,
+      revision: revision,
+    );
+  }
+
+  /// Creates a copy of this state with optional updated attributes.
+  AuthoritativeLearnerState copyWith({
+    String? learnerId,
+    String? examId,
+    Map<String, LearnerProgress>? progressMap,
+    Set<String>? processedSessionIds,
+    DateTime? lastUpdatedAt,
+    String? stateFingerprint,
+    int? revision,
+  }) {
+    return AuthoritativeLearnerState(
+      learnerId: learnerId ?? this.learnerId,
+      examId: examId ?? this.examId,
+      progressMap: progressMap ?? this.progressMap,
+      processedSessionIds: processedSessionIds ?? this.processedSessionIds,
+      lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
+      stateFingerprint: stateFingerprint,
+      revision: revision ?? this.revision,
     );
   }
 
@@ -184,6 +218,7 @@ class AuthoritativeLearnerState {
         'processedSessionIds': processedSessionIds.toList(),
         'lastUpdatedAt': lastUpdatedAt.toUtc().toIso8601String(),
         'stateFingerprint': stateFingerprint,
+        'revision': revision,
       };
 
   factory AuthoritativeLearnerState.fromJson(Map<String, dynamic> json) =>
@@ -197,9 +232,10 @@ class AuthoritativeLearnerState {
             Set<String>.from(json['processedSessionIds'] as List? ?? const []),
         lastUpdatedAt: DateTime.parse(json['lastUpdatedAt'] as String).toUtc(),
         stateFingerprint: json['stateFingerprint'] as String?,
+        revision: json['revision'] as int? ?? 1,
       );
 
   @override
   String toString() =>
-      'AuthoritativeLearnerState(learner: $learnerId, exam: $examId, objectives: ${progressMap.length}, sessions: ${processedSessionIds.length}, fp: ${stateFingerprint.substring(0, 8)}...)';
+      'AuthoritativeLearnerState(learner: $learnerId, exam: $examId, rev: $revision, objectives: ${progressMap.length}, sessions: ${processedSessionIds.length}, fp: ${stateFingerprint.substring(0, 8)}...)';
 }
