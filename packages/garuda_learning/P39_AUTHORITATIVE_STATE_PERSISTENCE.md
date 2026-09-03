@@ -121,3 +121,33 @@ Persisted State (rev N + 1)
 
 * **No Distributed Consensus**: P39 provides single-node / offline-first transactional semantics with optimistic revision checks; it is not a multi-master distributed Raft consensus engine.
 * **No Database Driver Ownership**: Physical storage is abstracted via `AuthoritativeLearningStateRepository` (e.g. `InMemoryAuthoritativeLearningStateRepository` in testing and gateway adapters in production).
+
+---
+
+## 9. Reconciliation Pipeline Integration (`AdaptiveLearningStateReconciliationPipeline`)
+
+The production pipeline integrates practice evidence consolidation, P37 proposal formulation, P38 reconciliation, and P39 persistence:
+
+```text
+Practice Execution State
+      ↓ (PracticeOutcomeConsolidator)
+ConsolidatedPracticeOutcome
+      ↓ (LearningStateUpdateProposer)
+LearningStateUpdateProposal
+      ↓ (AdaptiveLearningStateReconciler)
+ReconciledLearningStateProposal
+      ↓ (AdaptiveLearningStateReconciliationPipeline)
+AuthoritativeLearnerState (rev N + 1)
+      ↓ (AuthoritativeLearningStateRepository.save)
+Durable Persisted State (rev N + 1)
+```
+
+### Key Guarantees:
+1. **Mandatory Idempotency**:
+   If `baseState.hasProcessedSession(outcome.sessionId)` is true, returns `ReconciliationPipelineResult.idempotent` with `ReconciliationDecision.unchanged`, preserving revision count and performing zero repository writes.
+2. **Concurrency & Stale Revision Safety**:
+   If caller supplies an `expectedRevision` that diverges from `baseState.revision`, the pipeline detects the stale state and returns an explicit `ReconciliationPipelineResult.conflict` with typed `AuthoritativePersistenceErrorCode.staleWrite`.
+3. **Auditability & Cryptographic Lineage**:
+   Every execution emits an immutable `ReconciliationAuditTrail` with all changed objective IDs, accepted/rejected counts, tenant context, and a deterministic SHA-256 `auditFingerprint`.
+4. **End-to-End Durability**:
+   Verified across application restarts in `test/integration/p39_adaptive_learning_state_reconciliation_integration_test.dart`.

@@ -203,3 +203,8 @@ export 'repository/in_memory_authoritative_learning_state_repository.dart';
 export 'service/authoritative_learning_state_recovery_service.dart';
 export 'service/authoritative_schema_migrator.dart';
 export 'service/authoritative_state_persistence_coordinator.dart';
+
+// P39 Adaptive Learning State Reconciliation & Persistence Pipeline
+export 'domain/entities/reconciliation_audit_trail.dart';
+export 'domain/entities/reconciliation_pipeline_result.dart';
+export 'service/adaptive_learning_state_reconciliation_pipeline.dart';
