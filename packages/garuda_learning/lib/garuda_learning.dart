@@ -233,3 +233,13 @@ export 'domain/entities/execution_audit_trail.dart';
 export 'domain/entities/learning_activity_execution_request.dart';
 export 'domain/entities/learning_activity_execution_result.dart';
 export 'service/adaptive_learning_plan_executor.dart';
+
+// P43 Adaptive Learning Activity Completion & Outcome Feedback
+export 'domain/entities/learning_activity_completion_status.dart';
+export 'domain/entities/activity_completion_audit_trail.dart';
+export 'domain/entities/learning_activity_outcome.dart';
+export 'domain/entities/activity_outcome_evidence.dart';
+export 'domain/entities/learning_activity_completion_request.dart';
+export 'domain/entities/learning_activity_completion_result.dart';
+export 'repository/learning_activity_completion_repository.dart';
+export 'service/learning_activity_completion_service.dart';
