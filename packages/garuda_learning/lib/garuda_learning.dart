@@ -226,3 +226,10 @@ export 'domain/entities/adaptive_decision_policy.dart';
 export 'domain/entities/adaptive_learning_decision.dart';
 export 'domain/entities/learning_continuation_plan.dart';
 export 'service/adaptive_learning_decision_engine.dart';
+
+// P42 Adaptive Learning Plan Execution & Orchestration
+export 'domain/entities/learning_activity_execution_status.dart';
+export 'domain/entities/execution_audit_trail.dart';
+export 'domain/entities/learning_activity_execution_request.dart';
+export 'domain/entities/learning_activity_execution_result.dart';
+export 'service/adaptive_learning_plan_executor.dart';
