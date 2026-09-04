@@ -209,3 +209,14 @@ export 'domain/entities/reconciliation_audit_trail.dart';
 export 'domain/entities/reconciliation_pipeline_result.dart';
 export 'service/adaptive_learning_state_reconciliation_pipeline.dart';
 export 'service/learner_state_persistence_service.dart';
+
+// P40 Recovery-Aware Adaptive Learning Continuation & Session Resumption
+export 'domain/entities/resumable_session_status.dart';
+export 'domain/entities/session_checkpoint.dart';
+export 'domain/entities/resumable_learning_session.dart';
+export 'domain/entities/session_recovery_error.dart';
+export 'domain/entities/session_recovery_result.dart';
+export 'repository/session_checkpoint_repository.dart';
+export 'repository/in_memory_session_checkpoint_repository.dart';
+export 'service/learning_session_recovery_service.dart';
+export 'service/resumable_adaptive_practice_coordinator.dart';
