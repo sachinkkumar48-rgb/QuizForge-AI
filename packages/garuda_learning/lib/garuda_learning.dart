@@ -220,3 +220,9 @@ export 'repository/session_checkpoint_repository.dart';
 export 'repository/in_memory_session_checkpoint_repository.dart';
 export 'service/learning_session_recovery_service.dart';
 export 'service/resumable_adaptive_practice_coordinator.dart';
+
+// P41 Adaptive Learning Decision & Continuation Engine
+export 'domain/entities/adaptive_decision_policy.dart';
+export 'domain/entities/adaptive_learning_decision.dart';
+export 'domain/entities/learning_continuation_plan.dart';
+export 'service/adaptive_learning_decision_engine.dart';
