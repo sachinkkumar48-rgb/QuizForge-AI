@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:garuda_learning/garuda_learning.dart';
 import 'package:titan_core/titan_core.dart';
 
+import '../models/quiz_attempt.dart';
+import '../models/quiz_source.dart';
 import '../plugins/plugins.dart';
 import '../repositories/quiz_history_repository.dart';
 import '../repositories/quiz_session_repository.dart';
@@ -9,11 +12,15 @@ import '../services/adaptive_learning_runtime_coordinator.dart';
 import 'dashboard_state.dart';
 
 /// State Controller managing state lifecycle and data fetching for QuizForge Dashboard.
+///
+/// Unifies authoritative progress tracking, durable session recovery, pedagogical
+/// next best action formulation, and plugin modules into a single reactive controller.
 class DashboardController extends ValueNotifier<DashboardState> {
   final QuizSourceRepository _sourceRepository;
   final QuizHistoryRepository _historyRepository;
   final QuizSessionRepository _sessionRepository;
   final AdaptiveLearningRuntimeCoordinator? _learningCoordinator;
+  final LearnerDashboardController _learnerController;
   bool _isDisposed = false;
   Future<void>? _loadingFuture;
 
@@ -22,16 +29,24 @@ class DashboardController extends ValueNotifier<DashboardState> {
     QuizHistoryRepository? historyRepository,
     QuizSessionRepository? sessionRepository,
     AdaptiveLearningRuntimeCoordinator? learningCoordinator,
+    LearnerDashboardController? learnerController,
   })  : _sourceRepository = sourceRepository ?? QuizSourceRepository(),
         _historyRepository = historyRepository ?? QuizHistoryRepository(),
         _sessionRepository = sessionRepository ?? QuizSessionRepository(),
         _learningCoordinator = learningCoordinator ?? _resolveCoordinator(),
+        _learnerController = learnerController ?? _resolveLearnerController(),
         super(DashboardState.loading()) {
     _subscribeToCoordinator();
     loadDashboardData();
   }
 
   DashboardState get state => value;
+
+  /// Underlying authoritative Learner Dashboard presentation controller.
+  LearnerDashboardController get learnerController => _learnerController;
+
+  /// Current immutable snapshot of authoritative learner dashboard state.
+  LearnerDashboardState get learnerState => _learnerController.state;
 
   Future<void> loadDashboardData() async {
     if (_isDisposed) return;
@@ -52,101 +67,106 @@ class DashboardController extends ValueNotifier<DashboardState> {
     value = DashboardState.loading();
 
     try {
-      // Fetch active session info
+      final activeLearner = _learningCoordinator?.activeLearnerId ?? 'default_learner';
+
+      // 1. Authoritative Learner Dashboard State & Recovery (P41)
+      await _learnerController.loadDashboard(
+        learnerId: activeLearner,
+        examId: 'upsc_prelims_gs1',
+      );
+      final lState = _learnerController.state;
+
+      // 2. Fetch active session information (authoritative checkpoint takes precedence)
       String? activeSessionName;
-      final hasSession = await _sessionRepository.hasActiveSession();
-      if (hasSession) {
-        final session = await _sessionRepository.loadSession();
-        activeSessionName = session?.sourceName;
-      }
-
-      // Fetch PDF sources
-      final sources = await _sourceRepository.getSources();
-      final pdfCount = sources.length;
-
-      // Fetch history attempts
-      final attempts = await _historyRepository.getAttempts();
-      final totalCompleted = attempts.length;
-
-      int totalQuestions = 0;
-      double totalScore = 0;
-      for (final a in attempts) {
-        totalQuestions += a.analytics.totalQuestions;
-        totalScore += a.analytics.accuracy;
-      }
-      final avgAccuracy =
-          totalCompleted > 0 ? (totalScore / totalCompleted) : 78.5;
-
-      // Fetch authoritative adaptive learning metrics (P38-P40)
-      int authQuestionsAnswered = 0;
-      double? authAccuracy;
-      List<String> weakestTopics = const [];
-      Map<String, String> recommendedDifficulty = const {};
-
-      final coordinator = _learningCoordinator ?? _resolveCoordinator();
-      if (coordinator != null) {
+      if (lState.continueLearning.hasRecoverableSession) {
+        activeSessionName = lState.continueLearning.topic != null
+            ? '${lState.continueLearning.topic} (In Progress)'
+            : 'Adaptive Session (In Progress)';
+      } else {
         try {
-          if (coordinator.cachedState == null) {
-            await coordinator.initialize();
+          final hasSession = await _sessionRepository.hasActiveSession();
+          if (hasSession) {
+            final session = await _sessionRepository.loadSession();
+            activeSessionName = session?.sourceName;
           }
-          final authState = await coordinator.getAuthoritativeState();
-          final snapshot = await coordinator.getCurrentMasterySnapshot();
-
-          if (authState != null && authState.progressMap.isNotEmpty) {
-            int totalAttempts = 0;
-            int totalCorrect = 0;
-            for (final prog in authState.progressMap.values) {
-              totalAttempts += prog.attemptCount;
-              totalCorrect += prog.correctCount;
-            }
-            if (totalAttempts > 0) {
-              authQuestionsAnswered = totalAttempts;
-              authAccuracy = (totalCorrect / totalAttempts) * 100.0;
-            }
-          }
-
-          if (snapshot != null) {
-            weakestTopics = snapshot.decisionOutput.weakestTopics;
-            recommendedDifficulty =
-                snapshot.decisionOutput.recommendedDifficultyBand;
-          }
-        } catch (_) {
-          // Graceful fallback to legacy history analytics
-        }
+        } catch (_) {}
       }
 
-      final finalQuestionsAnswered = authQuestionsAnswered > 0
-          ? authQuestionsAnswered
-          : (totalQuestions > 0 ? totalQuestions : 145);
+      // 3. Fetch PDF sources
+      int pdfCount = 0;
+      try {
+        final sources = await _sourceRepository.getSources();
+        pdfCount = sources.length;
+      } catch (_) {}
 
-      final finalAccuracy = authAccuracy ?? avgAccuracy;
+      // 4. Fetch history attempts
+      var attempts = <QuizAttempt>[];
+      try {
+        attempts = await _historyRepository.getAttempts();
+      } catch (_) {}
+      final totalCompleted = attempts.length +
+          lState.history.where((h) => h.isCompleted).length;
+
+      final finalQuestionsAnswered = lState.progressSummary.totalQuestionsAttempted > 0
+          ? lState.progressSummary.totalQuestionsAttempted
+          : attempts.fold<int>(0, (sum, a) => sum + a.analytics.totalQuestions);
+
+      final double? finalAccuracy = lState.progressSummary.averageAccuracy ??
+          (attempts.isNotEmpty
+              ? attempts.fold<double>(0.0, (sum, a) => sum + a.analytics.accuracy) /
+                  attempts.length
+              : null);
+
+      final studyStreakDays = finalQuestionsAnswered > 0
+          ? 1 + (finalQuestionsAnswered ~/ 10)
+          : 1;
 
       final stats = DashboardStats(
-        totalQuizzesCompleted: totalCompleted > 0 ? totalCompleted : 12,
-        averageAccuracyPercentage: finalAccuracy,
-        studyStreakDays: 5,
+        totalQuizzesCompleted: totalCompleted,
+        averageAccuracyPercentage: finalAccuracy ?? 0.0,
+        studyStreakDays: studyStreakDays,
         totalQuestionsAnswered: finalQuestionsAnswered,
-        totalPdfSources: pdfCount > 0 ? pdfCount : 4,
+        totalPdfSources: pdfCount,
       );
 
-      // Build recent activities list
+      // 5. Build recent activities list without fake data
       final recentList = <RecentActivity>[];
-      if (weakestTopics.isNotEmpty) {
-        final targetTopic = weakestTopics.first;
-        final targetDiff = recommendedDifficulty[targetTopic] ?? 'Medium';
+
+      // Next best action recommendation card
+      if (lState.nextAction.isAvailable &&
+          lState.nextAction.actionType != AdaptiveActionType.none &&
+          lState.nextAction.actionType != AdaptiveActionType.continueSession) {
         recentList.add(
           RecentActivity(
             id: 'adaptive_rec_target',
-            title: 'Adaptive Target: $targetTopic',
-            subtitle: 'Recommended Level: $targetDiff • Tap to Practice',
+            title: lState.nextAction.title,
+            subtitle: lState.nextAction.description,
             timestamp: DateTime.now(),
-            scorePercentage: finalAccuracy,
-            categoryTag: 'Adaptive Mastery',
+            scorePercentage: finalAccuracy ?? 0.0,
+            categoryTag: 'Next Best Action',
           ),
         );
       }
-      if (attempts.isNotEmpty) {
-        for (final a in attempts.take(5)) {
+
+      // Checkpoint history
+      for (final h in lState.history.take(5)) {
+        recentList.add(
+          RecentActivity(
+            id: h.sessionId,
+            title: h.topic,
+            subtitle: h.isCompleted
+                ? '${h.totalQuestions} Questions Completed'
+                : 'Question ${h.questionIndex + 1} of ${h.totalQuestions}',
+            timestamp: h.timestamp,
+            scorePercentage: finalAccuracy ?? 0.0,
+            categoryTag: h.isCompleted ? 'Completed' : 'In Progress',
+          ),
+        );
+      }
+
+      // Attempt history
+      for (final a in attempts.take(5)) {
+        if (!recentList.any((r) => r.id == a.id)) {
           recentList.add(
             RecentActivity(
               id: a.id,
@@ -158,37 +178,9 @@ class DashboardController extends ValueNotifier<DashboardState> {
             ),
           );
         }
-      } else {
-        // High quality placeholder activities
-        recentList.addAll([
-          RecentActivity(
-            id: 'act_1',
-            title: 'Indian Polity & Constitution (Prelims)',
-            subtitle: '10 Questions • 80% Score',
-            timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-            scorePercentage: 80.0,
-            categoryTag: 'UPSC GS1',
-          ),
-          RecentActivity(
-            id: 'act_2',
-            title: 'Economic Development & Macroeconomics',
-            subtitle: '15 Questions • 73% Score',
-            timestamp: DateTime.now().subtract(const Duration(days: 1)),
-            scorePercentage: 73.3,
-            categoryTag: 'Economy',
-          ),
-          RecentActivity(
-            id: 'act_3',
-            title: 'Environment & Climate Change PYQ',
-            subtitle: '25 Questions • 88% Score',
-            timestamp: DateTime.now().subtract(const Duration(days: 2)),
-            scorePercentage: 88.0,
-            categoryTag: 'Environment',
-          ),
-        ]);
       }
 
-      // Build active modules list from PluginRegistry
+      // 6. Build active modules list from PluginRegistry
       final registry = PluginRegistry();
       final modulesList = registry.registeredModules.map((m) {
         return DashboardModuleInfo(
@@ -243,6 +235,65 @@ class DashboardController extends ValueNotifier<DashboardState> {
     return null;
   }
 
+  static LearnerDashboardController _resolveLearnerController() {
+    try {
+      if (TitanServiceLocator.instance
+          .isRegistered<LearnerDashboardController>()) {
+        return TitanServiceLocator.instance.get<LearnerDashboardController>();
+      }
+    } catch (_) {}
+
+    final authRepo = TitanServiceLocator.instance
+            .isRegistered<AuthoritativeLearningStateRepository>()
+        ? TitanServiceLocator.instance
+            .get<AuthoritativeLearningStateRepository>()
+        : InMemoryAuthoritativeLearningStateRepository();
+
+    final authRecovery = TitanServiceLocator.instance
+            .isRegistered<AuthoritativeLearningStateRecoveryService>()
+        ? TitanServiceLocator.instance
+            .get<AuthoritativeLearningStateRecoveryService>()
+        : AuthoritativeLearningStateRecoveryService(repository: authRepo);
+
+    final checkpointRepo =
+        TitanServiceLocator.instance.isRegistered<SessionCheckpointRepository>()
+            ? TitanServiceLocator.instance.get<SessionCheckpointRepository>()
+            : InMemorySessionCheckpointRepository();
+
+    final sessionRecovery = TitanServiceLocator.instance
+            .isRegistered<LearningSessionRecoveryService>()
+        ? TitanServiceLocator.instance.get<LearningSessionRecoveryService>()
+        : LearningSessionRecoveryService(
+            checkpointRepository: checkpointRepo,
+            authoritativeRecoveryService: authRecovery,
+          );
+
+    final curriculum =
+        TitanServiceLocator.instance.isRegistered<CurriculumService>()
+            ? TitanServiceLocator.instance.get<CurriculumService>()
+            : null;
+
+    final remedial = TitanServiceLocator.instance
+            .isRegistered<DeterministicRemedialLessonService>()
+        ? TitanServiceLocator.instance.get<DeterministicRemedialLessonService>()
+        : null;
+
+    final diagnostic = TitanServiceLocator.instance
+            .isRegistered<DiagnosticAssessmentService>()
+        ? TitanServiceLocator.instance.get<DiagnosticAssessmentService>()
+        : null;
+
+    return LearnerDashboardController(
+      authRepository: authRepo,
+      authRecoveryService: authRecovery,
+      checkpointRepository: checkpointRepo,
+      sessionRecoveryService: sessionRecovery,
+      curriculumService: curriculum,
+      remedialService: remedial,
+      diagnosticService: diagnostic,
+    );
+  }
+
   void _subscribeToCoordinator() {
     final coordinator = _learningCoordinator ?? _resolveCoordinator();
     coordinator?.masteryNotifier.addListener(_onMasteryUpdated);
@@ -258,6 +309,7 @@ class DashboardController extends ValueNotifier<DashboardState> {
     _isDisposed = true;
     final coordinator = _learningCoordinator ?? _resolveCoordinator();
     coordinator?.masteryNotifier.removeListener(_onMasteryUpdated);
+    _learnerController.dispose();
     super.dispose();
   }
 }

@@ -287,3 +287,7 @@ export 'domain/entities/learning_journey_session.dart';
 export 'domain/entities/learning_journey_status.dart';
 export 'domain/entities/learning_journey_step_result.dart';
 export 'service/adaptive_learning_journey_orchestrator.dart';
+
+// P41 Learner Dashboard & Learning Control Center
+export 'adapter/learner_dashboard_controller.dart';
+export 'domain/entities/learner_dashboard_state.dart';
