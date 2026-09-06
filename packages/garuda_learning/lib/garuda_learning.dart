@@ -256,3 +256,11 @@ export 'domain/entities/adaptive_mastery_continuation_result.dart';
 export 'repository/adaptive_mastery_continuation_repository.dart';
 export 'repository/in_memory_adaptive_mastery_continuation_repository.dart';
 export 'service/adaptive_mastery_continuation_service.dart';
+
+// P41 Adaptive Learning Production Integration & End-to-End Learner Journey
+export 'adapter/adaptive_learning_journey_controller.dart';
+export 'domain/entities/learning_journey_error.dart';
+export 'domain/entities/learning_journey_session.dart';
+export 'domain/entities/learning_journey_status.dart';
+export 'domain/entities/learning_journey_step_result.dart';
+export 'service/adaptive_learning_journey_orchestrator.dart';
