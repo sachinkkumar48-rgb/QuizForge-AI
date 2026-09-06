@@ -7,12 +7,14 @@ class RecentActivityCardWidget extends StatelessWidget {
   final List<RecentActivity> activities;
   final String? activeSessionSourceName;
   final VoidCallback? onResumeSessionTap;
+  final void Function(RecentActivity activity)? onActivityTap;
 
   const RecentActivityCardWidget({
     super.key,
     required this.activities,
     this.activeSessionSourceName,
     this.onResumeSessionTap,
+    this.onActivityTap,
   });
 
   @override
@@ -120,6 +122,7 @@ class RecentActivityCardWidget extends StatelessWidget {
                   ),
                 ),
                 child: ListTile(
+                  onTap: onActivityTap != null ? () => onActivityTap!(item) : null,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 6,

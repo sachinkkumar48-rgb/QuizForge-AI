@@ -8,6 +8,7 @@ import '../widgets/dashboard/plugin_module_grid_widget.dart';
 import '../widgets/dashboard/quick_action_card_widget.dart';
 import '../widgets/dashboard/recent_activity_card_widget.dart';
 import '../widgets/dashboard/stat_summary_card_widget.dart';
+import 'adaptive_practice_page.dart';
 import 'ai_mentor_panel_page.dart';
 import 'history_page.dart';
 import 'home_page.dart';
@@ -176,8 +177,8 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                                 activities: state.recentActivities,
                                 activeSessionSourceName:
                                     state.activeSessionSourceName,
-                                onResumeSessionTap: () =>
-                                    _navigateTo(const HomePage()),
+                                onResumeSessionTap: _handleResumeSession,
+                                onActivityTap: _handleActivityTap,
                               ),
                             ),
                           ],
@@ -197,8 +198,8 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                           activities: state.recentActivities,
                           activeSessionSourceName:
                               state.activeSessionSourceName,
-                          onResumeSessionTap: () =>
-                              _navigateTo(const HomePage()),
+                          onResumeSessionTap: _handleResumeSession,
+                          onActivityTap: _handleActivityTap,
                         ),
                         const SizedBox(height: 24),
                         PluginModuleGridWidget(
@@ -232,10 +233,37 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
     );
   }
 
+  void _handleActivityTap(RecentActivity activity) {
+    if (activity.categoryTag == 'Adaptive Mastery' ||
+        activity.id == 'adaptive_rec_target') {
+      String targetTopic = 'Fundamental Rights';
+      if (activity.title.startsWith('Adaptive Target: ')) {
+        targetTopic = activity.title.replaceFirst('Adaptive Target: ', '').trim();
+      }
+      _navigateTo(
+        AdaptivePracticePage(
+          targetTopic: targetTopic,
+        ),
+      );
+    }
+  }
+
+  void _handleResumeSession() {
+    _navigateTo(
+      const AdaptivePracticePage(
+        isResumeMode: true,
+      ),
+    );
+  }
+
   void _navigateTo(Widget page) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => page),
-    );
+    ).then((_) {
+      if (mounted) {
+        _controller.refresh();
+      }
+    });
   }
 }

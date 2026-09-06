@@ -16,6 +16,7 @@ import '../../repositories/titan_quiz_repository.dart';
 import '../../services/active_learner_service.dart';
 import '../../services/adaptive_learning_runtime_coordinator.dart';
 import '../../services/knowledge_integration_service.dart';
+import '../../services/pyq_corpus_adapter_service.dart';
 import '../../services/quiz_batch_generator.dart';
 import '../../services/quiz_generation_adapter.dart';
 import '../network/api_client.dart';
@@ -382,6 +383,32 @@ void setupServiceLocator() {
         reconciliationPipeline: locator.get<AdaptiveLearningStateReconciliationPipeline>(),
         masteryEngine: locator.get<ProgressiveMasteryEngine>(),
         activeLearnerService: locator.get<ActiveLearnerService>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<PyqCorpusAdapterService>()) {
+    locator.registerLazySingleton<PyqCorpusAdapterService>(
+      () => PyqCorpusAdapterService(
+        pyqRepository: locator.isRegistered<PyqRepository>()
+            ? locator.get<PyqRepository>()
+            : null,
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AdaptiveLearningJourneyOrchestrator>()) {
+    locator.registerLazySingleton<AdaptiveLearningJourneyOrchestrator>(
+      () => AdaptiveLearningJourneyOrchestrator(
+        authRepository: locator.get<AuthoritativeLearningStateRepository>(),
+        authRecoveryService:
+            locator.get<AuthoritativeLearningStateRecoveryService>(),
+        checkpointRepository: locator.get<SessionCheckpointRepository>(),
+        sessionRecoveryService: locator.get<LearningSessionRecoveryService>(),
+        reconciliationPipeline:
+            locator.get<AdaptiveLearningStateReconciliationPipeline>(),
       ),
       allowOverride: true,
     );
