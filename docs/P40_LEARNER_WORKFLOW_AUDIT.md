@@ -1,128 +1,133 @@
 # P40 Learner Workflow Integration Audit
 
-## 1. Executive Summary
-This document provides a comprehensive audit of the **QuizForge AI / Project TITAN** application structure to establish a single, unified, coherent end-to-end learner journey:
+## 1. CURRENT UI
+* **Application Entry Point (`lib/main.dart`)**:
+  Initializes `TitanServiceLocator` via `setupServiceLocator()` and presents `QuizForgeDashboardPage` as the primary application view.
+* **Dashboard (`lib/pages/quizforge_dashboard_page.dart`)**:
+  - `DashboardHeaderWidget`: Welcomes learner, shows active exam context (`UPSC Civil Services`).
+  - `StatSummaryCardWidget`: Real authoritative metrics (quizzes taken, accuracy, active streaks).
+  - `QuickActionCardWidget`: Quick navigation triggers to AI Coach, PYQ Explorer, Library, and Quiz Generation.
+  - `RecentActivityCardWidget`: Surfaces in-flight and recommended adaptive sessions with resume and targeted start callbacks.
+  - `PluginModuleGridWidget`: Displays installed exam content modules (UPSC, BPSC, SSC, etc.).
+* **Adaptive Practice Page (`lib/pages/adaptive_practice_page.dart`)**:
+  - Full-screen interactive learning surface.
+  - Progress header with question count and completion percentage.
+  - Topic, difficulty, and exam badge chips.
+  - Multiple-choice option selection with immediate correctness feedback and explanation sheets.
+  - Action controls with single-submission protection.
+  - Authoritative revision indicator in the AppBar (`Rev N`).
+  - Completion summary screen with authoritative revision advancement, score metrics, remedial recommendation cards, and "Continue Learning" action.
+* **PYQ & Study Screens (`lib/pages/pyq/`)**:
+  - `PyqDashboardPage`: Navigation by year, subject, topic.
+  - `PyqSubjectTopicPage`: Subject breakdown (Polity, History, Economy, etc.).
+
+---
+
+## 2. CURRENT NAVIGATION
+* Central router is root `QuizForgeDashboardPage`.
+* Navigation uses direct `Navigator.push` with `MaterialPageRoute`.
+* Tapping an adaptive activity tile in `RecentActivityCardWidget` navigates to `AdaptivePracticePage(targetTopic: ...)` and triggers `_controller.refresh()` upon return.
+* Tapping `"Resume Session"` on the active session banner navigates to `AdaptivePracticePage(isResumeMode: true)`.
+* Tapping `"Return to Dashboard"` on `AdaptivePracticePage` pops the navigator back to the dashboard.
+* Tapping `"Continue Learning"` resets the question state and initiates the next adaptive drill seamlessly.
+
+---
+
+## 3. EXISTING LEARNING SERVICES
+1. **Diagnostic Assessment & Placement (P26)**:
+   - `DiagnosticAssessmentService`: Evaluates target objectives and generates `DiagnosticPlacementResult` with `DiagnosticPlacementFrontier`.
+   - `DeterministicDiagnosticEvaluator`: Evaluates prerequisite and frontier status deterministically.
+2. **Remedial Framework (P25)**:
+   - `DeterministicRemedialLessonService`: Resolves micro-lessons for weak spots and builds retry configurations.
+3. **Adaptive Practice Execution (P35)**:
+   - `AdaptivePracticeExecutionEngine`: Handles session initialization, question presentation, answer scoring, and time tracking.
+4. **Outcome Consolidation (P36)**:
+   - `PracticeOutcomeConsolidator`: Consolidates question results into `ConsolidatedPracticeOutcome`.
+5. **State Reconciliation (P38)**:
+   - `AdaptiveLearningStateReconciliationPipeline`: Validates proposals, enforces monotonic revision increments, and prevents stale writes.
+6. **Authoritative State Persistence & Recovery (P39–P40)**:
+   - `AuthoritativeLearningStateRepository` (Hive / In-Memory): Atomic commits with checksum and fingerprint verification.
+   - `SessionCheckpointRepository` (Hive / In-Memory): Incremental durable session checkpointing.
+   - `LearningSessionRecoveryService` & `AuthoritativeLearningStateRecoveryService`: Verifies data integrity, schema versions, and crash recovery.
+7. **Production Journey Orchestrator (P40–P41)**:
+   - `AdaptiveLearningJourneyOrchestrator`: High-level coordination of start, answer, reconcile, persist, and recovery.
+   - `AdaptiveLearningJourneyController`: UI presentation controller exposing state, progress, errors, and listeners.
+   - `PyqCorpusAdapterService`: Adapts PYQ models to `NormalizedQuestion` with fallback UPSC seed dataset.
+
+---
+
+## 4. EXISTING DATA FLOW
 ```text
-Content / Exam Selection
+Home / Dashboard
        ↓
-Learning Goal / Topic
+Choose Exam / Topic (e.g. UPSC GS1 / Fundamental Rights)
        ↓
-Diagnostic or Placement
+Diagnostic Placement (when required for cold-start / unassessed frontier)
        ↓
-Practice Session
+AdaptivePracticePage initializes AdaptiveLearningJourneyController
        ↓
-Question Presented
+AdaptiveLearningJourneyOrchestrator selects questions via PyqCorpusAdapterService
        ↓
-Learner Answers
+Question Presented to Learner (Stem + Options)
        ↓
-Attempt Result / Feedback
+Learner Selects Option & Submits Answer (Single-submission guarded)
        ↓
-Next Question
+PracticeOutcomeConsolidator aggregates attempt outcome
        ↓
-Session Completion
+AdaptiveLearningStateReconciliationPipeline computes diff & increments revision
        ↓
-Outcome Consolidation
+SessionCheckpointRepository saves durable checkpoint (chkRev: N+1, cursor: K+1)
        ↓
-Learner State Reconciliation
+AuthoritativeLearningStateRepository commits atomic state (rev: N+1)
        ↓
-Authoritative State Persisted
+Next Question Presented OR Session Completed
        ↓
-Dashboard / Progress
+Completion Summary reflects authoritative metrics & Remedial Recommendations
        ↓
-App Restart
+App Restart / Exit → LearningSessionRecoveryService recovers session from checkpoint
        ↓
-State Recovered
-       ↓
-Learner Continues
+Learner Continues from exact uncompleted question cursor
 ```
 
 ---
 
-## 2. Existing Application Structure & UI Entry Points
-* **Root Application (`lib/main.dart`)**:
-  Initializes `TitanServiceLocator` via `setupServiceLocator()` and launches `QuizForgeDashboardPage` as the primary screen.
-* **Dashboard (`lib/pages/quizforge_dashboard_page.dart`)**:
-  Material 3 dashboard containing:
-  - `StatSummaryCardWidget`: Summary metrics (quizzes taken, accuracy, streak, active sessions).
-  - `QuickActionCardWidget`: Navigation to quiz generation, PYQ dashboard, AI mentor, library, and module explorer.
-  - `RecentActivityCardWidget`: Displays active and recent sessions. Features `onResumeSessionTap` and `onActivityTap` callbacks.
-  - `PluginModuleGridWidget`: Available exam modules (UPSC, BPSC, SSC, etc.).
-* **Adaptive Practice Page (`lib/pages/adaptive_practice_page.dart`)**:
-  Interactive practice UI orchestrating:
-  - Question presentation (stem, options, metadata).
-  - Single-submission answer handling.
-  - Immediate evaluation feedback.
-  - Monotonic revision advancement.
-  - Session completion summary and weak spot / remedial recommendations.
-  - Session pause and durable resume.
-* **PYQ Exploration (`lib/pages/pyq/`)**:
-  - `PyqDashboardPage`: Entry point for PYQ topics, years, and mock tests.
-  - `PyqSubjectTopicPage`: Subject/topic browser.
+## 5. INTEGRATION GAPS
+1. **Diagnostic Placement Integration in Journey Entry**:
+   While `DiagnosticAssessmentService` existed in `packages/garuda_learning`, the `AdaptiveLearningJourneyOrchestrator` did not expose a direct hook to trigger diagnostic placement and feed the resulting active frontier into question selection.
+2. **Diagnostic Assessment Request Execution in Controller**:
+   Need `executeDiagnosticPlacement` exposed on `AdaptiveLearningJourneyOrchestrator` and `AdaptiveLearningJourneyController` to enable the full Home $\to$ Exam $\to$ Topic $\to$ Diagnostic/Placement $\to$ Practice flow.
+3. **Comprehensive P40 20-Scenario Test Matrix (A–T)**:
+   Need complete automated test coverage in `packages/garuda_learning/test/integration/p40_end_to_end_learner_workflow_test.dart` explicitly exercising all 20 scenarios specified in Step 8 (A through T).
 
 ---
 
-## 3. Existing Learning Engine Capabilities (P25–P39 Reusable Infrastructure)
-1. **Diagnostic Assessment / Placement (P26)**:
-   - `DiagnosticAssessmentService`: Evaluates target objectives and computes `DiagnosticPlacementResult` and placement frontiers.
-2. **Remedial Framework (P25)**:
-   - `DeterministicRemedialLessonService`: Resolves and binds remedial lessons for weak spots and provides targeted retry session configurations.
-3. **Adaptive Practice Execution (P35)**:
-   - `AdaptivePracticeEngine`: Question selection, difficulty weighting, candidate scoring, and execution state management.
-4. **Outcome Consolidation (P36)**:
-   - `PracticeOutcomeConsolidator`: Aggregates question attempts into `ConsolidatedPracticeOutcome`.
-5. **Adaptive State Reconciliation (P38)**:
-   - `AdaptiveLearningStateReconciler` & `AdaptiveLearningStateReconciliationPipeline`: Computes state diffs, ensures monotonic revision increments, and guards against concurrency conflicts.
-6. **Authoritative State Persistence & Recovery (P39–P40)**:
-   - `AuthoritativeLearningStateRepository`: Atomic persistence with checksum and schema verification.
-   - `SessionCheckpointRepository`: Durable session checkpointing for crash recovery.
-   - `LearningSessionRecoveryService` & `AuthoritativeLearningStateRecoveryService`: Verifies data integrity, detects corruption, and handles schema migrations.
-7. **Production Journey Orchestrator (P40–P41)**:
-   - `AdaptiveLearningJourneyOrchestrator`: High-level service managing session start, answer submission, state reconciliation, interruption, and recovery.
-   - `AdaptiveLearningJourneyController`: Presentation controller exposing state, progress percentage, and error handling.
-   - `PyqCorpusAdapterService`: Adapts `PyqQuestionModel` to `NormalizedQuestion` with fallback UPSC seed dataset.
+## 6. FILES TO MODIFY
+* `packages/garuda_learning/lib/service/adaptive_learning_journey_orchestrator.dart`:
+  - Add optional `DiagnosticAssessmentService? diagnosticService` parameter.
+  - Implement `executeDiagnosticPlacement({learnerId, targetObjectiveIds, requestedAt})`.
+* `packages/garuda_learning/lib/adapter/adaptive_learning_journey_controller.dart`:
+  - Expose `executeDiagnosticPlacement` on the presentation controller.
+* `packages/garuda_learning/test/integration/p40_end_to_end_learner_workflow_test.dart`:
+  - Implement comprehensive integration test suite covering all 20 scenarios (A through T).
 
 ---
 
-## 4. Missing Connections & Integration Gaps
-1. **Diagnostic Assessment Integration in Journey Entry**:
-   While `DiagnosticAssessmentService` was fully tested in `packages/garuda_learning`, the journey entry needed seamless capability to check if a learner has placement data or needs an initial diagnostic session before adaptive practice.
-2. **Remedial Recommendation Surfacing at Session Completion**:
-   Upon completing a practice session, any identified weak spots should surface remedial micro-lessons with direct retry actions.
-3. **End-to-End Workflow Integration Test Suite**:
-   Need a comprehensive test suite specifically verifying scenarios A through N in `packages/garuda_learning/test/integration/p40_end_to_end_learner_workflow_test.dart` and UI integration in `test/p40_learner_workflow_ui_integration_test.dart`.
+## 7. FILES NOT TO MODIFY
+* **GARUDA Game / Unreal Engine**: Completely out of scope. 0 files touched.
+* **Platform generated files**: `linux/`, `macos/`, `windows/`, `android/`, `ios/` preserved in clean state.
+* **Unrelated packages**: `packages/garuda_pyq`, `titan_core`, etc. untouched.
+* **Linter / Formatter configurations**: `analysis_options.yaml` untouched.
 
 ---
 
-## 5. Proposed Integration Path
-1. **Enhanced Journey Orchestration**:
-   Ensure `AdaptiveLearningJourneyOrchestrator` cleanly connects:
-   - Initial diagnostic assessment / baseline state.
-   - Adaptive practice session execution.
-   - Practice outcome consolidation.
-   - Authoritative state reconciliation and persistence.
-   - Remedial lesson recommendation when accuracy falls below threshold.
-   - Resumption from durable checkpoints.
-2. **UI Practice & Progress Surface**:
-   Ensure `AdaptivePracticePage` surfaces:
-   - Real-time progress (questions answered, current index, progress bar).
-   - Authoritative state revision indicators.
-   - Post-session completion summary with remedial lesson links if weak spots exist.
-   - Smooth navigation back to dashboard with refreshed authoritative metrics.
-3. **Automated Verification**:
-   Build:
-   - `packages/garuda_learning/test/integration/p40_end_to_end_learner_workflow_test.dart` covering all 14 required scenarios (A–N).
-   - `test/p40_learner_workflow_ui_integration_test.dart` verifying widget presentation, button taps, error surfaces, and state updates.
-
----
-
-## 6. Scope Boundaries & File Impact
-### Files to Modify / Create:
-* `docs/P40_LEARNER_WORKFLOW_AUDIT.md` (New documentation audit)
-* `packages/garuda_learning/test/integration/p40_end_to_end_learner_workflow_test.dart` (New end-to-end integration test suite)
-* `test/p40_learner_workflow_ui_integration_test.dart` (New Flutter UI workflow test suite)
-
-### Files Deliberately NOT Modified:
-* **GARUDA Game / Unreal Engine code**: Completely out of scope. 0 files touched.
-* **Platform generated files**: `linux/`, `macos/`, `windows/`, `android/`, `ios/` - untouched.
-* **Unrelated core packages**: `packages/garuda_pyq`, `titan_core`, etc. - untouched.
-* **Global lint / formatting configs**: `analysis_options.yaml` - untouched.
+## 8. P40 IMPLEMENTATION PLAN
+1. **Step 1**: Audit established and recorded in `docs/P40_LEARNER_WORKFLOW_AUDIT.md`.
+2. **Step 2**: Wire `DiagnosticAssessmentService` into `AdaptiveLearningJourneyOrchestrator` and `AdaptiveLearningJourneyController` for real placement execution.
+3. **Step 3**: Verify question presentation, single-submission answer protection, feedback, and progression.
+4. **Step 4**: Verify consolidation, state reconciliation, and authoritative persistence contracts.
+5. **Step 5**: Expose real progress, authoritative revisions, and remedial recommendations in UI surfaces.
+6. **Step 6**: Verify restart recovery and session continuation without evidence duplication.
+7. **Step 7**: Verify graceful error handling across loading, empty corpus, invalid questions, and service failures.
+8. **Step 8**: Implement the complete 20-scenario test suite (A–T) in `p40_end_to_end_learner_workflow_test.dart`.
+9. **Step 9**: Execute targeted tests, full `garuda_learning` suite, analyze, and format.
+10. **Step 10 & 11**: Verify clean scope, commit, and push to `garuda/p23`.

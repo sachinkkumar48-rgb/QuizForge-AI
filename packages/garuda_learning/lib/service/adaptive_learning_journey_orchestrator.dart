@@ -27,6 +27,9 @@ import 'adaptive_practice_execution_engine.dart';
 import 'adaptive_practice_session_orchestrator.dart';
 import 'adaptive_question_selection_service.dart';
 import 'authoritative_learning_state_recovery_service.dart';
+import '../domain/entities/diagnostic_assessment_request.dart';
+import '../domain/entities/diagnostic_placement_result.dart';
+import 'diagnostic_assessment_service.dart';
 import 'learning_session_recovery_service.dart';
 import 'practice_outcome_consolidator.dart';
 import 'resumable_adaptive_practice_coordinator.dart';
@@ -38,6 +41,7 @@ class AdaptiveLearningJourneyOrchestrator {
   final AdaptiveQuestionSelectionService _selectionService;
   final AdaptivePracticeSessionOrchestrator _sessionOrchestrator;
   final ResumableAdaptivePracticeCoordinator _practiceCoordinator;
+  final DiagnosticAssessmentService? _diagnosticService;
 
   static int _sessionCounter = 1;
   static final Map<String, AdaptivePracticeSessionSpec> _specCache = {};
@@ -53,8 +57,10 @@ class AdaptiveLearningJourneyOrchestrator {
     PracticeOutcomeConsolidator? consolidator,
     AdaptiveLearningStateReconciliationPipeline? reconciliationPipeline,
     ResumableAdaptivePracticeCoordinator? practiceCoordinator,
+    DiagnosticAssessmentService? diagnosticService,
   })  : _authRecoveryService = authRecoveryService,
         _sessionRecoveryService = sessionRecoveryService,
+        _diagnosticService = diagnosticService,
         _selectionService =
             selectionService ?? const AdaptiveQuestionSelectionService(),
         _sessionOrchestrator =
@@ -72,6 +78,29 @@ class AdaptiveLearningJourneyOrchestrator {
                   ),
               recoveryService: sessionRecoveryService,
             );
+
+  /// Whether diagnostic assessment service is wired and available.
+  bool get hasDiagnosticService => _diagnosticService != null;
+
+  /// Executes diagnostic placement evaluation for the learner across target objectives.
+  DiagnosticPlacementResult? executeDiagnosticPlacement({
+    required String learnerId,
+    required List<String> targetObjectiveIds,
+    DateTime? requestedAt,
+  }) {
+    final service = _diagnosticService;
+    if (service == null || targetObjectiveIds.isEmpty) {
+      return null;
+    }
+    final ts = (requestedAt ?? DateTime.now()).toUtc();
+    final req = DiagnosticAssessmentRequest(
+      requestId: 'diag_${learnerId}_${ts.millisecondsSinceEpoch}',
+      learnerId: learnerId,
+      targetObjectiveIds: targetObjectiveIds,
+      requestedAt: ts,
+    );
+    return service.evaluatePlacement(req);
+  }
 
   // --------------------------------------------------------------------------
   // 1. Journey Creation & Activation

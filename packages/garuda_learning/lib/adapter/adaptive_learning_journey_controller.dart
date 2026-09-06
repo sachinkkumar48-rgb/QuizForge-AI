@@ -6,6 +6,7 @@ library;
 
 import 'package:garuda_pyq/garuda_pyq.dart';
 
+import '../domain/entities/diagnostic_placement_result.dart';
 import '../domain/entities/learning_journey_error.dart';
 import '../domain/entities/learning_journey_session.dart';
 import '../domain/entities/learning_journey_status.dart';
@@ -214,6 +215,22 @@ class AdaptiveLearningJourneyController {
       _setError(result.error?.code, result.message);
       return false;
     }
+  }
+
+  /// Whether diagnostic assessment capability is available.
+  bool get hasDiagnosticService => _orchestrator.hasDiagnosticService;
+
+  /// Executes diagnostic placement evaluation if diagnostic service is available.
+  DiagnosticPlacementResult? executeDiagnosticPlacement({
+    required String learnerId,
+    required List<String> targetObjectiveIds,
+    DateTime? requestedAt,
+  }) {
+    return _orchestrator.executeDiagnosticPlacement(
+      learnerId: learnerId,
+      targetObjectiveIds: targetObjectiveIds,
+      requestedAt: requestedAt,
+    );
   }
 
   void _setLoading(bool value) {
