@@ -21,6 +21,9 @@ enum ResumableSessionStatus {
   /// Interrupted session verified as safely recoverable from a checkpoint.
   recoverable,
 
+  /// Interrupted session verified and restored from checkpoint, ready to resume.
+  recovered,
+
   /// Session successfully recovered from checkpoint and actively resumed.
   resumed,
 
@@ -48,6 +51,7 @@ enum ResumableSessionStatus {
   bool get isRecoverable =>
       this == ResumableSessionStatus.interrupted ||
       this == ResumableSessionStatus.recoverable ||
+      this == ResumableSessionStatus.recovered ||
       this == ResumableSessionStatus.paused;
 
   /// Validates whether a state transition from this state to [target] is permitted.
@@ -70,11 +74,18 @@ enum ResumableSessionStatus {
               target == ResumableSessionStatus.failed,
         ResumableSessionStatus.interrupted =>
           target == ResumableSessionStatus.recoverable ||
+              target == ResumableSessionStatus.recovered ||
               target == ResumableSessionStatus.resumed ||
               target == ResumableSessionStatus.abandoned ||
               target == ResumableSessionStatus.failed,
         ResumableSessionStatus.recoverable =>
+          target == ResumableSessionStatus.recovered ||
+              target == ResumableSessionStatus.resumed ||
+              target == ResumableSessionStatus.abandoned ||
+              target == ResumableSessionStatus.failed,
+        ResumableSessionStatus.recovered =>
           target == ResumableSessionStatus.resumed ||
+              target == ResumableSessionStatus.active ||
               target == ResumableSessionStatus.abandoned ||
               target == ResumableSessionStatus.failed,
         ResumableSessionStatus.resumed =>
