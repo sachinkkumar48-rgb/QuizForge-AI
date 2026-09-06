@@ -234,6 +234,16 @@ export 'service/resumable_adaptive_practice_coordinator.dart';
 export 'service/session_checkpoint_schema_migrator.dart';
 export 'service/session_checkpoint_service.dart';
 
+// P40 Progressive Mastery Engine
+export 'domain/entities/adaptive_mastery_decision_output.dart';
+export 'domain/entities/learner_mastery_snapshot.dart';
+export 'domain/entities/mastery_classification.dart';
+export 'domain/entities/mastery_engine_config.dart';
+export 'domain/entities/mastery_evidence.dart';
+export 'domain/entities/mastery_exceptions.dart';
+export 'domain/entities/topic_mastery_profile.dart';
+export 'service/progressive_mastery_engine.dart';
+
 // P41 Adaptive Learning Decision & Continuation Engine
 export 'domain/entities/adaptive_decision_policy.dart';
 export 'domain/entities/adaptive_learning_decision.dart';
