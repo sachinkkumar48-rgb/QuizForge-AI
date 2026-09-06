@@ -53,7 +53,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
     } else {
       _ownsController = true;
       final orchestrator = _resolveOrchestrator();
-      _controller = AdaptiveLearningJourneyController(orchestrator: orchestrator);
+      _controller =
+          AdaptiveLearningJourneyController(orchestrator: orchestrator);
     }
 
     _controller.addListener(_onControllerChanged);
@@ -62,24 +63,32 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
 
   AdaptiveLearningJourneyOrchestrator _resolveOrchestrator() {
     try {
-      if (TitanServiceLocator.instance.isRegistered<AdaptiveLearningJourneyOrchestrator>()) {
-        return TitanServiceLocator.instance.get<AdaptiveLearningJourneyOrchestrator>();
+      if (TitanServiceLocator.instance
+          .isRegistered<AdaptiveLearningJourneyOrchestrator>()) {
+        return TitanServiceLocator.instance
+            .get<AdaptiveLearningJourneyOrchestrator>();
       }
     } catch (_) {}
 
-    final authRepo = TitanServiceLocator.instance.isRegistered<AuthoritativeLearningStateRepository>()
-        ? TitanServiceLocator.instance.get<AuthoritativeLearningStateRepository>()
+    final authRepo = TitanServiceLocator.instance
+            .isRegistered<AuthoritativeLearningStateRepository>()
+        ? TitanServiceLocator.instance
+            .get<AuthoritativeLearningStateRepository>()
         : InMemoryAuthoritativeLearningStateRepository();
 
-    final authRecovery = TitanServiceLocator.instance.isRegistered<AuthoritativeLearningStateRecoveryService>()
-        ? TitanServiceLocator.instance.get<AuthoritativeLearningStateRecoveryService>()
+    final authRecovery = TitanServiceLocator.instance
+            .isRegistered<AuthoritativeLearningStateRecoveryService>()
+        ? TitanServiceLocator.instance
+            .get<AuthoritativeLearningStateRecoveryService>()
         : AuthoritativeLearningStateRecoveryService(repository: authRepo);
 
-    final checkpointRepo = TitanServiceLocator.instance.isRegistered<SessionCheckpointRepository>()
-        ? TitanServiceLocator.instance.get<SessionCheckpointRepository>()
-        : InMemorySessionCheckpointRepository();
+    final checkpointRepo =
+        TitanServiceLocator.instance.isRegistered<SessionCheckpointRepository>()
+            ? TitanServiceLocator.instance.get<SessionCheckpointRepository>()
+            : InMemorySessionCheckpointRepository();
 
-    final sessionRecovery = TitanServiceLocator.instance.isRegistered<LearningSessionRecoveryService>()
+    final sessionRecovery = TitanServiceLocator.instance
+            .isRegistered<LearningSessionRecoveryService>()
         ? TitanServiceLocator.instance.get<LearningSessionRecoveryService>()
         : LearningSessionRecoveryService(
             checkpointRepository: checkpointRepo,
@@ -102,16 +111,33 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
 
   Future<void> _initializeSession() async {
     final effectiveLearner = widget.learnerId ?? _resolveLearnerId();
-    List<NormalizedQuestion> effectiveCorpus = widget.corpus ?? [];
+    List<NormalizedQuestion> effectiveCorpus;
 
-    if (effectiveCorpus.isEmpty) {
+    if (widget.corpus != null) {
+      effectiveCorpus = widget.corpus!;
+    } else {
       try {
-        final adapter = TitanServiceLocator.instance.isRegistered<PyqCorpusAdapterService>()
-            ? TitanServiceLocator.instance.get<PyqCorpusAdapterService>()
-            : PyqCorpusAdapterService();
+        final adapter =
+            TitanServiceLocator.instance.isRegistered<PyqCorpusAdapterService>()
+                ? TitanServiceLocator.instance.get<PyqCorpusAdapterService>()
+                : PyqCorpusAdapterService();
         effectiveCorpus = await adapter.getCorpus(topic: widget.targetTopic);
       } catch (_) {
         effectiveCorpus = PyqCorpusAdapterService.getDefaultSeedCorpus();
+      }
+    }
+
+    String? effectiveObjective = widget.targetTopic;
+    final target = effectiveObjective;
+    if (target != null &&
+        !effectiveCorpus.any((q) => q.objectiveIds.contains(target))) {
+      final matching = effectiveCorpus.where((q) =>
+          q.topic.toLowerCase() == target.toLowerCase() ||
+          q.subject.toLowerCase() == target.toLowerCase());
+      if (matching.isNotEmpty && matching.first.objectiveIds.isNotEmpty) {
+        effectiveObjective = matching.first.objectiveIds.first;
+      } else {
+        effectiveObjective = null;
       }
     }
 
@@ -127,16 +153,23 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
         learnerId: effectiveLearner,
         examId: widget.examId,
         corpus: effectiveCorpus,
-        targetObjectiveId: widget.targetTopic,
+        targetObjectiveId: effectiveObjective,
         questionCount: widget.questionCount,
       );
+    }
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
   String _resolveLearnerId() {
     try {
-      if (TitanServiceLocator.instance.isRegistered<AdaptiveLearningRuntimeCoordinator>()) {
-        return TitanServiceLocator.instance.get<AdaptiveLearningRuntimeCoordinator>().activeLearnerId;
+      if (TitanServiceLocator.instance
+          .isRegistered<AdaptiveLearningRuntimeCoordinator>()) {
+        return TitanServiceLocator.instance
+            .get<AdaptiveLearningRuntimeCoordinator>()
+            .activeLearnerId;
       }
     } catch (_) {}
     return 'default_learner';
@@ -152,7 +185,9 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
   }
 
   Future<void> _handleAnswerSubmit() async {
-    if (_selectedOptionKey == null || _isSubmitting || !_controller.canSubmitAnswer) {
+    if (_selectedOptionKey == null ||
+        _isSubmitting ||
+        !_controller.canSubmitAnswer) {
       return;
     }
 
@@ -204,7 +239,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                 padding: const EdgeInsets.only(right: 16.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
@@ -255,7 +291,10 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
               const SizedBox(height: 16),
               Text(
                 "Unable to Start Session",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
@@ -295,7 +334,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
           const SizedBox(height: 16),
           _buildQuestionCard(context, currentQ),
           const SizedBox(height: 16),
-          if (_feedbackResult != null) _buildFeedbackCard(context, _feedbackResult!),
+          if (_feedbackResult != null)
+            _buildFeedbackCard(context, _feedbackResult!),
           const SizedBox(height: 24),
           _buildActionControls(context),
         ],
@@ -316,7 +356,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
           children: [
             Text(
               "Question ${_controller.completedCount + 1} of ${_controller.totalQuestions}",
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               "${(progress * 100).toInt()}% Done",
@@ -348,7 +389,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        side: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -362,19 +404,22 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                 Chip(
                   label: Text(question.topic),
                   visualDensity: VisualDensity.compact,
-                  backgroundColor: colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                  backgroundColor:
+                      colorScheme.secondaryContainer.withValues(alpha: 0.5),
                 ),
                 Chip(
                   label: Text(question.difficulty),
                   visualDensity: VisualDensity.compact,
-                  backgroundColor: _getDifficultyColor(question.difficulty).withValues(alpha: 0.15),
+                  backgroundColor: _getDifficultyColor(question.difficulty)
+                      .withValues(alpha: 0.15),
                   labelStyle: TextStyle(
                     color: _getDifficultyColor(question.difficulty),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Chip(
-                  label: Text("${question.examId.toUpperCase()} ${question.year}"),
+                  label:
+                      Text("${question.examId.toUpperCase()} ${question.year}"),
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -390,7 +435,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
             const SizedBox(height: 20),
             ...question.options.map((opt) {
               final isSelected = _selectedOptionKey == opt.key;
-              final isCorrectKey = question.officialAnswer.correctOptionKeys.contains(opt.key);
+              final isCorrectKey =
+                  question.officialAnswer.correctOptionKeys.contains(opt.key);
 
               Color cardBorderColor = colorScheme.outlineVariant;
               Color cardBgColor = Colors.transparent;
@@ -405,24 +451,32 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                 }
               } else if (isSelected) {
                 cardBorderColor = colorScheme.primary;
-                cardBgColor = colorScheme.primaryContainer.withValues(alpha: 0.2);
+                cardBgColor =
+                    colorScheme.primaryContainer.withValues(alpha: 0.2);
               }
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: InkWell(
-                  onTap: isAnswered ? null : () {
-                    setState(() {
-                      _selectedOptionKey = opt.key;
-                    });
-                  },
+                  onTap: isAnswered
+                      ? null
+                      : () {
+                          setState(() {
+                            _selectedOptionKey = opt.key;
+                          });
+                        },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: cardBgColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cardBorderColor, width: isSelected || (isAnswered && isCorrectKey) ? 2 : 1),
+                      border: Border.all(
+                          color: cardBorderColor,
+                          width: isSelected || (isAnswered && isCorrectKey)
+                              ? 2
+                              : 1),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,7 +491,9 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                              color: isSelected
+                                  ? colorScheme.onPrimary
+                                  : colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -452,7 +508,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                           ),
                         ),
                         if (isAnswered && isCorrectKey)
-                          const Icon(Icons.check_circle, color: Colors.green, size: 20)
+                          const Icon(Icons.check_circle,
+                              color: Colors.green, size: 20)
                         else if (isAnswered && isSelected && !isCorrectKey)
                           const Icon(Icons.cancel, color: Colors.red, size: 20),
                       ],
@@ -467,14 +524,16 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
     );
   }
 
-  Widget _buildFeedbackCard(BuildContext context, PracticeQuestionResult result) {
+  Widget _buildFeedbackCard(
+      BuildContext context, PracticeQuestionResult result) {
     final isCorrect = result.isCorrect;
 
     return Card(
       color: isCorrect ? Colors.green.shade50 : Colors.red.shade50,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: isCorrect ? Colors.green.shade300 : Colors.red.shade300),
+        side: BorderSide(
+            color: isCorrect ? Colors.green.shade300 : Colors.red.shade300),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -485,7 +544,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
               children: [
                 Icon(
                   isCorrect ? Icons.check_circle : Icons.cancel,
-                  color: isCorrect ? Colors.green.shade700 : Colors.red.shade700,
+                  color:
+                      isCorrect ? Colors.green.shade700 : Colors.red.shade700,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -493,7 +553,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: isCorrect ? Colors.green.shade800 : Colors.red.shade800,
+                    color:
+                        isCorrect ? Colors.green.shade800 : Colors.red.shade800,
                   ),
                 ),
               ],
@@ -538,12 +599,15 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
       width: double.infinity,
       height: 52,
       child: FilledButton(
-        onPressed: _selectedOptionKey == null || _isSubmitting ? null : _handleAnswerSubmit,
+        onPressed: _selectedOptionKey == null || _isSubmitting
+            ? null
+            : _handleAnswerSubmit,
         child: _isSubmitting
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                    color: Colors.white, strokeWidth: 2),
               )
             : const Text(
                 "Submit Answer",
@@ -557,7 +621,8 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
     final theme = Theme.of(context);
     final session = _controller.session;
     final totalQ = session?.totalQuestions ?? widget.questionCount;
-    final results = session?.executionState.questionResults.values.toList() ?? [];
+    final results =
+        session?.executionState.questionResults.values.toList() ?? [];
     final correctCount = results.where((r) => r.isCorrect).length;
     final accuracy = totalQ > 0 ? (correctCount / totalQ) * 100 : 0.0;
     final authRevision = session?.authoritativeState.revision ?? 1;
@@ -576,12 +641,15 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
             const SizedBox(height: 20),
             Text(
               "Adaptive Session Completed!",
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               "Authoritative state updated to Revision $authRevision",
-              style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: theme.colorScheme.secondary,
+                  fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 24),
             Card(
@@ -596,26 +664,85 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildMetricColumn("Answered", "$totalQ", Colors.blue),
-                    _buildMetricColumn("Correct", "$correctCount", Colors.green),
-                    _buildMetricColumn("Accuracy", "${accuracy.toInt()}%", Colors.deepPurple),
+                    _buildMetricColumn(
+                        "Correct", "$correctCount", Colors.green),
+                    _buildMetricColumn(
+                        "Accuracy", "${accuracy.toInt()}%", Colors.deepPurple),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: FilledButton.icon(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                icon: const Icon(Icons.home),
-                label: const Text(
-                  "Return to Dashboard",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            if (correctCount < totalQ) ...[
+              const SizedBox(height: 16),
+              Card(
+                color: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.5),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: theme.colorScheme.outlineVariant),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.lightbulb_outline,
+                              color: theme.colorScheme.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Remedial Recommendation",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Target Topic: ${widget.targetTopic ?? 'General Practice'}\nDeficiencies identified in ${totalQ - correctCount} question(s). A targeted remedial reinforcement drill is recommended.",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+            ],
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                    },
+                    icon: const Icon(Icons.home),
+                    label: const Text("Dashboard"),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _selectedOptionKey = null;
+                        _feedbackResult = null;
+                      });
+                      _initializeSession();
+                    },
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text("Continue Learning"),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
