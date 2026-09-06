@@ -243,3 +243,16 @@ export 'domain/entities/learning_activity_completion_request.dart';
 export 'domain/entities/learning_activity_completion_result.dart';
 export 'repository/learning_activity_completion_repository.dart';
 export 'service/learning_activity_completion_service.dart';
+
+// P44 Adaptive Mastery Continuation & Closed-Loop Mastery Engine
+export 'domain/entities/objective_mastery_status.dart';
+export 'domain/entities/objective_progression_summary.dart';
+export 'domain/entities/objective_weakness_detail.dart';
+export 'domain/entities/next_learning_action.dart';
+export 'domain/entities/mastery_continuation_audit_trail.dart';
+export 'domain/entities/adaptive_continuation_feedback.dart';
+export 'domain/entities/adaptive_mastery_continuation_request.dart';
+export 'domain/entities/adaptive_mastery_continuation_result.dart';
+export 'repository/adaptive_mastery_continuation_repository.dart';
+export 'repository/in_memory_adaptive_mastery_continuation_repository.dart';
+export 'service/adaptive_mastery_continuation_service.dart';
