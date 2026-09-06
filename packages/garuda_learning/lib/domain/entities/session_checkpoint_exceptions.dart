@@ -143,3 +143,93 @@ class SessionCompletionException extends SessionCheckpointException {
   @override
   String toString() => 'SessionCompletionException: $message';
 }
+
+/// Thrown when a requested session is not found in the session repository.
+class SessionNotFoundException extends SessionCheckpointException {
+  final String sessionId;
+
+  SessionNotFoundException({
+    required super.message,
+    required this.sessionId,
+    Map<String, dynamic> details = const {},
+  }) : super(
+          code: SessionRecoveryErrorCode.coldStart,
+          details: {
+            ...details,
+            'sessionId': sessionId,
+          },
+        );
+
+  @override
+  String toString() =>
+      'SessionNotFoundException: $message (sessionId: $sessionId)';
+}
+
+/// Thrown when an illegal lifecycle state transition is requested on a session.
+class InvalidSessionTransitionException extends SessionCheckpointException {
+  final String from;
+  final String to;
+
+  InvalidSessionTransitionException({
+    required super.message,
+    required this.from,
+    required this.to,
+    Map<String, dynamic> details = const {},
+  }) : super(
+          code: SessionRecoveryErrorCode.invalidTransition,
+          details: {
+            ...details,
+            'from': from,
+            'to': to,
+          },
+        );
+
+  @override
+  String toString() =>
+      'InvalidSessionTransitionException: $message ($from -> $to)';
+}
+
+/// Thrown when a tenant access violates session learner or exam ownership boundaries.
+class SessionOwnershipException extends SessionCheckpointException {
+  final String expectedLearner;
+  final String actualLearner;
+
+  SessionOwnershipException({
+    required super.message,
+    required this.expectedLearner,
+    required this.actualLearner,
+    Map<String, dynamic> details = const {},
+  }) : super(
+          code: SessionRecoveryErrorCode.identityMismatch,
+          details: {
+            ...details,
+            'expectedLearner': expectedLearner,
+            'actualLearner': actualLearner,
+          },
+        );
+
+  @override
+  String toString() =>
+      'SessionOwnershipException: $message (expected: $expectedLearner, actual: $actualLearner)';
+}
+
+/// Thrown when an attempt or mutation is submitted to an already completed session.
+class CompletedSessionMutationException extends SessionCheckpointException {
+  final String sessionId;
+
+  CompletedSessionMutationException({
+    required super.message,
+    required this.sessionId,
+    Map<String, dynamic> details = const {},
+  }) : super(
+          code: SessionRecoveryErrorCode.alreadyCompleted,
+          details: {
+            ...details,
+            'sessionId': sessionId,
+          },
+        );
+
+  @override
+  String toString() =>
+      'CompletedSessionMutationException: $message (sessionId: $sessionId)';
+}
