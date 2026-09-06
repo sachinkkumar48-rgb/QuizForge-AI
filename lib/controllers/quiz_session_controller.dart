@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:titan_core/titan_core.dart';
 import '../models/quiz_analytics.dart';
 import '../models/quiz_attempt.dart';
 import '../models/quiz_model.dart';
@@ -7,6 +8,7 @@ import '../models/quiz_source.dart';
 import '../repositories/quiz_history_repository.dart';
 import '../repositories/quiz_session_repository.dart';
 import '../repositories/quiz_source_repository.dart';
+import '../services/adaptive_learning_runtime_coordinator.dart';
 
 class QuizSessionController {
   final String sessionId;
@@ -16,6 +18,9 @@ class QuizSessionController {
   final void Function() onStateChanged;
   final Duration duration;
   final void Function(QuizAnalytics analytics) onTimeUp;
+  final AdaptiveLearningRuntimeCoordinator? _learningCoordinator;
+  final String? learnerId;
+  final String? examId;
 
   int currentQuestionIndex = 0;
   final Map<int, String?> answers = {};
@@ -31,9 +36,13 @@ class QuizSessionController {
     this.duration = const Duration(hours: 2),
     required this.onTimeUp,
     QuizSession? restoredSession,
+    AdaptiveLearningRuntimeCoordinator? learningCoordinator,
+    this.learnerId,
+    this.examId,
   })  : sessionId = restoredSession?.sessionId ??
             "${DateTime.now().microsecondsSinceEpoch}",
-        createdAt = restoredSession?.createdAt ?? DateTime.now() {
+        createdAt = restoredSession?.createdAt ?? DateTime.now(),
+        _learningCoordinator = learningCoordinator ?? _resolveCoordinator() {
     if (restoredSession != null) {
       currentQuestionIndex = restoredSession.currentQuestionIndex;
       answers.addAll(restoredSession.selectedAnswers);
@@ -121,19 +130,23 @@ class QuizSessionController {
   }
 
   Future<void> saveSession() async {
-    final session = QuizSession(
-      sessionId: sessionId,
-      sourceName: sourceName,
-      createdAt: createdAt,
-      lastSavedAt: DateTime.now(),
-      totalQuestions: questions.length,
-      currentQuestionIndex: currentQuestionIndex,
-      remainingTime: Duration(seconds: _remainingSeconds),
-      selectedAnswers: answers,
-      questionStatuses: statuses,
-      quizQuestions: questions,
-    );
-    await QuizSessionRepository().saveSession(session);
+    try {
+      final session = QuizSession(
+        sessionId: sessionId,
+        sourceName: sourceName,
+        createdAt: createdAt,
+        lastSavedAt: DateTime.now(),
+        totalQuestions: questions.length,
+        currentQuestionIndex: currentQuestionIndex,
+        remainingTime: Duration(seconds: _remainingSeconds),
+        selectedAnswers: answers,
+        questionStatuses: statuses,
+        quizQuestions: questions,
+      );
+      await QuizSessionRepository().saveSession(session);
+    } catch (_) {
+      // Safe fallback if background session auto-save fails
+    }
   }
 
   void _startTimer() {
@@ -164,15 +177,15 @@ class QuizSessionController {
   }
 
   Future<void> _saveQuizAttempt(QuizAnalytics analytics) async {
-    final attempt = QuizAttempt(
-      id: "${DateTime.now().microsecondsSinceEpoch}_${analytics.score}",
-      completedAt: DateTime.now(),
-      sourceName: sourceName,
-      analytics: analytics,
-    );
-    await QuizHistoryRepository().saveAttempt(attempt);
-
     try {
+      final attempt = QuizAttempt(
+        id: "${DateTime.now().microsecondsSinceEpoch}_${analytics.score}",
+        completedAt: DateTime.now(),
+        sourceName: sourceName,
+        analytics: analytics,
+      );
+      await QuizHistoryRepository().saveAttempt(attempt);
+
       final sourceRepo = QuizSourceRepository();
       final sources = await sourceRepo.getSources();
       QuizSource? source;
@@ -190,14 +203,46 @@ class QuizSessionController {
         await sourceRepo.updateSource(updated);
       }
     } catch (e) {
-      // Safeguard attempt completion if source metadata updates fail
+      // Safeguard attempt completion if source metadata or Hive updates fail
     }
+
+    // Bridge to Authoritative Adaptive Learning Runtime Engine (P40)
+    try {
+      final coordinator = _learningCoordinator ?? _resolveCoordinator();
+      if (coordinator != null) {
+        await coordinator.recordQuizCompletion(
+          sessionId: sessionId,
+          sourceName: sourceName,
+          questions: questions,
+          answers: answers,
+          startedAt: createdAt,
+          completedAt: DateTime.now(),
+          learnerId: learnerId,
+          examId: examId,
+        );
+      }
+    } catch (_) {
+      // Safeguard: adaptive engine failure must never abort user quiz submission
+    }
+  }
+
+  static AdaptiveLearningRuntimeCoordinator? _resolveCoordinator() {
+    try {
+      if (TitanServiceLocator.instance
+          .isRegistered<AdaptiveLearningRuntimeCoordinator>()) {
+        return TitanServiceLocator.instance
+            .get<AdaptiveLearningRuntimeCoordinator>();
+      }
+    } catch (_) {}
+    return null;
   }
 
   void _submitOnTimeUp() async {
     final analytics = generateAnalytics();
     await _saveQuizAttempt(analytics);
-    await QuizSessionRepository().deleteSession();
+    try {
+      await QuizSessionRepository().deleteSession();
+    } catch (_) {}
     onTimeUp(analytics);
   }
 
@@ -259,7 +304,9 @@ class QuizSessionController {
     _stopTimer();
     final analytics = generateAnalytics();
     await _saveQuizAttempt(analytics);
-    await QuizSessionRepository().deleteSession();
+    try {
+      await QuizSessionRepository().deleteSession();
+    } catch (_) {}
     onFinished(analytics);
   }
 

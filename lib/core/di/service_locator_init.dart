@@ -9,12 +9,12 @@ import '../../domain/usecases/generate_quiz_usecase.dart';
 import '../../domain/usecases/generate_study_plan_usecase.dart';
 import '../../repositories/ai_mentor_repository.dart';
 import '../../repositories/impl/garuda_learning_dashboard_repository.dart';
-import '../../repositories/impl/hive_garuda_learner_evidence_repository.dart';
 import '../../repositories/impl/hive_pyq_repository.dart';
 import '../../repositories/pyq_repository.dart';
 import '../../repositories/quiz_repository.dart';
 import '../../repositories/titan_quiz_repository.dart';
 import '../../services/active_learner_service.dart';
+import '../../services/adaptive_learning_runtime_coordinator.dart';
 import '../../services/knowledge_integration_service.dart';
 import '../../services/quiz_batch_generator.dart';
 import '../../services/quiz_generation_adapter.dart';
@@ -152,7 +152,7 @@ void setupServiceLocator() {
   if (!locator.isRegistered<LearnerRepository>()) {
     locator.registerLazySingleton<LearnerRepository>(
       () {
-        final repo = HiveGarudaLearnerRepository();
+        final repo = InMemoryLearnerRepository();
         final activeId = locator.get<ActiveLearnerService>().activeLearnerId;
         if (!repo.exists(activeId)) {
           repo.save(Learner(
@@ -169,21 +169,21 @@ void setupServiceLocator() {
 
   if (!locator.isRegistered<AttemptRepository>()) {
     locator.registerLazySingleton<AttemptRepository>(
-      () => HiveGarudaAttemptRepository(),
+      () => InMemoryAttemptRepository(),
       allowOverride: true,
     );
   }
 
   if (!locator.isRegistered<ProgressRepository>()) {
     locator.registerLazySingleton<ProgressRepository>(
-      () => HiveGarudaProgressRepository(),
+      () => InMemoryProgressRepository(),
       allowOverride: true,
     );
   }
 
   if (!locator.isRegistered<SessionManager>()) {
     locator.registerLazySingleton<SessionManager>(
-      () => HiveGarudaSessionManager(
+      () => SessionManager(
         learnerRepository: locator.get<LearnerRepository>(),
       ),
       allowOverride: true,
@@ -293,6 +293,95 @@ void setupServiceLocator() {
     locator.registerFactory<DashboardViewModel>(
       () => DashboardViewModel(
         repository: locator.get<GarudaDashboardRepository>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  // --- GARUDA Learning Authoritative State & Progressive Mastery Services (P38-P40) ---
+  if (!locator.isRegistered<AuthoritativeLearningStateRepository>()) {
+    locator.registerLazySingleton<AuthoritativeLearningStateRepository>(
+      () => InMemoryAuthoritativeLearningStateRepository(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<SessionCheckpointRepository>()) {
+    locator.registerLazySingleton<SessionCheckpointRepository>(
+      () => InMemorySessionCheckpointRepository(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AuthoritativeLearningStateRecoveryService>()) {
+    locator.registerLazySingleton<AuthoritativeLearningStateRecoveryService>(
+      () => AuthoritativeLearningStateRecoveryService(
+        repository: locator.get<AuthoritativeLearningStateRepository>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<LearningSessionRecoveryService>()) {
+    locator.registerLazySingleton<LearningSessionRecoveryService>(
+      () => LearningSessionRecoveryService(
+        checkpointRepository: locator.get<SessionCheckpointRepository>(),
+        authoritativeRecoveryService:
+            locator.get<AuthoritativeLearningStateRecoveryService>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<PracticeOutcomeConsolidator>()) {
+    locator.registerLazySingleton<PracticeOutcomeConsolidator>(
+      () => const PracticeOutcomeConsolidator(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<LearningStateUpdateProposer>()) {
+    locator.registerLazySingleton<LearningStateUpdateProposer>(
+      () => const LearningStateUpdateProposer(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AdaptiveLearningStateReconciler>()) {
+    locator.registerLazySingleton<AdaptiveLearningStateReconciler>(
+      () => const AdaptiveLearningStateReconciler(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AdaptiveLearningStateReconciliationPipeline>()) {
+    locator.registerLazySingleton<AdaptiveLearningStateReconciliationPipeline>(
+      () => AdaptiveLearningStateReconciliationPipeline(
+        repository: locator.get<AuthoritativeLearningStateRepository>(),
+        recoveryService: locator.get<AuthoritativeLearningStateRecoveryService>(),
+        reconciler: locator.get<AdaptiveLearningStateReconciler>(),
+        proposer: locator.get<LearningStateUpdateProposer>(),
+        consolidator: locator.get<PracticeOutcomeConsolidator>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<ProgressiveMasteryEngine>()) {
+    locator.registerLazySingleton<ProgressiveMasteryEngine>(
+      () => const ProgressiveMasteryEngine(),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AdaptiveLearningRuntimeCoordinator>()) {
+    locator.registerLazySingleton<AdaptiveLearningRuntimeCoordinator>(
+      () => AdaptiveLearningRuntimeCoordinator(
+        repository: locator.get<AuthoritativeLearningStateRepository>(),
+        recoveryService: locator.get<AuthoritativeLearningStateRecoveryService>(),
+        reconciliationPipeline: locator.get<AdaptiveLearningStateReconciliationPipeline>(),
+        masteryEngine: locator.get<ProgressiveMasteryEngine>(),
+        activeLearnerService: locator.get<ActiveLearnerService>(),
       ),
       allowOverride: true,
     );
