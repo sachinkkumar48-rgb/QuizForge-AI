@@ -220,9 +220,6 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Learning Paths & Content'),
@@ -687,7 +684,6 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
   }
 
   Widget _buildEmptyContentState(BuildContext context) {
-    final topic = _state.selectedTopic;
     return Center(
       child: Card(
         key: const Key('content_path_empty_state'),
@@ -861,6 +857,114 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
           ),
           const SizedBox(height: 16),
 
+          // Objective Mastered Banner
+          if (_state.isObjectiveAchieved) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.shade300),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 28),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'OBJECTIVE MASTERED',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'You have achieved competency on ${topic.name}.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.green.shade900,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Next Sequential Objective in Syllabus
+          if (_state.nextObjectiveTitle != null) ...[
+            Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.indigo.shade200),
+              ),
+              color: Colors.indigo.shade50.withValues(alpha: 0.3),
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.fast_forward, color: Colors.indigo),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'NEXT CURRICULUM OBJECTIVE',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigo,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _state.nextObjectiveTitle!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        if (_state.selectedExam != null &&
+                            _state.selectedSubject != null &&
+                            _state.selectedTopic != null) {
+                          final next = _service.getNextTopicForTopic(
+                            _state.selectedExam!.id,
+                            _state.selectedSubject!.id,
+                            _state.selectedTopic!.id,
+                            corpus: widget.corpus,
+                          );
+                          if (next != null) {
+                            _handleTopicSelected(next);
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_forward, size: 16),
+                      label: const Text('Advance'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
           // Authoritative Progress Metrics (if available)
           if (progress != null) ...[
             Card(
@@ -940,9 +1044,20 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
                         child: Icon(
                           _state.canResumeActiveSession
                               ? Icons.play_arrow
-                              : (_state.isDiagnosticRequired
+                              : (_state.recommendedAction ==
+                                      AdaptiveActionType.takeDiagnostic
                                   ? Icons.assignment_outlined
-                                  : Icons.school),
+                                  : (_state.recommendedAction ==
+                                          AdaptiveActionType.startRemedialLesson
+                                      ? Icons.healing
+                                      : (_state.recommendedAction ==
+                                              AdaptiveActionType.practicePyqs
+                                          ? Icons.auto_stories
+                                          : (_state.recommendedAction ==
+                                                  AdaptiveActionType
+                                                      .reviewWeakTopic
+                                              ? Icons.refresh
+                                              : Icons.school)))),
                           color: Colors.white,
                           size: 20,
                         ),
@@ -951,9 +1066,20 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
                       Text(
                         _state.canResumeActiveSession
                             ? 'RESUME IN-FLIGHT SESSION'
-                            : (_state.isDiagnosticRequired
+                            : (_state.recommendedAction ==
+                                    AdaptiveActionType.takeDiagnostic
                                 ? 'RECOMMENDED ENTRY POINT'
-                                : 'ADAPTIVE PRACTICE READY'),
+                                : (_state.recommendedAction ==
+                                        AdaptiveActionType.startRemedialLesson
+                                    ? 'TARGETED REMEDIATION'
+                                    : (_state.recommendedAction ==
+                                            AdaptiveActionType.practicePyqs
+                                        ? 'PYQ PRACTICE READY'
+                                        : (_state.recommendedAction ==
+                                                AdaptiveActionType
+                                                    .reviewWeakTopic
+                                            ? 'SPACED RETENTION REVISION'
+                                            : 'ADAPTIVE PRACTICE READY')))),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -989,14 +1115,38 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
                       icon: Icon(
                         _state.canResumeActiveSession
                             ? Icons.play_circle_fill
-                            : Icons.arrow_forward,
+                            : (_state.recommendedAction ==
+                                    AdaptiveActionType.takeDiagnostic
+                                ? Icons.assignment_outlined
+                                : (_state.recommendedAction ==
+                                        AdaptiveActionType.startRemedialLesson
+                                    ? Icons.healing
+                                    : (_state.recommendedAction ==
+                                            AdaptiveActionType.practicePyqs
+                                        ? Icons.auto_stories
+                                        : (_state.recommendedAction ==
+                                                AdaptiveActionType
+                                                    .reviewWeakTopic
+                                            ? Icons.refresh
+                                            : Icons.arrow_forward)))),
                       ),
                       label: Text(
                         _state.canResumeActiveSession
                             ? 'Resume Learning'
-                            : (_state.isDiagnosticRequired
+                            : (_state.recommendedAction ==
+                                    AdaptiveActionType.takeDiagnostic
                                 ? 'Take Diagnostic Assessment'
-                                : 'Start Learning'),
+                                : (_state.recommendedAction ==
+                                        AdaptiveActionType.startRemedialLesson
+                                    ? 'Start Remedial Lesson'
+                                    : (_state.recommendedAction ==
+                                            AdaptiveActionType.practicePyqs
+                                        ? 'Practice UPSC PYQs'
+                                        : (_state.recommendedAction ==
+                                                AdaptiveActionType
+                                                    .reviewWeakTopic
+                                            ? 'Review Mastered Concepts'
+                                            : 'Start Learning')))),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,

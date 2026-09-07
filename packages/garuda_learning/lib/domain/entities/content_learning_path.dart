@@ -165,6 +165,10 @@ class ContentLearningPathState {
   final String actionTitle;
   final String actionDescription;
   final String? errorMessage;
+  final bool isObjectiveAchieved;
+  final String? nextObjectiveId;
+  final String? nextObjectiveTitle;
+  final String? remedialLessonId;
 
   const ContentLearningPathState({
     required this.status,
@@ -185,6 +189,10 @@ class ContentLearningPathState {
     this.actionTitle = '',
     this.actionDescription = '',
     this.errorMessage,
+    this.isObjectiveAchieved = false,
+    this.nextObjectiveId,
+    this.nextObjectiveTitle,
+    this.remedialLessonId,
   });
 
   factory ContentLearningPathState.initial({
@@ -243,6 +251,10 @@ class ContentLearningPathState {
     String? actionTitle,
     String? actionDescription,
     String? errorMessage,
+    bool? isObjectiveAchieved,
+    String? nextObjectiveId,
+    String? nextObjectiveTitle,
+    String? remedialLessonId,
   }) {
     return ContentLearningPathState(
       status: status ?? this.status,
@@ -265,6 +277,10 @@ class ContentLearningPathState {
       actionTitle: actionTitle ?? this.actionTitle,
       actionDescription: actionDescription ?? this.actionDescription,
       errorMessage: errorMessage ?? this.errorMessage,
+      isObjectiveAchieved: isObjectiveAchieved ?? this.isObjectiveAchieved,
+      nextObjectiveId: nextObjectiveId ?? this.nextObjectiveId,
+      nextObjectiveTitle: nextObjectiveTitle ?? this.nextObjectiveTitle,
+      remedialLessonId: remedialLessonId ?? this.remedialLessonId,
     );
   }
 }
