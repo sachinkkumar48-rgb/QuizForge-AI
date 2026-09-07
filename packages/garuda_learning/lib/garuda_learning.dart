@@ -295,3 +295,7 @@ export 'domain/entities/learner_dashboard_state.dart';
 // P42 Content-to-Learning-Path Integration
 export 'domain/entities/content_learning_path.dart';
 export 'service/content_learning_path_service.dart';
+
+// P43 Personalized Learning Plan
+export 'domain/entities/personalized_learning_plan.dart';
+export 'service/personalized_learning_plan_service.dart';

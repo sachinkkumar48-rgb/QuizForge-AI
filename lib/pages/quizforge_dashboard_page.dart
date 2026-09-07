@@ -14,9 +14,9 @@ import 'ai_mentor_panel_page.dart';
 import 'content_learning_path_page.dart';
 import 'history_page.dart';
 import 'home_page.dart';
+import 'learning_plan_page.dart';
 import 'library_page.dart';
 import 'module_explorer_page.dart';
-import 'pyq/pyq_dashboard_page.dart';
 import 'settings_page.dart';
 
 /// The central QuizForge AI Learner Dashboard & Control Center Screen (P41).
@@ -68,6 +68,16 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.alt_route),
+            tooltip: "Learning Plan",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LearningPlanPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: "Refresh Metrics",
@@ -533,6 +543,25 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                       fontSize: 13,
                       color: colorScheme.onSurfaceVariant,
                       height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  InkWell(
+                    onTap: () => _navigateTo(const LearningPlanPage()),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.alt_route, size: 14, color: accentColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          "View Full Learning Plan",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

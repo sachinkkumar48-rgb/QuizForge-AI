@@ -434,6 +434,28 @@ void setupServiceLocator() {
       allowOverride: true,
     );
   }
+
+  if (!locator.isRegistered<PersonalizedLearningPlanService>()) {
+    locator.registerLazySingleton<PersonalizedLearningPlanService>(
+      () => PersonalizedLearningPlanService(
+        curriculumService: locator.get<CurriculumService>(),
+        authRecoveryService:
+            locator.get<AuthoritativeLearningStateRecoveryService>(),
+        checkpointRepository: locator.get<SessionCheckpointRepository>(),
+        contentService: locator.get<ContentLearningPathService>(),
+        diagnosticRepository:
+            locator.isRegistered<DiagnosticPlacementRepository>()
+                ? locator.get<DiagnosticPlacementRepository>()
+                : null,
+        remedialService:
+            locator.isRegistered<DeterministicRemedialLessonService>()
+                ? locator.get<DeterministicRemedialLessonService>()
+                : null,
+        seedQuestions: PyqCorpusAdapterService.getDefaultSeedCorpus(),
+      ),
+      allowOverride: true,
+    );
+  }
 }
 
 /// Helper shortcut for obtaining a registered dependency.
