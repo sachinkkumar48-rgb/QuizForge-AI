@@ -359,7 +359,8 @@ void setupServiceLocator() {
     locator.registerLazySingleton<AdaptiveLearningStateReconciliationPipeline>(
       () => AdaptiveLearningStateReconciliationPipeline(
         repository: locator.get<AuthoritativeLearningStateRepository>(),
-        recoveryService: locator.get<AuthoritativeLearningStateRecoveryService>(),
+        recoveryService:
+            locator.get<AuthoritativeLearningStateRecoveryService>(),
         reconciler: locator.get<AdaptiveLearningStateReconciler>(),
         proposer: locator.get<LearningStateUpdateProposer>(),
         consolidator: locator.get<PracticeOutcomeConsolidator>(),
@@ -379,8 +380,10 @@ void setupServiceLocator() {
     locator.registerLazySingleton<AdaptiveLearningRuntimeCoordinator>(
       () => AdaptiveLearningRuntimeCoordinator(
         repository: locator.get<AuthoritativeLearningStateRepository>(),
-        recoveryService: locator.get<AuthoritativeLearningStateRecoveryService>(),
-        reconciliationPipeline: locator.get<AdaptiveLearningStateReconciliationPipeline>(),
+        recoveryService:
+            locator.get<AuthoritativeLearningStateRecoveryService>(),
+        reconciliationPipeline:
+            locator.get<AdaptiveLearningStateReconciliationPipeline>(),
         masteryEngine: locator.get<ProgressiveMasteryEngine>(),
         activeLearnerService: locator.get<ActiveLearnerService>(),
       ),
@@ -409,6 +412,24 @@ void setupServiceLocator() {
         sessionRecoveryService: locator.get<LearningSessionRecoveryService>(),
         reconciliationPipeline:
             locator.get<AdaptiveLearningStateReconciliationPipeline>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<ContentLearningPathService>()) {
+    locator.registerLazySingleton<ContentLearningPathService>(
+      () => ContentLearningPathService(
+        curriculumService: locator.get<CurriculumService>(),
+        authRecoveryService:
+            locator.get<AuthoritativeLearningStateRecoveryService>(),
+        checkpointRepository: locator.get<SessionCheckpointRepository>(),
+        decisionEngine: locator.get<AdaptiveLearningDecisionEngine>(),
+        remedialService:
+            locator.isRegistered<DeterministicRemedialLessonService>()
+                ? locator.get<DeterministicRemedialLessonService>()
+                : null,
+        seedQuestions: PyqCorpusAdapterService.getDefaultSeedCorpus(),
       ),
       allowOverride: true,
     );

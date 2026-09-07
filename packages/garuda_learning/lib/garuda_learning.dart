@@ -291,3 +291,7 @@ export 'service/adaptive_learning_journey_orchestrator.dart';
 // P41 Learner Dashboard & Learning Control Center
 export 'adapter/learner_dashboard_controller.dart';
 export 'domain/entities/learner_dashboard_state.dart';
+
+// P42 Content-to-Learning-Path Integration
+export 'domain/entities/content_learning_path.dart';
+export 'service/content_learning_path_service.dart';

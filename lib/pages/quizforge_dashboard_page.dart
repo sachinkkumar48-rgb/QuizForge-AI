@@ -11,6 +11,7 @@ import '../widgets/dashboard/recent_activity_card_widget.dart';
 import '../widgets/dashboard/stat_summary_card_widget.dart';
 import 'adaptive_practice_page.dart';
 import 'ai_mentor_panel_page.dart';
+import 'content_learning_path_page.dart';
 import 'history_page.dart';
 import 'home_page.dart';
 import 'library_page.dart';
@@ -110,7 +111,8 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 56, color: Colors.red),
+                    const Icon(Icons.error_outline,
+                        size: 56, color: Colors.red),
                     const SizedBox(height: 16),
                     Text(
                       "Unable to Load Dashboard",
@@ -614,7 +616,7 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
   Widget _buildQuickActionGrid() {
     return _quickActionGrid ??= QuickActionCardWidget(
       onGenerateQuizTap: () => _navigateTo(const HomePage()),
-      onPyqTap: () => _navigateTo(const PyqDashboardPage()),
+      onPyqTap: () => _navigateTo(const ContentLearningPathPage()),
       onAiCoachTap: () => _navigateTo(const AIMentorPanelPage()),
       onPdfLibraryTap: () => _navigateTo(const LibraryPage()),
       onHistoryTap: () => _navigateTo(const HistoryPage()),
@@ -663,7 +665,7 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
         );
         break;
       case AdaptiveActionType.practicePyqs:
-        _navigateTo(const PyqDashboardPage());
+        _navigateTo(const ContentLearningPathPage());
         break;
       case AdaptiveActionType.none:
         break;
