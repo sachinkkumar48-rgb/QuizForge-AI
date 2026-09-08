@@ -12,6 +12,7 @@ import '../widgets/dashboard/stat_summary_card_widget.dart';
 import 'adaptive_practice_page.dart';
 import 'ai_mentor_panel_page.dart';
 import 'analytics_dashboard_page.dart';
+import 'cohort_management_page.dart';
 import 'content_learning_path_page.dart';
 import 'history_page.dart';
 import 'home_page.dart';
@@ -78,6 +79,19 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const AnalyticsDashboardPage()),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('dashboard_cohorts_button'),
+            icon: const Icon(Icons.school_outlined),
+            tooltip: "Cohorts & Assignments",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CohortManagementPage(),
+                ),
               );
             },
           ),

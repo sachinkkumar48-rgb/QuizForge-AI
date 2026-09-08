@@ -323,3 +323,11 @@ export 'repository/remote_learning_state_repository.dart';
 export 'repository/sync_outbox_repository.dart';
 export 'service/sync/learner_state_conflict_resolver.dart';
 export 'service/sync/learner_state_sync_service.dart';
+
+// P48 Institutional Cohort / Class Management & Assignment Distribution
+export 'domain/entities/cohort.dart';
+export 'domain/entities/cohort_assignment.dart';
+export 'domain/entities/cohort_progress.dart';
+export 'repository/cohort_repository.dart';
+export 'repository/in_memory_cohort_repository.dart';
+export 'service/cohort_service.dart';
