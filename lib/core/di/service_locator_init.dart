@@ -162,6 +162,13 @@ void setupServiceLocator() {
             createdAt: DateTime.utc(2026, 8, 29),
           ));
         }
+        if (!repo.exists('default_learner')) {
+          repo.save(Learner(
+            id: 'default_learner',
+            name: 'TITAN UPSC Aspirant',
+            createdAt: DateTime.utc(2026, 8, 29),
+          ));
+        }
         return repo;
       },
       allowOverride: true,
@@ -412,6 +419,9 @@ void setupServiceLocator() {
         sessionRecoveryService: locator.get<LearningSessionRecoveryService>(),
         reconciliationPipeline:
             locator.get<AdaptiveLearningStateReconciliationPipeline>(),
+        diagnosticService: locator.isRegistered<DiagnosticAssessmentService>()
+            ? locator.get<DiagnosticAssessmentService>()
+            : null,
       ),
       allowOverride: true,
     );
@@ -428,6 +438,13 @@ void setupServiceLocator() {
         remedialService:
             locator.isRegistered<DeterministicRemedialLessonService>()
                 ? locator.get<DeterministicRemedialLessonService>()
+                : null,
+        diagnosticService: locator.isRegistered<DiagnosticAssessmentService>()
+            ? locator.get<DiagnosticAssessmentService>()
+            : null,
+        diagnosticPlacementRepository:
+            locator.isRegistered<DiagnosticPlacementRepository>()
+                ? locator.get<DiagnosticPlacementRepository>()
                 : null,
         seedQuestions: PyqCorpusAdapterService.getDefaultSeedCorpus(),
       ),

@@ -20,6 +20,8 @@ class AdaptivePracticePage extends StatefulWidget {
   final int questionCount;
   final bool isResumeMode;
   final String? resumeSessionId;
+  final bool isDiagnosticMode;
+  final String? targetObjectiveId;
 
   const AdaptivePracticePage({
     super.key,
@@ -31,6 +33,8 @@ class AdaptivePracticePage extends StatefulWidget {
     this.questionCount = 5,
     this.isResumeMode = false,
     this.resumeSessionId,
+    this.isDiagnosticMode = false,
+    this.targetObjectiveId,
   });
 
   @override
@@ -44,6 +48,11 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
   String? _selectedOptionKey;
   bool _isSubmitting = false;
   PracticeQuestionResult? _feedbackResult;
+  DiagnosticPlacementResult? _diagnosticResult;
+
+  bool get _isDiagnostic =>
+      widget.isDiagnosticMode ||
+      (widget.targetTopic?.toLowerCase().contains('diagnostic') ?? false);
 
   @override
   void initState() {
@@ -95,11 +104,17 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
             authoritativeRecoveryService: authRecovery,
           );
 
+    final diagService =
+        TitanServiceLocator.instance.isRegistered<DiagnosticAssessmentService>()
+            ? TitanServiceLocator.instance.get<DiagnosticAssessmentService>()
+            : null;
+
     return AdaptiveLearningJourneyOrchestrator(
       authRepository: authRepo,
       authRecoveryService: authRecovery,
       checkpointRepository: checkpointRepo,
       sessionRecoveryService: sessionRecovery,
+      diagnosticService: diagService,
     );
   }
 
@@ -111,6 +126,20 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
 
   Future<void> _initializeSession() async {
     final effectiveLearner = widget.learnerId ?? _resolveLearnerId();
+
+    try {
+      if (TitanServiceLocator.instance.isRegistered<LearnerRepository>()) {
+        final lRepo = TitanServiceLocator.instance.get<LearnerRepository>();
+        if (!lRepo.exists(effectiveLearner)) {
+          lRepo.save(Learner(
+            id: effectiveLearner,
+            name: 'Learner $effectiveLearner',
+            createdAt: DateTime.utc(2026, 8, 29),
+          ));
+        }
+      }
+    } catch (_) {}
+
     List<NormalizedQuestion> effectiveCorpus;
 
     if (widget.corpus != null) {
@@ -127,7 +156,7 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
       }
     }
 
-    String? effectiveObjective = widget.targetTopic;
+    String? effectiveObjective = widget.targetObjectiveId ?? widget.targetTopic;
     final target = effectiveObjective;
     if (target != null &&
         !effectiveCorpus.any((q) => q.objectiveIds.contains(target))) {
@@ -137,7 +166,18 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
       if (matching.isNotEmpty && matching.first.objectiveIds.isNotEmpty) {
         effectiveObjective = matching.first.objectiveIds.first;
       } else {
-        effectiveObjective = null;
+        try {
+          if (TitanServiceLocator.instance.isRegistered<CurriculumService>()) {
+            final curService =
+                TitanServiceLocator.instance.get<CurriculumService>();
+            final seq = curService.getDeterministicSequence();
+            if (seq.isNotEmpty) {
+              effectiveObjective = seq.first.id;
+            }
+          }
+        } catch (_) {
+          effectiveObjective = null;
+        }
       }
     }
 
@@ -195,7 +235,41 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
       _isSubmitting = true;
     });
 
-    await _controller.submitAnswer(answer: _selectedOptionKey!);
+    final currentQ = _controller.currentQuestion;
+    final effectiveLearner = widget.learnerId ?? _resolveLearnerId();
+    final chosenAnswer = _selectedOptionKey!;
+
+    await _controller.submitAnswer(answer: chosenAnswer);
+    final res = _controller.lastAnswerResult;
+
+    // Record attempt into AttemptRepository so diagnostic evaluator has attempt evidence
+    if (res != null && currentQ != null) {
+      try {
+        if (TitanServiceLocator.instance.isRegistered<AttemptRepository>()) {
+          final attemptRepo =
+              TitanServiceLocator.instance.get<AttemptRepository>();
+          final attId =
+              'att_${DateTime.now().millisecondsSinceEpoch}_${currentQ.id}';
+          final objId = currentQ.objectiveIds.isNotEmpty
+              ? currentQ.objectiveIds.first
+              : (widget.targetObjectiveId ?? 'lo_basic_structure_doctrine');
+          attemptRepo.saveAttempt(QuestionAttempt(
+            attemptId: attId,
+            learnerId: effectiveLearner,
+            questionId: currentQ.id,
+            objectiveId: objId,
+            submittedAnswer: chosenAnswer,
+            sessionId: _controller.session?.sessionId,
+          ));
+          attemptRepo.saveResult(AttemptResult(
+            attemptId: attId,
+            isCorrect: res.isCorrect,
+            score: res.isCorrect ? 1.0 : 0.0,
+            evaluationMethod: EvaluationMethod.multipleChoice,
+          ));
+        }
+      } catch (_) {}
+    }
 
     if (mounted) {
       setState(() {
@@ -227,13 +301,38 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            widget.targetTopic != null
-                ? "Adaptive Drill: ${widget.targetTopic}"
-                : "Adaptive Practice Session",
+            _isDiagnostic
+                ? "Diagnostic: ${widget.targetTopic ?? 'Baseline Placement'}"
+                : (widget.targetTopic != null
+                    ? "Adaptive Drill: ${widget.targetTopic}"
+                    : "Adaptive Practice Session"),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           actions: [
+            if (_isDiagnostic)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      "DIAGNOSTIC",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple.shade800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             if (!_controller.isCompleted && _controller.session != null)
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
@@ -617,7 +716,202 @@ class _AdaptivePracticePageState extends State<AdaptivePracticePage> {
     );
   }
 
+  void _ensureDiagnosticEvaluated() {
+    if (!_isDiagnostic || _diagnosticResult != null) return;
+
+    final effectiveLearner = widget.learnerId ?? _resolveLearnerId();
+    final curriculumService =
+        TitanServiceLocator.instance.isRegistered<CurriculumService>()
+            ? TitanServiceLocator.instance.get<CurriculumService>()
+            : null;
+
+    final targetObjs = <String>[];
+    if (curriculumService != null) {
+      if (widget.targetObjectiveId != null &&
+          curriculumService.getObjectiveById(widget.targetObjectiveId!) !=
+              null) {
+        targetObjs.add(widget.targetObjectiveId!);
+      }
+      final session = _controller.session;
+      if (session != null) {
+        for (final q in session.spec.orderedQuestions) {
+          for (final oid in q.objectiveIds) {
+            if (curriculumService.getObjectiveById(oid) != null &&
+                !targetObjs.contains(oid)) {
+              targetObjs.add(oid);
+            }
+          }
+        }
+      }
+      if (targetObjs.isEmpty) {
+        final seq = curriculumService.getDeterministicSequence();
+        if (seq.isNotEmpty) {
+          targetObjs.add(seq.first.id);
+        }
+      }
+    }
+
+    if (targetObjs.isNotEmpty) {
+      try {
+        final diagRes = _controller.executeDiagnosticPlacement(
+          learnerId: effectiveLearner,
+          targetObjectiveIds: targetObjs,
+        );
+        if (diagRes != null) {
+          _diagnosticResult = diagRes;
+        }
+      } catch (_) {}
+    }
+  }
+
+  Widget _buildDiagnosticCompletionSummary(BuildContext context) {
+    final theme = Theme.of(context);
+    final diag = _diagnosticResult!;
+    final session = _controller.session;
+    final totalQ = session?.totalQuestions ?? widget.questionCount;
+    final results =
+        session?.executionState.questionResults.values.toList() ?? [];
+    final correctCount = results.where((r) => r.isCorrect).length;
+    final accuracy = totalQ > 0 ? (correctCount / totalQ) * 100 : 0.0;
+    final demonstratedCount = diag.demonstratedObjectivesCount;
+    final activeFrontierCount = diag.frontier.activeFrontierObjectiveIds.length;
+    final remediationCount = diag.frontier.remediationTargetObjectiveIds.length;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.deepPurple,
+              child: Icon(Icons.assignment_turned_in,
+                  color: Colors.white, size: 42),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Diagnostic Placement Established!",
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Baseline knowledge frontier verified across ${diag.totalAssessedObjectives} curriculum objective(s)",
+              style: TextStyle(
+                color: theme.colorScheme.secondary,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildMetricColumn(
+                        "Demonstrated", "$demonstratedCount", Colors.green),
+                    _buildMetricColumn(
+                        "Frontier", "$activeFrontierCount", Colors.blue),
+                    _buildMetricColumn(
+                        "Remediation", "$remediationCount", Colors.orange),
+                    _buildMetricColumn(
+                        "Accuracy", "${accuracy.toInt()}%", Colors.deepPurple),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              color: theme.colorScheme.surfaceContainerHighest
+                  .withValues(alpha: 0.5),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.radar,
+                            color: Colors.deepPurple.shade700, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Baseline Knowledge Frontier",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      remediationCount > 0
+                          ? "Diagnostic assessment identified conceptual vulnerabilities in $remediationCount objective(s). Your learning path has scheduled targeted remedial reinforcement before standard practice drills."
+                          : "Baseline placement confirmed. Foundational competencies demonstrated. You are ready to advance to your next learning objective along the curriculum.",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                    },
+                    icon: const Icon(Icons.home),
+                    label: const Text("Dashboard"),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                    },
+                    icon: const Icon(Icons.alt_route),
+                    label: const Text("View Learning Path"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCompletionSummary(BuildContext context) {
+    _ensureDiagnosticEvaluated();
+    if (_isDiagnostic && _diagnosticResult != null) {
+      return _buildDiagnosticCompletionSummary(context);
+    }
+
     final theme = Theme.of(context);
     final session = _controller.session;
     final totalQ = session?.totalQuestions ?? widget.questionCount;

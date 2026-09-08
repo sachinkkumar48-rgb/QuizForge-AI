@@ -144,6 +144,9 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
 
   void _handleActionTrigger() {
     final topic = _state.selectedTopic?.name ?? 'UPSC Practice';
+    final isDiag =
+        _state.recommendedAction == AdaptiveActionType.takeDiagnostic ||
+            _state.isDiagnosticRequired;
 
     if (_state.canResumeActiveSession) {
       Navigator.push(
@@ -168,6 +171,8 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
             examId: _state.selectedExam?.id ?? 'upsc_prelims_gs1',
             learnerId: widget.learnerId,
             corpus: widget.corpus,
+            isDiagnosticMode: isDiag,
+            targetObjectiveId: _state.resolvedObjective?.id,
           ),
         ),
       ).then((_) => _refreshTopicState());
