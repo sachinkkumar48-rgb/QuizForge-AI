@@ -3,7 +3,6 @@ import 'package:garuda_learning/garuda_learning.dart';
 import 'package:titan_core/titan_core.dart';
 
 import '../models/quiz_attempt.dart';
-import '../models/quiz_source.dart';
 import '../plugins/plugins.dart';
 import '../repositories/quiz_history_repository.dart';
 import '../repositories/quiz_session_repository.dart';
@@ -21,6 +20,8 @@ class DashboardController extends ValueNotifier<DashboardState> {
   final QuizSessionRepository _sessionRepository;
   final AdaptiveLearningRuntimeCoordinator? _learningCoordinator;
   final LearnerDashboardController _learnerController;
+  final MasteryProgressionService? _progressionService;
+  PersonalizedPriorityQueue? _priorityQueue;
   bool _isDisposed = false;
   Future<void>? _loadingFuture;
 
@@ -30,17 +31,23 @@ class DashboardController extends ValueNotifier<DashboardState> {
     QuizSessionRepository? sessionRepository,
     AdaptiveLearningRuntimeCoordinator? learningCoordinator,
     LearnerDashboardController? learnerController,
+    MasteryProgressionService? progressionService,
   })  : _sourceRepository = sourceRepository ?? QuizSourceRepository(),
         _historyRepository = historyRepository ?? QuizHistoryRepository(),
         _sessionRepository = sessionRepository ?? QuizSessionRepository(),
         _learningCoordinator = learningCoordinator ?? _resolveCoordinator(),
         _learnerController = learnerController ?? _resolveLearnerController(),
+        _progressionService =
+            progressionService ?? _resolveProgressionService(),
         super(DashboardState.loading()) {
     _subscribeToCoordinator();
     loadDashboardData();
   }
 
   DashboardState get state => value;
+
+  /// Current personalized learning priority queue (P43).
+  PersonalizedPriorityQueue? get priorityQueue => _priorityQueue;
 
   /// Underlying authoritative Learner Dashboard presentation controller.
   LearnerDashboardController get learnerController => _learnerController;
@@ -75,6 +82,14 @@ class DashboardController extends ValueNotifier<DashboardState> {
         examId: 'upsc_prelims_gs1',
       );
       final lState = _learnerController.state;
+
+      // 1b. Resolve Personalized Learning Priority Queue (P43)
+      try {
+        _priorityQueue = await _progressionService?.resolvePriorityQueue(
+          learnerId: activeLearner,
+          examId: 'upsc_prelims_gs1',
+        );
+      } catch (_) {}
 
       // 2. Fetch active session information (authoritative checkpoint takes precedence)
       String? activeSessionName;
@@ -291,6 +306,67 @@ class DashboardController extends ValueNotifier<DashboardState> {
       curriculumService: curriculum,
       remedialService: remedial,
       diagnosticService: diagnostic,
+    );
+  }
+
+  static MasteryProgressionService _resolveProgressionService() {
+    try {
+      if (TitanServiceLocator.instance
+          .isRegistered<MasteryProgressionService>()) {
+        return TitanServiceLocator.instance.get<MasteryProgressionService>();
+      }
+    } catch (_) {}
+
+    final authRepo = TitanServiceLocator.instance
+            .isRegistered<AuthoritativeLearningStateRepository>()
+        ? TitanServiceLocator.instance
+            .get<AuthoritativeLearningStateRepository>()
+        : InMemoryAuthoritativeLearningStateRepository();
+
+    final authRecovery = TitanServiceLocator.instance
+            .isRegistered<AuthoritativeLearningStateRecoveryService>()
+        ? TitanServiceLocator.instance
+            .get<AuthoritativeLearningStateRecoveryService>()
+        : AuthoritativeLearningStateRecoveryService(repository: authRepo);
+
+    final checkpointRepo = TitanServiceLocator.instance
+            .isRegistered<SessionCheckpointRepository>()
+        ? TitanServiceLocator.instance.get<SessionCheckpointRepository>()
+        : InMemorySessionCheckpointRepository();
+
+    final curriculum = TitanServiceLocator.instance
+            .isRegistered<CurriculumService>()
+        ? TitanServiceLocator.instance.get<CurriculumService>()
+        : CurriculumService(
+            framework: CurriculumSeedData.buildUpscConstitutionalLawFramework(),
+          );
+
+    final remedial = TitanServiceLocator.instance
+            .isRegistered<DeterministicRemedialLessonService>()
+        ? TitanServiceLocator.instance.get<DeterministicRemedialLessonService>()
+        : null;
+
+    final diagnostic = TitanServiceLocator.instance
+            .isRegistered<DiagnosticPlacementRepository>()
+        ? TitanServiceLocator.instance.get<DiagnosticPlacementRepository>()
+        : null;
+
+    final contentService = TitanServiceLocator.instance
+            .isRegistered<ContentLearningPathService>()
+        ? TitanServiceLocator.instance.get<ContentLearningPathService>()
+        : ContentLearningPathService(
+            curriculumService: curriculum,
+            authRecoveryService: authRecovery,
+            checkpointRepository: checkpointRepo,
+          );
+
+    return MasteryProgressionService(
+      curriculumService: curriculum,
+      authRecoveryService: authRecovery,
+      checkpointRepository: checkpointRepo,
+      contentService: contentService,
+      diagnosticRepository: diagnostic,
+      remedialService: remedial,
     );
   }
 

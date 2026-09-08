@@ -17,7 +17,7 @@
 | 6 | **Personalized learning** | `PersonalizedLearningPlanService`, `PersonalizedLearningPlan`, `PersonalizedLearningAction` | `LearningPlanPage` (Overview, Recommended Action, Sequence, Milestones) | Complete | Dynamic from authoritative state & checkpoints | `p43_personalized_learning_plan_test.dart`, `p43_personalized_learning_plan_integration_test.dart`, `p43_learning_plan_ui_integration_test.dart` | **COMPLETE AND VERIFIED (100%)** |
 | 7 | **Adaptive practice** | `AdaptivePracticeSessionOrchestrator`, `AdaptivePracticeExecutionEngine`, `AdaptiveQuestionSelectionService` | `AdaptivePracticePage` | Complete | Session checkpoints & authoritative state | `p40_end_to_end_learner_workflow_test.dart` (#D-#J), `p42_learning_path_completion_test.dart` (#8) | **COMPLETE AND VERIFIED (100%)** |
 | 8 | **PYQ practice** | `packages/garuda_pyq/`, `PyqCorpusAdapterService` | `AdaptivePracticePage`, `ContentLearningPathPage`, `PyqAttemptPage` | Complete | SQLite / JSON asset corpus | `p42_learning_path_completion_test.dart` (#9), `pyq_service_test.dart` | **COMPLETE AND VERIFIED (100%)** |
-| 9 | **Remedial learning** | `DeterministicRemedialLessonService`, `RemedialLesson`, `InMemoryRemedialLessonRepository` | Partial (recommendation displayed, but interactive micro-lesson viewer missing; launches quiz directly) | Partial | `InMemoryRemedialLessonRepository` | `deterministic_remedial_lesson_service_test.dart`, `p42_learning_path_completion_test.dart` (#10) | **IMPLEMENTED BUT PARTIAL (60%)** |
+| 9 | **Remedial learning** | `DeterministicRemedialLessonService`, `RemedialLesson`, `InMemoryRemedialLessonRepository` | Micro-lesson recommendation in Learning Plan & Priority Queue; launches micro-lesson / practice | Complete | `InMemoryRemedialLessonRepository` | `deterministic_remedial_lesson_service_test.dart`, `p43_mastery_progression_integration_test.dart` | **IMPLEMENTED AND CONNECTED (70%)** |
 | 10 | **Practice completion** | `LearningActivityCompletionService`, `SessionStatus.completed` | `AdaptivePracticePage._buildCompletionSummary` | Complete | Checkpoint marked `isCompleted: true` | `p40_end_to_end_learner_workflow_test.dart` (#J), `p42_learning_path_completion_test.dart` (#11) | **COMPLETE AND VERIFIED (100%)** |
 | 11 | **Outcome consolidation** | `PracticeOutcomeConsolidator`, `PracticeOutcomeEvidence`, `LearningActivityOutcome` | Reflected in completion summary and dashboard metrics | Complete | State reconciliation pipeline input | `p40_end_to_end_learner_workflow_test.dart` (#K), `p42_learning_path_completion_test.dart` (#12) | **COMPLETE AND VERIFIED (100%)** |
 | 12 | **Learner-state reconciliation** | `AdaptiveLearningStateReconciler`, `AdaptiveLearningStateReconciliationPipeline`, `LearningStateUpdateProposer` | Revision badge on AppBar ("Rev X"), updated mastery indicators | Complete | Atomically committed to authoritative repo | `p40_end_to_end_learner_workflow_test.dart` (#L), `p42_learning_path_completion_test.dart` (#13) | **COMPLETE AND VERIFIED (100%)** |
@@ -26,7 +26,7 @@
 | 15 | **Learning dashboard** | `LearnerDashboardController`, `DashboardController`, `DashboardState`, `LearnerDashboardState` | `QuizForgeDashboardPage` | Complete | Backed by authoritative repositories | `quizforge_dashboard_test.dart`, `p41_learner_dashboard_ui_integration_test.dart` | **COMPLETE AND VERIFIED (100%)** |
 | 16 | **Progress tracking** | `AuthoritativeLearnerState`, `LearnerProgress`, `LearnerObjectiveStatus` | `StatSummaryCardWidget`, `ContentLearningPathPage`, `LearningPlanPage` | Complete | Authoritative repository | `p40_end_to_end_learner_workflow_test.dart` (#N), `p42_learning_path_completion_test.dart` (#17) | **COMPLETE AND VERIFIED (100%)** |
 | 17 | **Learning history** | `QuizHistoryRepository`, `SessionCheckpointRepository` | `HistoryPage`, `RecentActivityCardWidget` | Disconnected (`HistoryPage` only loads legacy Hive box, does not display adaptive sessions or review questions) | Split between Hive and Checkpoints | `quiz_history_repository_test.dart` (legacy only) | **IMPLEMENTED BUT PARTIAL (45%)** |
-| 18 | **Revision** | `SpacedRepetitionService`, `ReviewScheduleRepository`, `ReviewItem`, `ReviewResult` | Missing (no dedicated revision queue screen or SM-2 review agenda) | Backend-only (service unreferenced in locator/UI) | `InMemoryReviewScheduleRepository` | `spaced_repetition_test.dart` | **BACKEND-ONLY (40%)** |
+| 18 | **Revision** | `SpacedRepetitionService`, `MasteryProgressionService`, `ReviewScheduleRepository` | "YOUR LEARNING PRIORITIES" review card, spaced review badge, review action navigation | Complete | Authoritative state progression / Review repo | `p43_mastery_progression_test.dart` (#5, #7, #17), `p43_mastery_progression_integration_test.dart` (#2) | **IMPLEMENTED AND CONNECTED (75%)** |
 | 19 | **Recommendations** | `AdaptiveLearningDecisionEngine`, `AdaptiveDecisionPolicy`, `NextBestActionState` | "NEXT BEST ACTION" card on Dashboard and Path | Complete | Computed on demand from state | `adaptive_learning_decision_engine_test.dart`, `p42_learning_path_completion_test.dart` (#6) | **COMPLETE AND VERIFIED (100%)** |
 | 20 | **Assessment/exam mode** | `AssessmentService`, `AssessmentSession`, `AssessmentThresholdConfig` | Legacy `QuizPage`, `PyqAttemptPage(isExamMode: true)` | Partial (disconnected from authoritative learner state) | Ephemeral / attempt repo | `assessment_service_test.dart` | **IMPLEMENTED BUT PARTIAL (50%)** |
 | 21 | **Exam simulation** | `PyqController.generateMockTest` | `PyqMockTestSetupPage`, `PyqAttemptPage` | Partial (runs timed questions, but finishes with snackbar without analytics or state reconciliation) | None | `pyq_mock_test_setup_page_test.dart` | **IMPLEMENTED BUT PARTIAL (50%)** |
@@ -43,25 +43,21 @@
 ## 2. Quantitative Completion Calculation
 
 - **Total LMS Processes Evaluated**: 28
-- **Fully Complete & Verified Processes (100%)**:
-  - Before Sprint: 17 processes
-  - After Sprint: **19 processes** (+2 processes: Diagnostic Assessment & Placement)
-- **Partial / Connected / Backend / UI-Only Processes**:
-  - Before Sprint: 10 processes
-  - After Sprint: 8 processes
+- **Fully Complete & Verified Processes (100%)**: **19 processes**
+- **Partial / Connected / Backend / UI-Only Processes**: 8 processes
 - **Completely Missing Processes**: 1 process (`Faculty/content management`)
 
 ### Mathematical Calculation:
 
-#### Before This Sprint:
-$$\text{Sum Before} = (17 \times 100) + 50 + 60 + 50 + 60 + 45 + 40 + 50 + 50 + 0 + 50 + 40 = 2195$$
-$$\text{Completion Percentage Before} = \frac{2195}{28 \times 100} = \mathbf{78.4\%}$$
+#### Before P43 Mastery Progression Sprint:
+$$\text{Sum Before} = (19 \times 100) + 50 + 60 + 45 + 40 + 50 + 50 + 0 + 50 + 40 = 2285$$
+$$\text{Completion Percentage Before} = \frac{2285}{28 \times 100} = \mathbf{81.6\%}$$
 
-#### After This Sprint:
-$$\text{Sum After} = (19 \times 100) + 50 + 60 + 45 + 40 + 50 + 50 + 0 + 50 + 40 = 2285$$
-$$\text{Completion Percentage After} = \frac{2285}{28 \times 100} = \mathbf{81.6\%}$$
+#### After P43 Mastery Progression Sprint:
+$$\text{Sum After} = (19 \times 100) + 50 + 70 + 45 + 75 + 50 + 50 + 0 + 50 + 40 = 2330$$
+$$\text{Completion Percentage After} = \frac{2330}{28 \times 100} = \mathbf{83.2\%}$$
 
-$$\mathbf{\Delta\text{ Completion Gain}} = \mathbf{+3.2\%}$$ (Representing 100% completion of baseline placement and diagnostic assessment)
+$$\mathbf{\Delta\text{ Completion Gain}} = \mathbf{+1.6\%}$$ (Reflecting closed-loop mastery progression, deterministic priority queue, regression detection, and dashboard revision scheduling)
 
 ---
 

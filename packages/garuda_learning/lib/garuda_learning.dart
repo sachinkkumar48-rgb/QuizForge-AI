@@ -296,6 +296,9 @@ export 'domain/entities/learner_dashboard_state.dart';
 export 'domain/entities/content_learning_path.dart';
 export 'service/content_learning_path_service.dart';
 
-// P43 Personalized Learning Plan
+// P43 Personalized Learning Plan & Mastery-Driven Progression
 export 'domain/entities/personalized_learning_plan.dart';
 export 'service/personalized_learning_plan_service.dart';
+export 'domain/entities/mastery_progression_decision.dart';
+export 'domain/entities/personalized_learning_priority.dart';
+export 'service/mastery_progression_service.dart';

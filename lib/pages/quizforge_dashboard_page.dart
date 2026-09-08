@@ -185,7 +185,7 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Section C: Next Best Learning Action Card
+                      // Section B: Next Best Learning Action Card
                       if (learnerState.nextAction.isAvailable &&
                           learnerState.nextAction.actionType !=
                               AdaptiveActionType.none &&
@@ -194,6 +194,16 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                         _buildNextBestActionCard(
                           context,
                           learnerState.nextAction,
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+
+                      // Section P43: Personalized Learning Priorities
+                      if (_controller.priorityQueue != null &&
+                          _controller.priorityQueue!.isNotEmpty) ...[
+                        _buildPersonalizedPrioritiesCard(
+                          context,
+                          _controller.priorityQueue!,
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -710,6 +720,347 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
         targetTopic: continueCard.topic,
       ),
     );
+  }
+
+  Widget _buildPersonalizedPrioritiesCard(
+    BuildContext context,
+    PersonalizedPriorityQueue queue,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final topPriority = queue.currentPriority;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.deepPurple.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+      ),
+      color: Colors.deepPurple.shade50.withValues(alpha: 0.25),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.deepPurple,
+                  child: Icon(Icons.psychology, color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "YOUR LEARNING PRIORITIES",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "${queue.items.length} Objectives Prioritized",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => _navigateTo(const LearningPlanPage()),
+                  icon: const Icon(Icons.alt_route, size: 16),
+                  label: const Text(
+                    "Plan",
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            if (topPriority != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.deepPurple.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              "${topPriority.subjectName} • ${topPriority.topicName}",
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStageBadge(topPriority.stage),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      topPriority.objectiveTitle,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      topPriority.reason,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.query_builder,
+                            size: 15, color: Colors.grey.shade600),
+                        const SizedBox(width: 4),
+                        Text(
+                          "Attempts: ${topPriority.evidenceCount}",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey.shade700),
+                        ),
+                        const SizedBox(width: 14),
+                        Icon(Icons.track_changes,
+                            size: 15, color: Colors.grey.shade600),
+                        const SizedBox(width: 4),
+                        Text(
+                          "Accuracy: ${(topPriority.accuracy * 100).toInt()}%",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey.shade700),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        key: const Key('priority_queue_action_button'),
+                        onPressed: () => _handlePriorityAction(topPriority),
+                        icon:
+                            Icon(_getActionIcon(topPriority.action), size: 18),
+                        label: Text(
+                          _getActionLabel(topPriority.action),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (queue.items.length > 1) ...[
+              const SizedBox(height: 14),
+              Text(
+                "Upcoming Priorities",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...queue.items.skip(1).take(3).map((item) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: theme.cardColor.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.deepPurple.shade100,
+                          child: Text(
+                            "#${item.priorityRank}",
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.objectiveTitle,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                item.topicName,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStageBadge(item.stage),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStageBadge(ProgressionStage stage) {
+    final (color, label) = switch (stage) {
+      ProgressionStage.remediationRequired => (Colors.red, 'Remediation'),
+      ProgressionStage.regressed => (Colors.orange, 'Regressed'),
+      ProgressionStage.improving => (Colors.teal, 'Improving'),
+      ProgressionStage.learning => (Colors.blue, 'Learning'),
+      ProgressionStage.mastered => (Colors.green, 'Mastered'),
+      ProgressionStage.insufficientEvidence => (
+          Colors.indigo,
+          'Evidence Needed'
+        ),
+      ProgressionStage.notStarted => (Colors.grey, 'Not Started'),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 0.8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: color.shade800,
+        ),
+      ),
+    );
+  }
+
+  IconData _getActionIcon(PriorityActionType action) {
+    return switch (action) {
+      PriorityActionType.continueSession => Icons.play_arrow,
+      PriorityActionType.takeDiagnostic => Icons.assignment_turned_in,
+      PriorityActionType.startRemedialLesson => Icons.healing,
+      PriorityActionType.practicePyqs => Icons.history_edu,
+      PriorityActionType.reviewRevision => Icons.replay,
+      _ => Icons.school,
+    };
+  }
+
+  String _getActionLabel(PriorityActionType action) {
+    return switch (action) {
+      PriorityActionType.continueSession => 'Resume Practice Drill',
+      PriorityActionType.takeDiagnostic => 'Take Diagnostic Assessment',
+      PriorityActionType.startRemedialLesson => 'Start Remedial Micro-Lesson',
+      PriorityActionType.practicePyqs => 'Practice PYQ Questions',
+      PriorityActionType.reviewRevision => 'Review Spaced Revision',
+      _ => 'Start Practice Drill',
+    };
+  }
+
+  void _handlePriorityAction(PersonalizedLearningPriorityItem item) {
+    switch (item.action) {
+      case PriorityActionType.continueSession:
+        if (item.sessionId != null) {
+          _navigateTo(
+            AdaptivePracticePage(
+              isResumeMode: true,
+              resumeSessionId: item.sessionId,
+              targetTopic: item.topicName,
+            ),
+          );
+        } else {
+          _handleResumeSession();
+        }
+        break;
+      case PriorityActionType.takeDiagnostic:
+        _navigateTo(
+          AdaptivePracticePage(
+            targetTopic: item.topicName,
+          ),
+        );
+        break;
+      case PriorityActionType.startRemedialLesson:
+        _navigateTo(
+          LearningPlanPage(
+            examId: item.examId,
+          ),
+        );
+        break;
+      case PriorityActionType.practicePyqs:
+        _navigateTo(const ContentLearningPathPage());
+        break;
+      case PriorityActionType.practice:
+      case PriorityActionType.reviewRevision:
+      default:
+        _navigateTo(
+          AdaptivePracticePage(
+            targetTopic: item.topicName,
+          ),
+        );
+        break;
+    }
   }
 
   void _navigateTo(Widget page) {
