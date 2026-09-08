@@ -309,3 +309,6 @@ export 'domain/entities/managed_content_item.dart';
 export 'repository/faculty_content_repository.dart';
 export 'service/faculty_content_service.dart';
 
+// P46 Reporting & Analytics
+export 'domain/entities/learner_analytics_report.dart';
+export 'service/learner_analytics_service.dart';
