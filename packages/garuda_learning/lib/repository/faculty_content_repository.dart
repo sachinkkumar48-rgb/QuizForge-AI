@@ -71,9 +71,10 @@ class InMemoryFacultyContentRepository implements FacultyContentRepository {
     final versions = _store[id];
     if (versions == null || versions.isEmpty) return null;
 
-    final published =
-        versions.values.where((i) => i.status == ContentLifecycleStatus.published).toList()
-          ..sort((a, b) => a.version.compareTo(b.version));
+    final published = versions.values
+        .where((i) => i.status == ContentLifecycleStatus.published)
+        .toList()
+      ..sort((a, b) => a.version.compareTo(b.version));
 
     if (published.isEmpty) return null;
     return published.last;
@@ -92,37 +93,43 @@ class InMemoryFacultyContentRepository implements FacultyContentRepository {
     final results = <ManagedContentItem>[];
 
     for (final versions in _store.values) {
-      // Include the latest version of each item that matches criteria
-      final sortedKeys = versions.keys.toList()..sort();
-      final latest = versions[sortedKeys.last];
-      if (latest == null) continue;
+      final ManagedContentItem? target;
+      if (status != null) {
+        final matching = versions.values
+            .where((i) => i.status == status)
+            .toList()
+          ..sort((a, b) => a.version.compareTo(b.version));
+        target = matching.isEmpty ? null : matching.last;
+      } else {
+        final sortedKeys = versions.keys.toList()..sort();
+        target = versions[sortedKeys.last];
+      }
+      if (target == null) continue;
 
       if (examId != null &&
-          latest.examId.trim().toLowerCase() != examId.trim().toLowerCase()) {
+          target.examId.trim().toLowerCase() != examId.trim().toLowerCase()) {
         continue;
       }
       if (subjectId != null &&
-          latest.subjectId.trim().toLowerCase() != subjectId.trim().toLowerCase()) {
+          target.subjectId.trim().toLowerCase() !=
+              subjectId.trim().toLowerCase()) {
         continue;
       }
       if (topicId != null &&
-          latest.topicId.trim().toLowerCase() != topicId.trim().toLowerCase()) {
+          target.topicId.trim().toLowerCase() != topicId.trim().toLowerCase()) {
         continue;
       }
-      if (objectiveId != null && latest.objectiveId != objectiveId) {
+      if (objectiveId != null && target.objectiveId != objectiveId) {
         continue;
       }
-      if (contentType != null && latest.contentType != contentType) {
+      if (contentType != null && target.contentType != contentType) {
         continue;
       }
-      if (status != null && latest.status != status) {
-        continue;
-      }
-      if (authorId != null && latest.authorId != authorId) {
+      if (authorId != null && target.authorId != authorId) {
         continue;
       }
 
-      results.add(latest);
+      results.add(target);
     }
 
     results.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -135,11 +142,14 @@ class InMemoryFacultyContentRepository implements FacultyContentRepository {
     final publishedItems = <ManagedContentItem>[];
 
     for (final versions in _store.values) {
-      for (final item in versions.values) {
-        if (item.status == ContentLifecycleStatus.published &&
-            item.objectiveId == objectiveId) {
-          publishedItems.add(item);
-        }
+      final matching = versions.values
+          .where((item) =>
+              item.status == ContentLifecycleStatus.published &&
+              item.objectiveId == objectiveId)
+          .toList()
+        ..sort((a, b) => a.version.compareTo(b.version));
+      if (matching.isNotEmpty) {
+        publishedItems.add(matching.last);
       }
     }
 
@@ -154,14 +164,16 @@ class InMemoryFacultyContentRepository implements FacultyContentRepository {
     final questions = <ManagedContentItem>[];
 
     for (final versions in _store.values) {
-      for (final item in versions.values) {
-        if (item.status == ContentLifecycleStatus.published &&
-            item.contentType == ManagedContentType.question) {
-          if (item.topicId.trim().toLowerCase() == tLower ||
-              item.objectiveId.trim().toLowerCase() == tLower) {
-            questions.add(item);
-          }
-        }
+      final matching = versions.values
+          .where((item) =>
+              item.status == ContentLifecycleStatus.published &&
+              item.contentType == ManagedContentType.question &&
+              (item.topicId.trim().toLowerCase() == tLower ||
+                  item.objectiveId.trim().toLowerCase() == tLower))
+          .toList()
+        ..sort((a, b) => a.version.compareTo(b.version));
+      if (matching.isNotEmpty) {
+        questions.add(matching.last);
       }
     }
 
@@ -171,7 +183,8 @@ class InMemoryFacultyContentRepository implements FacultyContentRepository {
 
   @override
   Future<void> save(ManagedContentItem item) async {
-    final versions = _store.putIfAbsent(item.id, () => <int, ManagedContentItem>{});
+    final versions =
+        _store.putIfAbsent(item.id, () => <int, ManagedContentItem>{});
     versions[item.version] = item;
   }
 

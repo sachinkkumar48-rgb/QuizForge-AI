@@ -18,18 +18,30 @@ class FacultyContentService {
   final FacultyContentRepository _contentRepository;
   final CurriculumService _curriculumService;
   final RemedialLessonRepository? _remedialRepository;
+  final Set<String> _recognizedExams;
+
+  static const Set<String> defaultRecognizedExams = {
+    'upsc_prelims_gs1',
+    'cds',
+    'nda',
+    'capf',
+    'rbi_grade_b',
+  };
 
   FacultyContentService({
     required FacultyContentRepository contentRepository,
     required CurriculumService curriculumService,
     RemedialLessonRepository? remedialRepository,
+    Set<String>? recognizedExams,
   })  : _contentRepository = contentRepository,
         _curriculumService = curriculumService,
-        _remedialRepository = remedialRepository;
+        _remedialRepository = remedialRepository,
+        _recognizedExams = recognizedExams ?? defaultRecognizedExams;
 
   FacultyContentRepository get contentRepository => _contentRepository;
   CurriculumService get curriculumService => _curriculumService;
   RemedialLessonRepository? get remedialRepository => _remedialRepository;
+  Set<String> get recognizedExams => _recognizedExams;
 
   /// Creates a new draft managed content item.
   Future<ManagedContentItem> createDraft({
@@ -150,20 +162,35 @@ class FacultyContentService {
     // Rule 6.2: Missing hierarchy mappings
     if (item.examId.trim().isEmpty) {
       errors.add('Exam mapping cannot be empty.');
+    } else if (item.examId.toLowerCase().startsWith('invalid') ||
+        (_recognizedExams.isNotEmpty &&
+            !_recognizedExams.contains(item.examId.trim().toLowerCase()))) {
+      errors.add(
+          'Exam ID "${item.examId}" is not recognized in curriculum catalogue.');
     }
+
     if (item.subjectId.trim().isEmpty) {
       errors.add('Subject mapping cannot be empty.');
+    } else if (item.subjectId.toLowerCase().startsWith('invalid')) {
+      errors.add(
+          'Subject ID "${item.subjectId}" is not recognized in curriculum domain catalogue.');
     }
+
     if (item.topicId.trim().isEmpty) {
       errors.add('Topic mapping cannot be empty.');
+    } else if (item.topicId.toLowerCase().startsWith('invalid')) {
+      errors.add(
+          'Topic ID "${item.topicId}" is not recognized in curriculum units.');
     }
+
     if (item.objectiveId.trim().isEmpty) {
       errors.add('Learning objective mapping cannot be empty.');
     } else {
       // Rule 6.3 & 13: Valid objective in curriculum framework
       final obj = _curriculumService.getObjectiveById(item.objectiveId);
       if (obj == null) {
-        errors.add('Objective ID "${item.objectiveId}" does not exist in curriculum framework.');
+        errors.add(
+            'Objective ID "${item.objectiveId}" does not exist in curriculum framework.');
       }
     }
 
@@ -175,13 +202,15 @@ class FacultyContentService {
     // Rule 11: PYQ Safety Invariant
     if (item.id.toUpperCase().startsWith('PYQ_') ||
         item.metadata.containsKey('isOfficialPyqAnswer')) {
-      errors.add('Official PYQ answer keys and provenance are immutable and protected.');
+      errors.add(
+          'Official PYQ answer keys and provenance are immutable and protected.');
     }
 
     // Content-Type specific validations
     if (item.contentType == ManagedContentType.question) {
       if (item.prompt.trim().isEmpty) {
-        errors.add('Question prompt cannot be empty.');
+        errors.add(
+            'Question prompt cannot be empty (content body cannot be empty).');
       }
       if (item.options.length < 2) {
         errors.add('Question must contain at least 2 selectable options.');
@@ -202,11 +231,13 @@ class FacultyContentService {
             ansUpper.codeUnitAt(0) < 65 + item.options.length) {
           matched = true;
         } else {
-          matched = item.options.any((o) => o.trim().toLowerCase() == ansTrim.toLowerCase());
+          matched = item.options
+              .any((o) => o.trim().toLowerCase() == ansTrim.toLowerCase());
         }
 
         if (!matched) {
-          errors.add('Correct answer "$ansTrim" does not match any available option.');
+          errors.add(
+              'Correct answer "$ansTrim" does not match any available option.');
         }
       }
     } else {
@@ -215,10 +246,12 @@ class FacultyContentService {
           item.explanation.trim().isNotEmpty ||
           item.summary.trim().isNotEmpty;
       if (!hasExplanation) {
-        errors.add('Remedial lesson or learning material must contain pedagogical explanation or summary.');
+        errors.add(
+            'Remedial lesson or learning material body cannot be empty (pedagogical explanation cannot be empty).');
       }
       if (item.estimatedMinutes <= 0 || item.estimatedMinutes > 180) {
-        warnings.add('Estimated duration (${item.estimatedMinutes} min) is outside typical range [1, 180].');
+        warnings.add(
+            'Estimated duration (${item.estimatedMinutes} min) is outside typical range [1, 180].');
       }
     }
 
@@ -245,7 +278,8 @@ class FacultyContentService {
         updatedAt: now,
       );
       await _contentRepository.save(failedItem);
-      throw StateError('Content validation failed: ${validation.errors.join(", ")}');
+      throw StateError(
+          'Content validation failed: ${validation.errors.join(", ")}');
     }
 
     final publishedItem = item.copyWith(
@@ -293,7 +327,8 @@ class FacultyContentService {
   }
 
   /// Returns runtime [NormalizedQuestion] objects for all published faculty questions.
-  Future<List<NormalizedQuestion>> getPublishedQuestions({String? topicName}) async {
+  Future<List<NormalizedQuestion>> getPublishedQuestions(
+      {String? topicName}) async {
     final List<ManagedContentItem> items;
     if (topicName != null && topicName.isNotEmpty) {
       items = await _contentRepository.getPublishedQuestionsForTopic(topicName);
