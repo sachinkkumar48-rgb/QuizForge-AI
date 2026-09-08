@@ -302,3 +302,10 @@ export 'service/personalized_learning_plan_service.dart';
 export 'domain/entities/mastery_progression_decision.dart';
 export 'domain/entities/personalized_learning_priority.dart';
 export 'service/mastery_progression_service.dart';
+
+// P45 Faculty & Content Management
+export 'domain/entities/content_validation_result.dart';
+export 'domain/entities/managed_content_item.dart';
+export 'repository/faculty_content_repository.dart';
+export 'service/faculty_content_service.dart';
+

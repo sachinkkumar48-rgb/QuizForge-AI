@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../repositories/api_key_repository.dart';
 import 'api_key_setup_page.dart';
+import 'faculty_content_management_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -419,6 +420,32 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: _replaceKey,
                     ),
                   ],
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Administration & Faculty",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActionButton(
+                    context,
+                    icon: Icons.cast_for_education,
+                    title: "Faculty Content Management",
+                    subtitle:
+                        "Author, validate, version, and publish curriculum content",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const FacultyContentManagementPage(),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

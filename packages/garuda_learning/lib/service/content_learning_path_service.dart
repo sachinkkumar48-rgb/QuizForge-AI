@@ -13,8 +13,10 @@ import '../domain/entities/content_learning_path.dart';
 import '../domain/entities/diagnostic_placement_result.dart';
 import '../domain/entities/learner_dashboard_state.dart';
 import '../domain/entities/learning_objective.dart';
+import '../domain/entities/managed_content_item.dart';
 import '../domain/entities/session_checkpoint.dart';
 import '../repository/diagnostic_placement_repository.dart';
+import '../repository/faculty_content_repository.dart';
 import '../repository/session_checkpoint_repository.dart';
 import 'adaptive_learning_decision_engine.dart';
 import 'authoritative_learning_state_recovery_service.dart';
@@ -31,6 +33,7 @@ class ContentLearningPathService {
   final DeterministicRemedialLessonService? _remedialService;
   final DiagnosticAssessmentService? _diagnosticService;
   final DiagnosticPlacementRepository? _diagnosticPlacementRepository;
+  final FacultyContentRepository? _facultyContentRepository;
   final List<NormalizedQuestion> _seedQuestions;
 
   ContentLearningPathService({
@@ -41,6 +44,7 @@ class ContentLearningPathService {
     DeterministicRemedialLessonService? remedialService,
     DiagnosticAssessmentService? diagnosticService,
     DiagnosticPlacementRepository? diagnosticPlacementRepository,
+    FacultyContentRepository? facultyContentRepository,
     List<NormalizedQuestion>? seedQuestions,
   })  : _curriculumService = curriculumService,
         _authRecoveryService = authRecoveryService,
@@ -49,6 +53,7 @@ class ContentLearningPathService {
         _remedialService = remedialService,
         _diagnosticService = diagnosticService,
         _diagnosticPlacementRepository = diagnosticPlacementRepository,
+        _facultyContentRepository = facultyContentRepository,
         _seedQuestions = seedQuestions ?? const [];
 
   CurriculumService get curriculumService => _curriculumService;
@@ -60,6 +65,8 @@ class ContentLearningPathService {
   DiagnosticAssessmentService? get diagnosticService => _diagnosticService;
   DiagnosticPlacementRepository? get diagnosticPlacementRepository =>
       _diagnosticPlacementRepository;
+  FacultyContentRepository? get facultyContentRepository =>
+      _facultyContentRepository;
   List<NormalizedQuestion> get seedQuestions => _seedQuestions;
 
   /// Returns the catalogue of available examinations.
@@ -325,7 +332,19 @@ class ContentLearningPathService {
       final cleanSubject = subjectId.trim().toLowerCase();
       final cleanTopic = topicId.trim().toLowerCase();
       final effectiveDate = (asOfDate ?? DateTime.now()).toUtc();
-      final activeCorpus = corpus ?? _seedQuestions;
+      var activeCorpus = corpus ?? _seedQuestions;
+      if (_facultyContentRepository != null) {
+        final facultyQuestions = await _facultyContentRepository!.getAll(
+          contentType: ManagedContentType.question,
+          status: ContentLifecycleStatus.published,
+        );
+        if (facultyQuestions.isNotEmpty) {
+          activeCorpus = [
+            ...activeCorpus,
+            ...facultyQuestions.map((q) => q.toNormalizedQuestion()),
+          ];
+        }
+      }
 
       if (cleanLearner.isEmpty) {
         return ContentLearningPathState.error(
@@ -659,5 +678,12 @@ class ContentLearningPathService {
         availableExams: getAvailableExams(),
       );
     }
+  }
+
+  /// Retrieves published faculty content items for a given [objectiveId].
+  Future<List<ManagedContentItem>> getPublishedContentForObjective(
+      String objectiveId) async {
+    if (_facultyContentRepository == null) return const [];
+    return _facultyContentRepository!.getPublishedContentForObjective(objectiveId);
   }
 }
