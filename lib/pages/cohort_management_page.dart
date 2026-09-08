@@ -4,6 +4,7 @@ import 'package:garuda_learning/garuda_learning.dart';
 import '../core/di/service_locator_init.dart';
 import 'adaptive_practice_page.dart';
 import 'assessment_management_page.dart';
+import 'gradebook_page.dart';
 
 /// Institutional Cohort Management & Assignment Distribution Portal (TITAN-KO-048.0 P48).
 ///
@@ -173,6 +174,24 @@ class _CohortManagementPageState extends State<CohortManagementPage>
                 MaterialPageRoute(
                   builder: (_) => AssessmentManagementPage(
                     initialCohortId: _selectedCohort?.cohortId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('cohort_gradebook_button'),
+            icon: const Icon(Icons.table_chart_outlined),
+            tooltip: "Cohort Gradebook",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GradebookPage(
+                    initialCohortId: _selectedCohort?.cohortId,
+                    initialFacultyId: _currentFacultyId,
+                    initialLearnerId: _currentLearnerId,
                     initialIsFaculty: _isFacultyMode,
                   ),
                 ),

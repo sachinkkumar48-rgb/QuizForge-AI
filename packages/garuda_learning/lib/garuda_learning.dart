@@ -339,3 +339,14 @@ export 'domain/entities/assessment_result.dart';
 export 'repository/assessment_repository.dart';
 export 'repository/in_memory_assessment_repository.dart';
 export 'service/assessment_management_service.dart';
+
+// P50 Faculty Gradebook, Publishing & Dispute/Override Workflow
+export 'domain/entities/grading_policy.dart';
+export 'domain/entities/gradebook_entry.dart';
+export 'domain/entities/grade_dispute.dart';
+export 'domain/entities/grade_override.dart';
+export 'domain/entities/grade_audit_record.dart';
+export 'domain/entities/cohort_gradebook.dart';
+export 'repository/gradebook_repository.dart';
+export 'repository/in_memory_gradebook_repository.dart';
+export 'service/gradebook_service.dart';

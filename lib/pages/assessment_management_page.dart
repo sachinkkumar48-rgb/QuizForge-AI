@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:garuda_learning/garuda_learning.dart';
 
 import '../core/di/service_locator_init.dart';
+import 'gradebook_page.dart';
 
 /// Assessment & Examination Management Portal (TITAN-KO-049.0 P49).
 ///
@@ -155,6 +156,24 @@ class _AssessmentManagementPageState extends State<AssessmentManagementPage> {
                 _loadData();
               },
             ),
+          ),
+          IconButton(
+            key: const Key('assessment_gradebook_button'),
+            icon: const Icon(Icons.table_chart_outlined),
+            tooltip: "Gradebook",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GradebookPage(
+                    initialCohortId: _selectedCohortId,
+                    initialFacultyId: _currentFacultyId,
+                    initialLearnerId: _currentLearnerId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -1399,11 +1418,34 @@ class _AssessmentManagementPageState extends State<AssessmentManagementPage> {
               },
             ),
             const SizedBox(height: 16),
-            Center(
-              child: FilledButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text("Close"),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  key: const Key('view_in_gradebook_button'),
+                  icon: const Icon(Icons.table_chart_outlined),
+                  label: const Text("View in Official Gradebook"),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GradebookPage(
+                          initialCohortId: _selectedCohortId,
+                          initialFacultyId: _currentFacultyId,
+                          initialLearnerId: _currentLearnerId,
+                          initialIsFaculty: _isFacultyMode,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text("Close"),
+                ),
+              ],
             ),
           ],
         ),
