@@ -3,6 +3,7 @@ import 'package:garuda_learning/garuda_learning.dart';
 
 import '../core/di/service_locator_init.dart';
 import 'adaptive_practice_page.dart';
+import 'assessment_management_page.dart';
 
 /// Institutional Cohort Management & Assignment Distribution Portal (TITAN-KO-048.0 P48).
 ///
@@ -161,6 +162,22 @@ class _CohortManagementPageState extends State<CohortManagementPage>
                 _loadData();
               },
             ),
+          ),
+          IconButton(
+            key: const Key('cohort_assessments_button'),
+            icon: const Icon(Icons.assignment_turned_in_outlined),
+            tooltip: "Cohort Assessments",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AssessmentManagementPage(
+                    initialCohortId: _selectedCohort?.cohortId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),

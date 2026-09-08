@@ -331,3 +331,11 @@ export 'domain/entities/cohort_progress.dart';
 export 'repository/cohort_repository.dart';
 export 'repository/in_memory_cohort_repository.dart';
 export 'service/cohort_service.dart';
+
+// P49 Assessment & Examination Management
+export 'domain/entities/assessment.dart';
+export 'domain/entities/assessment_attempt.dart';
+export 'domain/entities/assessment_result.dart';
+export 'repository/assessment_repository.dart';
+export 'repository/in_memory_assessment_repository.dart';
+export 'service/assessment_management_service.dart';
