@@ -78,18 +78,22 @@ class LearnerPerformanceSummary {
             (totalObjectives > 0
                 ? (objectivesMastered / totalObjectives).clamp(0.0, 1.0)
                 : 0.0) {
-    if (totalAttempts < 0)
+    if (totalAttempts < 0) {
       throw ArgumentError('totalAttempts cannot be negative');
+    }
     if (correctCount < 0 || correctCount > totalAttempts) {
       throw ArgumentError(
           'correctCount ($correctCount) must be between 0 and totalAttempts ($totalAttempts)');
     }
-    if (objectivesAttempted < 0)
+    if (objectivesAttempted < 0) {
       throw ArgumentError('objectivesAttempted cannot be negative');
-    if (objectivesMastered < 0)
+    }
+    if (objectivesMastered < 0) {
       throw ArgumentError('objectivesMastered cannot be negative');
-    if (currentStreak < 0)
+    }
+    if (currentStreak < 0) {
       throw ArgumentError('currentStreak cannot be negative');
+    }
   }
 
   /// Empty performance summary for new learners or unstarted exams.
@@ -643,9 +647,12 @@ class LearnerAnalyticsReport {
         performanceTrends = List.unmodifiable(performanceTrends ?? const []),
         weakAreas = List.unmodifiable(weakAreas ?? const []),
         subjects = List.unmodifiable(subjects ?? const []) {
-    if (this.learnerId.isEmpty)
+    if (this.learnerId.isEmpty) {
       throw ArgumentError('learnerId cannot be empty');
-    if (this.examId.isEmpty) throw ArgumentError('examId cannot be empty');
+    }
+    if (this.examId.isEmpty) {
+      throw ArgumentError('examId cannot be empty');
+    }
   }
 
   /// Whether the report has any learning activity or attempt records.

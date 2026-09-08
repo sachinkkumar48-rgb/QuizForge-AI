@@ -312,3 +312,14 @@ export 'service/faculty_content_service.dart';
 // P46 Reporting & Analytics
 export 'domain/entities/learner_analytics_report.dart';
 export 'service/learner_analytics_service.dart';
+
+// P47 Offline-First Cloud Synchronization & Conflict Resolution
+export 'domain/entities/sync_conflict.dart';
+export 'domain/entities/sync_envelope.dart';
+export 'domain/entities/sync_status.dart';
+export 'repository/in_memory_remote_learning_state_repository.dart';
+export 'repository/in_memory_sync_outbox_repository.dart';
+export 'repository/remote_learning_state_repository.dart';
+export 'repository/sync_outbox_repository.dart';
+export 'service/sync/learner_state_conflict_resolver.dart';
+export 'service/sync/learner_state_sync_service.dart';

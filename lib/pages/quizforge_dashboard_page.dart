@@ -82,6 +82,35 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
             },
           ),
           IconButton(
+            key: const Key('dashboard_cloud_sync_button'),
+            icon: const Icon(Icons.cloud_sync_outlined),
+            tooltip: "Cloud Synchronization",
+            onPressed: () async {
+              try {
+                final syncService = locate<LearnerStateSyncService>();
+                final result = await syncService.sync(
+                  learnerId: 'default_learner',
+                  examId: 'upsc_prelims_gs1',
+                  deviceId: 'device_primary',
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(result.message)),
+                  );
+                }
+              } catch (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:
+                          Text('Offline: Progress saved locally in outbox.'),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.alt_route),
             tooltip: "Learning Plan",
             onPressed: () {
