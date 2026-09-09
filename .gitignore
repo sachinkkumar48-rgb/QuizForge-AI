@@ -66,3 +66,8 @@ venv/
 
 # Python environment files
 .env
+
+# Android release signing credentials
+*.jks
+*.keystore
+**/key.properties
