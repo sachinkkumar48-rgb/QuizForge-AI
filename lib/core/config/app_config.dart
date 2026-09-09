@@ -25,9 +25,10 @@ class AppConfig {
   final Map<String, bool> featureFlags;
 
   /// Default backend base URL for Project TITAN, configurable via `--dart-define=API_BASE_URL=...`.
+  /// Uses HTTPS production endpoint blueprint.
   static const String defaultApiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://161.118.179.119:8000',
+    defaultValue: 'https://api.quizforge.ai',
   );
 
   const AppConfig({

@@ -38,6 +38,15 @@ class Settings(BaseModel):
         default_factory=lambda: int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
     )
 
+    # Database Settings
+    DATABASE_URL: str = Field(
+        default_factory=lambda: os.getenv("DATABASE_URL", "")
+    )
+    POSTGRES_USER: str = Field(default_factory=lambda: os.getenv("POSTGRES_USER", "titan_user"))
+    POSTGRES_DB: str = Field(default_factory=lambda: os.getenv("POSTGRES_DB", "titan_lms"))
+    POSTGRES_HOST: str = Field(default_factory=lambda: os.getenv("POSTGRES_HOST", "db"))
+    POSTGRES_PORT: int = Field(default_factory=lambda: int(os.getenv("POSTGRES_PORT", "5432")))
+
     @model_validator(mode="after")
     def validate_production_config(self) -> "Settings":
         """

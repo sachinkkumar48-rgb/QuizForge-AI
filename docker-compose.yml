@@ -37,6 +37,36 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  db:
+    image: postgres:15-alpine
+    container_name: titan_postgres
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-titan_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-titan_password_change_in_production}
+      POSTGRES_DB: ${POSTGRES_DB:-titan_lms}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/db/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-titan_user} -d ${POSTGRES_DB:-titan_lms}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - titan_internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.10'
+          memory: 64M
+
   nginx:
     image: nginx:alpine
     container_name: titan_nginx
@@ -73,6 +103,7 @@ networks:
   titan_internal:
     driver: bridge
 
-# volumes:
+volumes:
+  postgres_data:
 #   certbot_etc:
 #   certbot_www:

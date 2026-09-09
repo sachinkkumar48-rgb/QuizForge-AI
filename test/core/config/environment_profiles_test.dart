@@ -10,7 +10,7 @@ void main() {
       const config = DevelopmentConfig();
 
       expect(config.environment, equals(Environment.development));
-      expect(config.apiBaseUrl, equals('http://161.118.179.119:8000'));
+      expect(config.apiBaseUrl, equals('https://api.quizforge.ai'));
       expect(config.requestTimeout, equals(const Duration(seconds: 30)));
       expect(config.maxRetries, equals(3));
       expect(config.loggingEnabled, isTrue);

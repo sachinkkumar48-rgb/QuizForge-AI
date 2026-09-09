@@ -163,6 +163,268 @@ class ApiClient {
     return 'req_${timestamp}_$random';
   }
 
+  Uri _buildUrl(String path) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return Uri.parse(path);
+    }
+    final normalizedPath = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$baseUrl$normalizedPath');
+  }
+
+  Map<String, String> _buildHeaders({
+    String? token,
+    String? requestId,
+    Map<String, String>? additionalHeaders,
+    bool isJson = true,
+  }) {
+    final headers = <String, String>{};
+    if (isJson) {
+      headers['Content-Type'] = 'application/json';
+    }
+    headers['X-Request-ID'] = requestId ?? _generateRequestId();
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    if (additionalHeaders != null) {
+      headers.addAll(additionalHeaders);
+    }
+    return headers;
+  }
+
+  /// Performs an HTTP POST request with automatic retry, timeout, and authentication header support.
+  Future<Map<String, dynamic>> post(
+    String path, {
+    dynamic body,
+    String? token,
+    Map<String, String>? headers,
+  }) async {
+    final url = _buildUrl(path);
+    final requestId = _generateRequestId();
+    final requestHeaders = _buildHeaders(
+      token: token,
+      requestId: requestId,
+      additionalHeaders: headers,
+    );
+    final encodedBody = body != null ? (body is String ? body : jsonEncode(body)) : null;
+
+    final maxAttempts = config.maxRetries > 0 ? config.maxRetries : 1;
+    Object? lastError;
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      final stopwatch = Stopwatch()..start();
+      AppLogger.info(
+        'POST $url (attempt $attempt/$maxAttempts) [Request ID: $requestId]',
+        tag: 'ApiClient',
+      );
+
+      try {
+        final response = await _client
+            .post(url, headers: requestHeaders, body: encodedBody)
+            .timeout(timeoutDuration);
+
+        stopwatch.stop();
+        final durationMs = stopwatch.elapsedMilliseconds;
+        final responseRequestId =
+            response.headers['x-request-id'] ?? response.headers['X-Request-ID'] ?? requestId;
+
+        AppLogger.info(
+          'HTTP ${response.statusCode} POST $url (${durationMs}ms) [Request ID: $responseRequestId]',
+          tag: 'ApiClient',
+        );
+
+        if (response.statusCode >= 400 && response.statusCode < 500) {
+          throw ApiException(
+            response.statusCode,
+            'HTTP ${response.statusCode}: ${response.body}',
+          );
+        }
+
+        if (response.statusCode >= 500) {
+          throw ApiException(
+            response.statusCode,
+            'HTTP ${response.statusCode} Internal Server Error: ${response.body}',
+          );
+        }
+
+        if (response.body.isEmpty) {
+          return <String, dynamic>{};
+        }
+
+        try {
+          final decoded = jsonDecode(response.body);
+          if (decoded is Map<String, dynamic>) {
+            return decoded;
+          }
+          return {'data': decoded};
+        } catch (e) {
+          throw ParsingException('Invalid JSON in response: $e');
+        }
+      } on ApiException catch (e) {
+        stopwatch.stop();
+        AppLogger.error(
+          'API Error ${e.statusCode} POST $url: ${e.message}',
+          error: e,
+          tag: 'ApiClient',
+        );
+        if (e.statusCode >= 400 && e.statusCode < 500) {
+          rethrow;
+        }
+        lastError = e;
+      } on ParsingException catch (e) {
+        stopwatch.stop();
+        AppLogger.error(
+          'Parsing Error POST $url: ${e.message}',
+          error: e,
+          tag: 'ApiClient',
+        );
+        rethrow;
+      } on TimeoutException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('Timeout POST $url: ${e.message}', error: e, tag: 'ApiClient');
+        lastError = BackendUnavailableException('Request timed out: ${e.message}');
+      } on SocketException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('SocketException POST $url: ${e.message}', error: e, tag: 'ApiClient');
+        lastError = BackendUnavailableException('Network unavailable or host unreachable: ${e.message}');
+      } on http.ClientException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('ClientException POST $url: ${e.message}', error: e, tag: 'ApiClient');
+        lastError = BackendUnavailableException('HTTP Client error: ${e.message}');
+      } catch (e) {
+        stopwatch.stop();
+        if (e is BackendUnavailableException || e is ApiException || e is ParsingException) {
+          if (e is ApiException && e.statusCode >= 400 && e.statusCode < 500) {
+            rethrow;
+          }
+          lastError = e;
+        } else {
+          lastError = BackendUnavailableException('Backend communication failed: $e');
+        }
+      }
+
+      if (attempt < maxAttempts) {
+        final delayMs = config.initialRetryDelay.inMilliseconds * (1 << (attempt - 1));
+        await Future.delayed(Duration(milliseconds: delayMs));
+      }
+    }
+
+    if (lastError != null) throw lastError;
+    throw BackendUnavailableException('Request failed after $maxAttempts attempts.');
+  }
+
+  /// Performs an HTTP GET request with automatic retry, timeout, and authentication header support.
+  Future<Map<String, dynamic>> get(
+    String path, {
+    String? token,
+    Map<String, String>? headers,
+  }) async {
+    final url = _buildUrl(path);
+    final requestId = _generateRequestId();
+    final requestHeaders = _buildHeaders(
+      token: token,
+      requestId: requestId,
+      additionalHeaders: headers,
+      isJson: false,
+    );
+
+    final maxAttempts = config.maxRetries > 0 ? config.maxRetries : 1;
+    Object? lastError;
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      final stopwatch = Stopwatch()..start();
+      AppLogger.info(
+        'GET $url (attempt $attempt/$maxAttempts) [Request ID: $requestId]',
+        tag: 'ApiClient',
+      );
+
+      try {
+        final response = await _client.get(url, headers: requestHeaders).timeout(timeoutDuration);
+        stopwatch.stop();
+        final durationMs = stopwatch.elapsedMilliseconds;
+        final responseRequestId =
+            response.headers['x-request-id'] ?? response.headers['X-Request-ID'] ?? requestId;
+
+        AppLogger.info(
+          'HTTP ${response.statusCode} GET $url (${durationMs}ms) [Request ID: $responseRequestId]',
+          tag: 'ApiClient',
+        );
+
+        if (response.statusCode >= 400 && response.statusCode < 500) {
+          throw ApiException(
+            response.statusCode,
+            'HTTP ${response.statusCode}: ${response.body}',
+          );
+        }
+
+        if (response.statusCode >= 500) {
+          throw ApiException(
+            response.statusCode,
+            'HTTP ${response.statusCode} Internal Server Error: ${response.body}',
+          );
+        }
+
+        if (response.body.isEmpty) {
+          return <String, dynamic>{};
+        }
+
+        try {
+          final decoded = jsonDecode(response.body);
+          if (decoded is Map<String, dynamic>) {
+            return decoded;
+          }
+          return {'data': decoded};
+        } catch (e) {
+          throw ParsingException('Invalid JSON in response: $e');
+        }
+      } on ApiException catch (e) {
+        stopwatch.stop();
+        AppLogger.error(
+          'API Error ${e.statusCode} GET $url: ${e.message}',
+          error: e,
+          tag: 'ApiClient',
+        );
+        if (e.statusCode >= 400 && e.statusCode < 500) {
+          rethrow;
+        }
+        lastError = e;
+      } on ParsingException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('Parsing Error GET $url: ${e.message}', error: e, tag: 'ApiClient');
+        rethrow;
+      } on TimeoutException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('Timeout GET $url: ${e.message}', error: e, tag: 'ApiClient');
+        lastError = BackendUnavailableException('Request timed out: ${e.message}');
+      } on SocketException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('SocketException GET $url: ${e.message}', error: e, tag: 'ApiClient');
+        lastError = BackendUnavailableException('Network unavailable or host unreachable: ${e.message}');
+      } on http.ClientException catch (e) {
+        stopwatch.stop();
+        AppLogger.error('ClientException GET $url: ${e.message}', error: e, tag: 'ApiClient');
+        lastError = BackendUnavailableException('HTTP Client error: ${e.message}');
+      } catch (e) {
+        stopwatch.stop();
+        if (e is BackendUnavailableException || e is ApiException || e is ParsingException) {
+          if (e is ApiException && e.statusCode >= 400 && e.statusCode < 500) {
+            rethrow;
+          }
+          lastError = e;
+        } else {
+          lastError = BackendUnavailableException('Backend communication failed: $e');
+        }
+      }
+
+      if (attempt < maxAttempts) {
+        final delayMs = config.initialRetryDelay.inMilliseconds * (1 << (attempt - 1));
+        await Future.delayed(Duration(milliseconds: delayMs));
+      }
+    }
+
+    if (lastError != null) throw lastError;
+    throw BackendUnavailableException('Request failed after $maxAttempts attempts.');
+  }
+
   /// Generates a quiz by sending a POST request to /api/v1/quiz/generate
   Future<QuizGenerateResponse> generateQuiz(QuizGenerateRequest request) async {
     final url = Uri.parse('$baseUrl/api/v1/quiz/generate');

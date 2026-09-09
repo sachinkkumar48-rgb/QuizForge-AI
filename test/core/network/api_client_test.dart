@@ -12,7 +12,7 @@ void main() {
   group('ApiClient Core Tests', () {
     test('Successful POST returns QuizGenerateResponse', () async {
       final mockClient = MockClient((request) async {
-        expect(request.url.toString(), 'http://161.118.179.119:8000/api/v1/quiz/generate');
+        expect(request.url.toString(), 'https://api.quizforge.ai/api/v1/quiz/generate');
         expect(request.method, 'POST');
         expect(request.headers['Content-Type'], 'application/json');
 
@@ -198,6 +198,68 @@ void main() {
         throwsA(isA<ApiException>().having((e) => e.statusCode, 'statusCode', 404)),
       );
       expect(attemptCount, equals(1));
+    });
+  });
+
+  group('ApiClient Hardened Methods & Authentication Tests', () {
+    test('POST attaches Authorization Bearer token and Content-Type', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), 'https://api.quizforge.ai/api/v1/auth/login');
+        expect(request.method, 'POST');
+        expect(request.headers['Authorization'], 'Bearer test_jwt_token');
+        expect(request.headers['Content-Type'], 'application/json');
+        expect(request.headers['X-Request-ID'], isNotEmpty);
+
+        return http.Response('{"access_token": "new_token", "token_type": "bearer"}', 200);
+      });
+
+      final client = ApiClient(client: mockClient);
+      final result = await client.post(
+        '/api/v1/auth/login',
+        body: {'email': 'user@titan.internal', 'password': 'secretPassword123'},
+        token: 'test_jwt_token',
+      );
+
+      expect(result['access_token'], equals('new_token'));
+      expect(result['token_type'], equals('bearer'));
+    });
+
+    test('GET attaches Authorization Bearer header and parses response', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), 'https://api.quizforge.ai/api/v1/auth/me');
+        expect(request.method, 'GET');
+        expect(request.headers['Authorization'], 'Bearer valid_access_token');
+
+        return http.Response('{"id": "usr_101", "email": "student@titan.internal"}', 200);
+      });
+
+      final client = ApiClient(client: mockClient);
+      final result = await client.get(
+        '/api/v1/auth/me',
+        token: 'valid_access_token',
+      );
+
+      expect(result['id'], equals('usr_101'));
+      expect(result['email'], equals('student@titan.internal'));
+    });
+
+    test('HTTP 401 Unauthorized throws ApiException without retrying', () async {
+      int attempts = 0;
+      final mockClient = MockClient((request) async {
+        attempts++;
+        return http.Response('{"detail": "Invalid credentials"}', 401);
+      });
+
+      final client = ApiClient(
+        config: const AppConfig(maxRetries: 3, initialRetryDelay: Duration.zero),
+        client: mockClient,
+      );
+
+      await expectLater(
+        client.post('/api/v1/auth/login', body: {'email': 'bad', 'password': 'wrong'}),
+        throwsA(isA<ApiException>().having((e) => e.statusCode, 'statusCode', 401)),
+      );
+      expect(attempts, equals(1));
     });
   });
 }
