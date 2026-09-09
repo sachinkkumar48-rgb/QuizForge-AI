@@ -361,3 +361,13 @@ export 'repository/credential_repository.dart';
 export 'repository/in_memory_credential_repository.dart';
 export 'service/academic_credential_service.dart';
 
+// P52 Learner Enrollment, Course Registration, Access Eligibility & Lifecycle
+export 'domain/entities/course.dart';
+export 'domain/entities/enrollment.dart';
+export 'domain/entities/course_access_decision.dart';
+export 'domain/entities/enrollment_audit_record.dart';
+export 'domain/entities/bulk_enrollment_result.dart';
+export 'repository/enrollment_repository.dart';
+export 'repository/in_memory_enrollment_repository.dart';
+export 'service/enrollment_service.dart';
+

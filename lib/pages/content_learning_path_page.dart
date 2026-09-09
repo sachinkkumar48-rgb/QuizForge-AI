@@ -15,6 +15,8 @@ class ContentLearningPathPage extends StatefulWidget {
   final String? initialExamId;
   final String? initialSubjectId;
   final List<NormalizedQuestion>? corpus;
+  final EnrollmentService? enrollmentService;
+  final String? courseId;
 
   const ContentLearningPathPage({
     super.key,
@@ -23,6 +25,8 @@ class ContentLearningPathPage extends StatefulWidget {
     this.initialExamId,
     this.initialSubjectId,
     this.corpus,
+    this.enrollmentService,
+    this.courseId,
   });
 
   @override
@@ -142,7 +146,27 @@ class _ContentLearningPathPageState extends State<ContentLearningPathPage> {
     });
   }
 
-  void _handleActionTrigger() {
+  Future<void> _handleActionTrigger() async {
+    if (widget.enrollmentService != null && widget.courseId != null) {
+      final decision = await widget.enrollmentService!.checkCourseAccess(
+        learnerId: widget.learnerId,
+        courseId: widget.courseId!,
+      );
+      if (decision.isBlocked) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Course Access Denied: ${decision.reason ?? "Access is currently blocked."}',
+              ),
+              backgroundColor: Colors.red.shade800,
+            ),
+          );
+        }
+        return;
+      }
+    }
+
     final topic = _state.selectedTopic?.name ?? 'UPSC Practice';
     final isDiag =
         _state.recommendedAction == AdaptiveActionType.takeDiagnostic ||
