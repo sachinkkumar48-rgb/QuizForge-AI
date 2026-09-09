@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:garuda_learning/garuda_learning.dart';
 
 import 'academic_credentials_page.dart';
+import 'attendance_management_page.dart';
 import 'cohort_management_page.dart';
 import 'content_learning_path_page.dart';
 
@@ -664,6 +665,27 @@ class _CourseEnrollmentPageState extends State<CourseEnrollmentPage>
                 _loadData();
               },
             ),
+          ),
+          IconButton(
+            key: const Key('attendance_management_nav_button'),
+            icon: const Icon(Icons.co_present_outlined),
+            tooltip: 'Attendance & Engagement',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => AttendanceManagementPage(
+                    attendanceService: AttendanceManagementPage.sharedService,
+                    enrollmentService: _enrollmentService,
+                    initialFacultyId: _currentFacultyId,
+                    initialLearnerId: _currentLearnerId,
+                    initialCourseId: _selectedCourseId,
+                    initialCohortId: _selectedCohortId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),

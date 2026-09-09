@@ -371,3 +371,13 @@ export 'repository/enrollment_repository.dart';
 export 'repository/in_memory_enrollment_repository.dart';
 export 'service/enrollment_service.dart';
 
+// P53 Attendance & Academic Engagement + Monitoring
+export 'domain/entities/attendance_session.dart';
+export 'domain/entities/attendance_record.dart';
+export 'domain/entities/learner_attendance_summary.dart';
+export 'domain/entities/academic_intervention_signal.dart';
+export 'domain/entities/academic_engagement_summary.dart';
+export 'domain/entities/attendance_audit_record.dart';
+export 'repository/attendance_repository.dart';
+export 'repository/in_memory_attendance_repository.dart';
+export 'service/attendance_service.dart';

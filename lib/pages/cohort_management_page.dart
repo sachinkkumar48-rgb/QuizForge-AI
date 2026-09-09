@@ -6,6 +6,7 @@ import 'adaptive_practice_page.dart';
 import 'assessment_management_page.dart';
 import 'gradebook_page.dart';
 import 'academic_credentials_page.dart';
+import 'attendance_management_page.dart';
 import 'course_enrollment_page.dart';
 
 /// Institutional Cohort Management & Assignment Distribution Portal (TITAN-KO-048.0 P48).
@@ -225,6 +226,24 @@ class _CohortManagementPageState extends State<CohortManagementPage>
                 context,
                 MaterialPageRoute(
                   builder: (_) => CourseEnrollmentPage(
+                    initialCohortId: _selectedCohort?.cohortId,
+                    initialFacultyId: _currentFacultyId,
+                    initialLearnerId: _currentLearnerId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('cohort_attendance_button'),
+            icon: const Icon(Icons.co_present_outlined),
+            tooltip: "Attendance & Monitoring",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AttendanceManagementPage(
                     initialCohortId: _selectedCohort?.cohortId,
                     initialFacultyId: _currentFacultyId,
                     initialLearnerId: _currentLearnerId,
