@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:garuda_learning/garuda_learning.dart';
 
 import '../core/di/service_locator_init.dart';
+import 'academic_credentials_page.dart';
 
 /// Faculty Gradebook, Grade Publishing, and Grade Dispute/Override Portal (TITAN-KO-050.0 P50).
 ///
@@ -176,6 +177,24 @@ class _GradebookPageState extends State<GradebookPage>
                 _loadData();
               },
             ),
+          ),
+          IconButton(
+            key: const Key('open_credentials_button'),
+            icon: const Icon(Icons.workspace_premium_outlined),
+            tooltip: "Transcripts & Certificates",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AcademicCredentialsPage(
+                    initialCohortId: _selectedCohortId,
+                    initialFacultyId: _currentFacultyId,
+                    initialLearnerId: _currentLearnerId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),

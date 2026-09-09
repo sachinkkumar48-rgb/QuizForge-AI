@@ -350,3 +350,14 @@ export 'domain/entities/cohort_gradebook.dart';
 export 'repository/gradebook_repository.dart';
 export 'repository/in_memory_gradebook_repository.dart';
 export 'service/gradebook_service.dart';
+
+// P51 Academic Transcripts, Certificates & Credential Verification
+export 'domain/entities/academic_record.dart';
+export 'domain/entities/academic_transcript.dart';
+export 'domain/entities/completion_certificate.dart';
+export 'domain/entities/credential_verification_result.dart';
+export 'domain/entities/credential_audit_record.dart';
+export 'repository/credential_repository.dart';
+export 'repository/in_memory_credential_repository.dart';
+export 'service/academic_credential_service.dart';
+
