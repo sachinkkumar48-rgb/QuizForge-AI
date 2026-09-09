@@ -381,3 +381,10 @@ export 'domain/entities/attendance_audit_record.dart';
 export 'repository/attendance_repository.dart';
 export 'repository/in_memory_attendance_repository.dart';
 export 'service/attendance_service.dart';
+
+// P54 Institutional Communication & Notifications
+export 'domain/entities/lms_notification.dart';
+export 'domain/entities/notification_audit_record.dart';
+export 'repository/notification_repository.dart';
+export 'repository/in_memory_notification_repository.dart';
+export 'service/notification_service.dart';

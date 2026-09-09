@@ -5,6 +5,7 @@ import 'academic_credentials_page.dart';
 import 'attendance_management_page.dart';
 import 'cohort_management_page.dart';
 import 'content_learning_path_page.dart';
+import 'notifications_page.dart';
 
 /// Institutional Course Registration & Learner Enrollment Management Portal (TITAN-KO-052.0 P52).
 ///
@@ -681,6 +682,23 @@ class _CourseEnrollmentPageState extends State<CourseEnrollmentPage>
                     initialLearnerId: _currentLearnerId,
                     initialCourseId: _selectedCourseId,
                     initialCohortId: _selectedCohortId,
+                    initialIsFaculty: _isFacultyMode,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('notifications_nav_button'),
+            icon: const Icon(Icons.notifications_outlined),
+            tooltip: 'Institutional Notifications',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => NotificationsPage(
+                    initialFacultyId: _currentFacultyId,
+                    initialLearnerId: _currentLearnerId,
                     initialIsFaculty: _isFacultyMode,
                   ),
                 ),
