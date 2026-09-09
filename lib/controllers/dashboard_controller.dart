@@ -158,7 +158,7 @@ class DashboardController extends ValueNotifier<DashboardState> {
             subtitle: lState.nextAction.description,
             timestamp: DateTime.now(),
             scorePercentage: finalAccuracy ?? 0.0,
-            categoryTag: 'Next Best Action',
+            categoryTag: 'Adaptive Mastery',
           ),
         );
       }

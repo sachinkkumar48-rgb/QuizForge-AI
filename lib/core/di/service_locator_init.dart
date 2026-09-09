@@ -383,6 +383,13 @@ void setupServiceLocator() {
     );
   }
 
+  if (!locator.isRegistered<AdaptiveLearningDecisionEngine>()) {
+    locator.registerLazySingleton<AdaptiveLearningDecisionEngine>(
+      () => AdaptiveLearningDecisionEngine(),
+      allowOverride: true,
+    );
+  }
+
   if (!locator.isRegistered<AdaptiveLearningRuntimeCoordinator>()) {
     locator.registerLazySingleton<AdaptiveLearningRuntimeCoordinator>(
       () => AdaptiveLearningRuntimeCoordinator(

@@ -398,6 +398,7 @@ void main() {
       expect(find.text('UPSC PYQ Vault'), findsOneWidget);
 
       // Tap UPSC PYQ Vault
+      await tester.ensureVisible(find.text('UPSC PYQ Vault'));
       await tester.tap(find.text('UPSC PYQ Vault'));
       await tester.pumpAndSettle();
 

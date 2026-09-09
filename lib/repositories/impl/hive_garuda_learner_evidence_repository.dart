@@ -199,6 +199,7 @@ class HiveGarudaProgressRepository implements ProgressRepository {
 
   final Box<String>? _box;
   final Map<String, LearnerProgress> _progressMap = {};
+  final Map<String, Set<String>> _processedSessions = {};
 
   HiveGarudaProgressRepository({Box<String>? box})
       : _box = box ??
@@ -253,6 +254,13 @@ class HiveGarudaProgressRepository implements ProgressRepository {
   }
 
   @override
+  void saveProgressBatch(List<LearnerProgress> progressList) {
+    for (final p in progressList) {
+      saveProgress(p);
+    }
+  }
+
+  @override
   LearnerProgress? getProgress(String learnerId, String objectiveId) {
     return _progressMap[_key(learnerId, objectiveId)];
   }
@@ -267,6 +275,50 @@ class HiveGarudaProgressRepository implements ProgressRepository {
   }
 
   @override
+  void markSessionProcessed(String learnerId, String sessionId) {
+    (_processedSessions[learnerId] ??= {}).add(sessionId.trim());
+  }
+
+  @override
+  bool isSessionProcessed(String learnerId, String sessionId) {
+    return _processedSessions[learnerId]?.contains(sessionId.trim()) ?? false;
+  }
+
+  @override
+  Set<String> getProcessedSessionIds(String learnerId) {
+    final set = _processedSessions[learnerId];
+    return set == null ? const <String>{} : Set<String>.unmodifiable(set);
+  }
+
+  @override
+  void applyAtomicBatch({
+    required String learnerId,
+    required String sessionId,
+    required List<LearnerProgress> progressList,
+  }) {
+    final backupProgress = Map<String, LearnerProgress>.from(_progressMap);
+    final backupSessions = {
+      for (final e in _processedSessions.entries)
+        e.key: Set<String>.from(e.value),
+    };
+
+    try {
+      for (final p in progressList) {
+        saveProgress(p);
+      }
+      markSessionProcessed(learnerId, sessionId);
+    } catch (_) {
+      _progressMap
+        ..clear()
+        ..addAll(backupProgress);
+      _processedSessions
+        ..clear()
+        ..addAll(backupSessions);
+      rethrow;
+    }
+  }
+
+  @override
   List<LearnerProgress> getAll() {
     final list = _progressMap.values.toList()
       ..sort((a, b) => _key(a.learnerId, a.objectiveId)
@@ -277,6 +329,7 @@ class HiveGarudaProgressRepository implements ProgressRepository {
   @override
   void clear() {
     _progressMap.clear();
+    _processedSessions.clear();
     final box = _box;
     if (box != null && box.isOpen) {
       box.clear();
