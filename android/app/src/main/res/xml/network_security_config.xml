@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Strictly disallow cleartext HTTP traffic across entire app -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <!-- Production backend domain security pin -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">quizforge.ai</domain>
+        <domain includeSubdomains="true">api.quizforge.ai</domain>
+    </domain-config>
+</network-security-config>

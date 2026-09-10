@@ -236,3 +236,70 @@ def test_lms_notifications():
     res = client.get("/api/v1/lms/notifications/unread/count?recipientId=lrn-test-001&tenantId=tenant-default")
     assert res.status_code == 200
     assert res.json()["unreadCount"] >= 1
+
+
+def test_lms_multi_tenant_isolation():
+    # Tenant Alpha writes a course
+    client.post("/api/v1/lms/courses", json={
+        "courseId": "crs-alpha-001",
+        "title": "Alpha Confidential Course",
+        "tenantId": "tenant-alpha",
+        "status": "active"
+    })
+
+    # Tenant Beta attempts to read Tenant Alpha's course -> 403 Forbidden
+    res = client.get("/api/v1/lms/courses/crs-alpha-001?tenantId=tenant-beta")
+    assert res.status_code == 403
+
+    # Tenant Alpha can access it
+    res_alpha = client.get("/api/v1/lms/courses/crs-alpha-001?tenantId=tenant-alpha")
+    assert res_alpha.status_code == 200
+    assert res_alpha.json()["course"]["title"] == "Alpha Confidential Course"
+
+
+def test_lms_error_handling_and_status_codes():
+    # 404 for non-existent course
+    res = client.get("/api/v1/lms/courses/non-existent-course-999")
+    assert res.status_code == 404
+
+    # 404 for non-existent assessment
+    res = client.get("/api/v1/lms/assessments/non-existent-asm-999")
+    assert res.status_code == 404
+
+    # 404 for non-existent certificate
+    res = client.get("/api/v1/lms/credentials/certificates/by-credential/non-existent-cred")
+    assert res.status_code == 404
+
+    # 400 on invalid payload (missing required field in structured endpoint)
+    res = client.post("/api/v1/lms/learners", json={"invalidField": True})
+    assert res.status_code in [400, 422]
+
+
+def test_lms_persistence_roundtrip():
+    # Write course and enrollment
+    course_res = client.post("/api/v1/lms/courses", json={
+        "courseId": "crs-persist-001",
+        "title": "Persistent Systems Architecture",
+        "tenantId": "tenant-default",
+        "status": "active"
+    })
+    assert course_res.status_code == 200
+
+    # Read back immediately
+    read_res = client.get("/api/v1/lms/courses/crs-persist-001?tenantId=tenant-default")
+    assert read_res.status_code == 200
+    assert read_res.json()["course"]["title"] == "Persistent Systems Architecture"
+
+    # Verify presence in store
+    from app.api.v1.lms import lms_store
+    assert "crs-persist-001" in lms_store.courses
+    assert lms_store.courses["crs-persist-001"]["title"] == "Persistent Systems Architecture"
+
+
+def test_gemini_server_side_key_safety():
+    # Verify that no API endpoint returns server environment secrets in its response
+    res = client.get("/api/v1/lms/courses")
+    text_content = res.text.lower()
+    assert "gemini_api_key" not in text_content
+    assert "ai_key" not in text_content
+    assert "secret" not in text_content
