@@ -19,6 +19,13 @@ import '../../services/knowledge_integration_service.dart';
 import '../../services/pyq_corpus_adapter_service.dart';
 import '../../services/quiz_batch_generator.dart';
 import '../../services/quiz_generation_adapter.dart';
+import '../../repositories/impl/http_assessment_repository.dart';
+import '../../repositories/impl/http_attendance_repository.dart';
+import '../../repositories/impl/http_credential_repository.dart';
+import '../../repositories/impl/http_enrollment_repository.dart';
+import '../../repositories/impl/http_gradebook_repository.dart';
+import '../../repositories/impl/http_notification_repository.dart';
+import '../../repositories/impl/http_remote_learning_state_repository.dart';
 import '../network/api_client.dart';
 
 /// Initializes dependency injection for QuizForge AI using Project TITAN's [TitanServiceLocator].
@@ -476,6 +483,148 @@ void setupServiceLocator() {
                 ? locator.get<DeterministicRemedialLessonService>()
                 : null,
         seedQuestions: PyqCorpusAdapterService.getDefaultSeedCorpus(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  // --- Institutional LMS Production HTTP Repositories & Services (P49-P55 / P57) ---
+  if (!locator.isRegistered<RemoteLearningStateRepository>()) {
+    locator.registerLazySingleton<RemoteLearningStateRepository>(
+      () => HttpRemoteLearningStateRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<EnrollmentRepository>()) {
+    locator.registerLazySingleton<EnrollmentRepository>(
+      () => HttpEnrollmentRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AssessmentRepository>()) {
+    locator.registerLazySingleton<AssessmentRepository>(
+      () => HttpAssessmentRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<GradebookRepository>()) {
+    locator.registerLazySingleton<GradebookRepository>(
+      () => HttpGradebookRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AttendanceRepository>()) {
+    locator.registerLazySingleton<AttendanceRepository>(
+      () => HttpAttendanceRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<CredentialRepository>()) {
+    locator.registerLazySingleton<CredentialRepository>(
+      () => HttpCredentialRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<NotificationRepository>()) {
+    locator.registerLazySingleton<NotificationRepository>(
+      () => HttpNotificationRepository(
+        apiClient: locator.get<ApiClient>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<EnrollmentService>()) {
+    locator.registerLazySingleton<EnrollmentService>(
+      () => EnrollmentService(
+        enrollmentRepository: locator.get<EnrollmentRepository>(),
+        cohortRepository: locator.isRegistered<CohortRepository>()
+            ? locator.get<CohortRepository>()
+            : InMemoryCohortRepository(),
+        credentialRepository: locator.get<CredentialRepository>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AssessmentManagementService>()) {
+    locator.registerLazySingleton<AssessmentManagementService>(
+      () => AssessmentManagementService(
+        repository: locator.get<AssessmentRepository>(),
+        questionProvider: locator.get<QuestionProvider>(),
+        cohortRepository: locator.isRegistered<CohortRepository>()
+            ? locator.get<CohortRepository>()
+            : InMemoryCohortRepository(),
+        curriculumService: locator.get<CurriculumService>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<GradebookService>()) {
+    locator.registerLazySingleton<GradebookService>(
+      () => GradebookService(
+        repository: locator.get<GradebookRepository>(),
+        assessmentRepository: locator.get<AssessmentRepository>(),
+        cohortRepository: locator.isRegistered<CohortRepository>()
+            ? locator.get<CohortRepository>()
+            : InMemoryCohortRepository(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AttendanceService>()) {
+    locator.registerLazySingleton<AttendanceService>(
+      () => AttendanceService(
+        attendanceRepository: locator.get<AttendanceRepository>(),
+        enrollmentRepository: locator.get<EnrollmentRepository>(),
+        cohortRepository: locator.isRegistered<CohortRepository>()
+            ? locator.get<CohortRepository>()
+            : InMemoryCohortRepository(),
+        assessmentRepository: locator.get<AssessmentRepository>(),
+        gradebookRepository: locator.get<GradebookRepository>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<AcademicCredentialService>()) {
+    locator.registerLazySingleton<AcademicCredentialService>(
+      () => AcademicCredentialService(
+        credentialRepository: locator.get<CredentialRepository>(),
+        gradebookRepository: locator.get<GradebookRepository>(),
+        cohortRepository: locator.isRegistered<CohortRepository>()
+            ? locator.get<CohortRepository>()
+            : InMemoryCohortRepository(),
+        assessmentRepository: locator.get<AssessmentRepository>(),
+      ),
+      allowOverride: true,
+    );
+  }
+
+  if (!locator.isRegistered<NotificationService>()) {
+    locator.registerLazySingleton<NotificationService>(
+      () => NotificationService(
+        notificationRepository: locator.get<NotificationRepository>(),
       ),
       allowOverride: true,
     );

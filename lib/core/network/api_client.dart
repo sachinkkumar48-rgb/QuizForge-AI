@@ -425,6 +425,48 @@ class ApiClient {
     throw BackendUnavailableException('Request failed after $maxAttempts attempts.');
   }
 
+  /// Performs an HTTP DELETE request with automatic retry, timeout, and authentication header support.
+  Future<Map<String, dynamic>> delete(
+    String path, {
+    String? token,
+    Map<String, String>? headers,
+  }) async {
+    final url = _buildUrl(path);
+    final requestId = _generateRequestId();
+    final requestHeaders = _buildHeaders(
+      token: token,
+      requestId: requestId,
+      additionalHeaders: headers,
+      isJson: false,
+    );
+
+    final maxAttempts = config.maxRetries > 0 ? config.maxRetries : 1;
+    Object? lastError;
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final response = await _client.delete(url, headers: requestHeaders).timeout(timeoutDuration);
+        if (response.statusCode >= 400 && response.statusCode < 500) {
+          throw ApiException(response.statusCode, 'HTTP ${response.statusCode}: ${response.body}');
+        }
+        if (response.statusCode >= 500) {
+          throw ApiException(response.statusCode, 'HTTP ${response.statusCode} Internal Server Error: ${response.body}');
+        }
+        if (response.body.isEmpty) return <String, dynamic>{};
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map<String, dynamic>) return decoded;
+        return {'data': decoded};
+      } on ApiException catch (e) {
+        if (e.statusCode >= 400 && e.statusCode < 500) rethrow;
+        lastError = e;
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    if (lastError != null) throw lastError;
+    return <String, dynamic>{};
+  }
+
   /// Generates a quiz by sending a POST request to /api/v1/quiz/generate
   Future<QuizGenerateResponse> generateQuiz(QuizGenerateRequest request) async {
     final url = Uri.parse('$baseUrl/api/v1/quiz/generate');
