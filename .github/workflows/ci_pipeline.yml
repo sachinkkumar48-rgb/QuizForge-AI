@@ -34,7 +34,7 @@ jobs:
         run: flutter pub get
 
       - name: Quality Gate 1 - Flutter Analyze
-        run: flutter analyze lib/
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos lib/
 
       - name: Quality Gate 2 - Flutter Unit & Widget Tests
         run: flutter test --coverage

@@ -34,7 +34,7 @@ QuizForge AI ("we", "our", or "the Application") is an enterprise-grade Learning
 
 ## 3. Data Storage, Security, and Offline-First Architecture
 - **Offline-First Storage**: All educational activity and practice data are stored locally in on-device storage.
-- **Encryption in Transit**: All communications with the production backend (`https://api.quizforge.ai`) or AI APIs use Transport Layer Security (TLS 1.3). Cleartext HTTP traffic is strictly forbidden by Android network security configuration.
+- **Encryption in Transit**: All communications with the production backend (`https://api.quizforgeupsc.in`) or AI APIs use Transport Layer Security (TLS 1.3). Cleartext HTTP traffic is strictly forbidden by Android network security configuration.
 - **No Third-Party Trackers**: The Application contains zero third-party analytics SDKs, advertising SDKs, or social media trackers.
 
 ---
