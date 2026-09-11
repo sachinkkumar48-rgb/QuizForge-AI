@@ -52,7 +52,7 @@ The Nginx reverse proxy enforces the following security headers across all respo
 
 ## 3. Future HTTPS Migration Procedure (When Domain is Acquired)
 
-When a domain name (e.g. `api.quizforge.ai`) is purchased and pointed to the OCI instance public IP address, follow these steps to enable HTTPS:
+When a domain name (e.g. `api.quizforgeupsc.in`) is purchased and pointed to the OCI instance public IP address, follow these steps to enable HTTPS:
 
 ### Step 1: Provision SSL Certificates via Certbot ACME Webroot
 
@@ -64,7 +64,7 @@ docker run --rm \
   -v certbot_www:/var/www/certbot \
   certbot/certbot certonly --webroot \
   -w /var/www/certbot \
-  -d api.quizforge.ai \
+  -d api.quizforgeupsc.in \
   --email admin@quizforge.ai \
   --agree-tos \
   --no-eff-email
@@ -86,7 +86,7 @@ Uncomment port `443` and volume mappings in `docker-compose.yml`:
 
 ### Step 3: Enable HTTPS Server Block & HTTP Redirect in `nginx.conf`
 
-1. Replace `YOUR_DOMAIN.COM` in `nginx.conf` with your actual domain (e.g. `api.quizforge.ai`).
+1. Replace `YOUR_DOMAIN.COM` in `nginx.conf` with your actual domain (e.g. `api.quizforgeupsc.in`).
 2. Uncomment the `return 301 https://$host$request_uri;` line inside the Port 80 server block.
 3. Uncomment the Port 443 HTTPS server block.
 

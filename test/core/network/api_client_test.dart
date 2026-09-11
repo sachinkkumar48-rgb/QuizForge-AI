@@ -12,7 +12,7 @@ void main() {
   group('ApiClient Core Tests', () {
     test('Successful POST returns QuizGenerateResponse', () async {
       final mockClient = MockClient((request) async {
-        expect(request.url.toString(), 'https://api.quizforge.ai/api/v1/quiz/generate');
+        expect(request.url.toString(), 'https://api.quizforgeupsc.in/api/v1/quiz/generate');
         expect(request.method, 'POST');
         expect(request.headers['Content-Type'], 'application/json');
 
@@ -204,7 +204,7 @@ void main() {
   group('ApiClient Hardened Methods & Authentication Tests', () {
     test('POST attaches Authorization Bearer token and Content-Type', () async {
       final mockClient = MockClient((request) async {
-        expect(request.url.toString(), 'https://api.quizforge.ai/api/v1/auth/login');
+        expect(request.url.toString(), 'https://api.quizforgeupsc.in/api/v1/auth/login');
         expect(request.method, 'POST');
         expect(request.headers['Authorization'], 'Bearer test_jwt_token');
         expect(request.headers['Content-Type'], 'application/json');
@@ -226,7 +226,7 @@ void main() {
 
     test('GET attaches Authorization Bearer header and parses response', () async {
       final mockClient = MockClient((request) async {
-        expect(request.url.toString(), 'https://api.quizforge.ai/api/v1/auth/me');
+        expect(request.url.toString(), 'https://api.quizforgeupsc.in/api/v1/auth/me');
         expect(request.method, 'GET');
         expect(request.headers['Authorization'], 'Bearer valid_access_token');
 

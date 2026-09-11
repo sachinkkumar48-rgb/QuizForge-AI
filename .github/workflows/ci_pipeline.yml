@@ -2,9 +2,10 @@ name: Project TITAN CI Pipeline
 
 on:
   push:
-    branches: [ main, develop, 'release/*' ]
+    branches: [ main, develop, 'release/*', 'garuda/*' ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:
 
 jobs:
   flutter-validation:
@@ -37,6 +38,59 @@ jobs:
 
       - name: Quality Gate 2 - Flutter Unit & Widget Tests
         run: flutter test --coverage
+
+      - name: Setup Java 17 for Android Build
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure Release Signing (If Keystore Provided)
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.UPLOAD_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+            echo "storePassword=$KEYSTORE_PASSWORD" >> android/key.properties
+            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+            echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+            echo "storeFile=../upload-keystore.jks" >> android/key.properties
+            echo "Release keystore configured from GitHub Secrets."
+          else
+            echo "No signing secret configured; building release bundle with fallback key."
+          fi
+
+      - name: Quality Gate 3 - Build Release App Bundle (AAB)
+        run: flutter build appbundle --release --no-pub
+
+      - name: Verify Release AAB Artifact
+        shell: bash
+        run: |
+          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            echo "Release AAB build verified successfully:"
+            ls -lh build/app/outputs/bundle/release/app-release.aab
+          else
+            echo "ERROR: build/app/outputs/bundle/release/app-release.aab was not generated!"
+            exit 1
+          fi
+
+      - name: Archive Production Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Cleanup Sensitive Signing Files
+        if: always()
+        shell: bash
+        run: |
+          rm -f android/upload-keystore.jks android/key.properties
+          echo "Sensitive signing files sanitized from runner workspace."
 
   python-backend-validation:
     name: Python Backend Test & Compile

@@ -9,6 +9,6 @@
     <!-- Production backend domain security pin -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">quizforge.ai</domain>
-        <domain includeSubdomains="true">api.quizforge.ai</domain>
+        <domain includeSubdomains="true">api.quizforgeupsc.in</domain>
     </domain-config>
 </network-security-config>

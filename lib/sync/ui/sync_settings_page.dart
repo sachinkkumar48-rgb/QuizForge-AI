@@ -17,7 +17,7 @@ class SyncSettingsPage extends StatefulWidget {
 class _SyncSettingsPageState extends State<SyncSettingsPage> {
   final SyncEngine _engine = SyncEngine();
   final TextEditingController _serverUrlController =
-      TextEditingController(text: 'https://api.quizforge.ai/v1/sync');
+      TextEditingController(text: 'https://api.quizforgeupsc.in/v1/sync');
   final TextEditingController _tokenController =
       TextEditingController(text: 'sample_bearer_token');
 

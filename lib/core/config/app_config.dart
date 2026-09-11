@@ -28,7 +28,7 @@ class AppConfig {
   /// Uses HTTPS production endpoint blueprint.
   static const String defaultApiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://api.quizforge.ai',
+    defaultValue: 'https://api.quizforgeupsc.in',
   );
 
   const AppConfig({

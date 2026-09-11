@@ -1,4 +1,4 @@
-﻿# QuizForge AI LMS — Google Play Store Listing Draft
+# QuizForge AI LMS — Google Play Store Listing Draft
 
 This document contains factual store-listing metadata, descriptions, category recommendations, and compliance declarations for Google Play Console submission.
 
@@ -7,8 +7,8 @@ This document contains factual store-listing metadata, descriptions, category re
 ## 1. Store Listing Details
 
 ### App Name
-**QuizForge AI: UPSC & Civil Prep**
-*(31 characters / 30 limit for Title in some regions; alternative exact: **QuizForge AI: Learning OS** (28 characters))*
+**QuizForge AI: Learning OS**
+*(25 characters — fully compliant with Google Play Console 30-character title limit. Alternative: **QuizForge AI - UPSC Prep** (24 characters))*
 
 ### Short Description (Max 80 characters)
 **Adaptive civil service exam preparation with PYQs, analytics, and study plans.**
