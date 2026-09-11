@@ -7,6 +7,10 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   flutter-validation:
     name: Flutter Analyze & Test
@@ -48,6 +52,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK Components & Accept Licenses
+        run: |
+          yes | flutter doctor --android-licenses || true
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" || true
+
       - name: Configure Release Signing (If Keystore Provided)
         shell: bash
         env:
@@ -68,6 +78,7 @@ jobs:
           fi
 
       - name: Quality Gate 3 - Build Release App Bundle (AAB)
+        timeout-minutes: 20
         run: flutter build appbundle --release --no-pub
 
       - name: Verify Release AAB Artifact
