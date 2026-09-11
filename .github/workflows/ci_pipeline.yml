@@ -15,6 +15,9 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
+      - name: Setup Environment File
+        run: cp .env.example .env
+
       - name: Setup Flutter Engine
         uses: subosito/flutter-action@v2
         with:
@@ -89,7 +92,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          rm -f android/upload-keystore.jks android/key.properties
+          rm -f android/upload-keystore.jks android/key.properties .env
           echo "Sensitive signing files sanitized from runner workspace."
 
   python-backend-validation:
@@ -98,6 +101,9 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Setup Environment File
+        run: cp .env.example .env
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -122,6 +128,9 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Setup Environment File
+        run: cp .env.example .env
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
