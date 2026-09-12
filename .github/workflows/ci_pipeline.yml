@@ -131,6 +131,9 @@ jobs:
         run: python -m compileall app
 
       - name: Quality Gate 4 - Pytest Benchmark & Unit Tests
+        env:
+          APP_ENV: testing
+          GEMINI_API_KEY: ci_test_dummy_key_012345678901234567890123
         run: python -m pytest --cov=app --cov-report=xml
 
   docker-compose-validation:
