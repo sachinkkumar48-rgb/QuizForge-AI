@@ -58,7 +58,7 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-36" "build-tools;36.0.0" || true
 
-      - name: Configure Release Signing (If Keystore Provided)
+      - name: Configure Production Release Signing
         shell: bash
         env:
           KEYSTORE_BASE64: ${{ secrets.UPLOAD_KEYSTORE_BASE64 }}
@@ -66,16 +66,34 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
-            echo "storePassword=$KEYSTORE_PASSWORD" >> android/key.properties
-            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
-            echo "keyAlias=$KEY_ALIAS" >> android/key.properties
-            echo "storeFile=../upload-keystore.jks" >> android/key.properties
-            echo "Release keystore configured from GitHub Secrets."
-          else
-            echo "No signing secret configured; building release bundle with fallback key."
+          MISSING_SECRETS=""
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS UPLOAD_KEYSTORE_BASE64"
           fi
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS KEYSTORE_PASSWORD"
+          fi
+          if [ -z "$KEY_ALIAS" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS KEY_ALIAS"
+          fi
+          if [ -z "$KEY_PASSWORD" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS KEY_PASSWORD"
+          fi
+
+          if [ -n "$MISSING_SECRETS" ]; then
+            echo "::error title=Missing Release Signing Secrets::Required production signing secrets missing in GitHub Actions repository settings:$MISSING_SECRETS"
+            echo "ERROR: Production release AAB requires all signing secrets to be configured."
+            echo "Missing secret names:$MISSING_SECRETS"
+            echo "Silent fallback to Android Debug signing is disabled for release CI builds."
+            exit 1
+          fi
+
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+          echo "storePassword=$KEYSTORE_PASSWORD" >> android/key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+          echo "storeFile=../upload-keystore.jks" >> android/key.properties
+          echo "Release keystore configured successfully from GitHub Secrets."
 
       - name: Quality Gate 3 - Build Release App Bundle (AAB)
         timeout-minutes: 20
@@ -94,6 +112,11 @@ jobs:
             echo "- **AAB File**: $(ls -lh build/app/outputs/bundle/release/app-release.aab)" >> $GITHUB_STEP_SUMMARY
             echo "- **Certificate**: $OWNER" >> $GITHUB_STEP_SUMMARY
             echo "- **Fingerprint**: $SHA256" >> $GITHUB_STEP_SUMMARY
+            if echo "$OWNER" | grep -q "CN=Android Debug"; then
+              echo "::error title=Debug Signing Detected::Release AAB is signed with Android Debug certificate instead of production upload key!"
+              echo "ERROR: Release AAB must not be signed with Android Debug key."
+              exit 1
+            fi
           else
             echo "ERROR: build/app/outputs/bundle/release/app-release.aab was not generated!"
             exit 1
