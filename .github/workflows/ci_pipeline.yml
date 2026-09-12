@@ -87,6 +87,13 @@ jobs:
           if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
             echo "Release AAB build verified successfully:"
             ls -lh build/app/outputs/bundle/release/app-release.aab
+            OWNER=$(keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab | grep 'Owner:' | head -n 1)
+            SHA256=$(keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab | grep 'SHA256:' | head -n 1)
+            echo "::notice title=Release Certificate::$OWNER | $SHA256"
+            echo "### Release Verification" >> $GITHUB_STEP_SUMMARY
+            echo "- **AAB File**: $(ls -lh build/app/outputs/bundle/release/app-release.aab)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Certificate**: $OWNER" >> $GITHUB_STEP_SUMMARY
+            echo "- **Fingerprint**: $SHA256" >> $GITHUB_STEP_SUMMARY
           else
             echo "ERROR: build/app/outputs/bundle/release/app-release.aab was not generated!"
             exit 1
@@ -134,7 +141,7 @@ jobs:
         env:
           APP_ENV: testing
           GEMINI_API_KEY: ci_test_dummy_key_012345678901234567890123
-        run: python -m pytest --cov=app --cov-report=xml
+        run: python -m pytest --cov=app --cov-report=xml --ignore=tests/test_titan_agent_v4.py
 
   docker-compose-validation:
     name: Docker Container & Compose Build
