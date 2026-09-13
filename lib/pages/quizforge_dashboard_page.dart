@@ -55,115 +55,255 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isCompact = screenWidth < 700;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.auto_awesome, color: Colors.deepPurple),
-            SizedBox(width: 8),
-            Text(
-              "QuizForge AI",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.auto_awesome, color: Colors.deepPurple),
+              SizedBox(width: 8),
+              Text(
+                "QuizForge AI",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            key: const Key('dashboard_analytics_button'),
-            icon: const Icon(Icons.analytics_outlined),
-            tooltip: "Learning Analytics",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const AnalyticsDashboardPage()),
-              );
-            },
-          ),
-          IconButton(
-            key: const Key('dashboard_cohorts_button'),
-            icon: const Icon(Icons.school_outlined),
-            tooltip: "Cohorts & Assignments",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CohortManagementPage(),
+        actions: isCompact
+            ? [
+                IconButton(
+                  key: const Key('dashboard_analytics_button'),
+                  icon: const Icon(Icons.analytics_outlined),
+                  tooltip: "Learning Analytics",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AnalyticsDashboardPage(),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-          IconButton(
-            key: const Key('dashboard_assessments_button'),
-            icon: const Icon(Icons.assignment_turned_in_outlined),
-            tooltip: "Assessments & Examinations",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const AssessmentManagementPage(),
+                IconButton(
+                  key: const Key('dashboard_cloud_sync_button'),
+                  icon: const Icon(Icons.cloud_sync_outlined),
+                  tooltip: "Cloud Synchronization",
+                  onPressed: () async {
+                    try {
+                      final syncService = locate<LearnerStateSyncService>();
+                      final result = await syncService.sync(
+                        learnerId: 'default_learner',
+                        examId: 'upsc_prelims_gs1',
+                        deviceId: 'device_primary',
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result.message)),
+                        );
+                      }
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Offline: Progress saved locally in outbox.'),
+                          ),
+                        );
+                      }
+                    }
+                  },
                 ),
-              );
-            },
-          ),
-          IconButton(
-            key: const Key('dashboard_cloud_sync_button'),
-            icon: const Icon(Icons.cloud_sync_outlined),
-            tooltip: "Cloud Synchronization",
-            onPressed: () async {
-              try {
-                final syncService = locate<LearnerStateSyncService>();
-                final result = await syncService.sync(
-                  learnerId: 'default_learner',
-                  examId: 'upsc_prelims_gs1',
-                  deviceId: 'device_primary',
-                );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(result.message)),
-                  );
-                }
-              } catch (_) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content:
-                          Text('Offline: Progress saved locally in outbox.'),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  tooltip: "More Options",
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'cohorts':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CohortManagementPage(),
+                          ),
+                        );
+                        break;
+                      case 'assessments':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AssessmentManagementPage(),
+                          ),
+                        );
+                        break;
+                      case 'plan':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LearningPlanPage(),
+                          ),
+                        );
+                        break;
+                      case 'refresh':
+                        _controller.refresh();
+                        break;
+                      case 'settings':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsPage(),
+                          ),
+                        );
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'cohorts',
+                      child: ListTile(
+                        leading: Icon(Icons.school_outlined),
+                        title: Text('Cohorts & Assignments'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                     ),
-                  );
-                }
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.alt_route),
-            tooltip: "Learning Plan",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const LearningPlanPage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: "Refresh Metrics",
-            onPressed: () => _controller.refresh(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: "Settings",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsPage()),
-              );
-            },
-          ),
-        ],
+                    const PopupMenuItem(
+                      value: 'assessments',
+                      child: ListTile(
+                        leading: Icon(Icons.assignment_turned_in_outlined),
+                        title: Text('Assessments & Examinations'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'plan',
+                      child: ListTile(
+                        leading: Icon(Icons.alt_route),
+                        title: Text('Learning Plan'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'refresh',
+                      child: ListTile(
+                        leading: Icon(Icons.refresh),
+                        title: Text('Refresh Metrics'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'settings',
+                      child: ListTile(
+                        leading: Icon(Icons.settings_outlined),
+                        title: Text('Settings'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                ),
+              ]
+            : [
+                IconButton(
+                  key: const Key('dashboard_analytics_button'),
+                  icon: const Icon(Icons.analytics_outlined),
+                  tooltip: "Learning Analytics",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AnalyticsDashboardPage(),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  key: const Key('dashboard_cohorts_button'),
+                  icon: const Icon(Icons.school_outlined),
+                  tooltip: "Cohorts & Assignments",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CohortManagementPage(),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  key: const Key('dashboard_assessments_button'),
+                  icon: const Icon(Icons.assignment_turned_in_outlined),
+                  tooltip: "Assessments & Examinations",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AssessmentManagementPage(),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  key: const Key('dashboard_cloud_sync_button'),
+                  icon: const Icon(Icons.cloud_sync_outlined),
+                  tooltip: "Cloud Synchronization",
+                  onPressed: () async {
+                    try {
+                      final syncService = locate<LearnerStateSyncService>();
+                      final result = await syncService.sync(
+                        learnerId: 'default_learner',
+                        examId: 'upsc_prelims_gs1',
+                        deviceId: 'device_primary',
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result.message)),
+                        );
+                      }
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Offline: Progress saved locally in outbox.'),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.alt_route),
+                  tooltip: "Learning Plan",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const LearningPlanPage(),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: "Refresh Metrics",
+                  onPressed: () => _controller.refresh(),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  tooltip: "Settings",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SettingsPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
       ),
       body: ValueListenableBuilder<DashboardState>(
         valueListenable: _controller,
@@ -389,93 +529,144 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
         color: Colors.amber.shade50.withValues(alpha: 0.35),
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.amber,
-                    child: Icon(Icons.play_arrow, color: Colors.white),
+          child: LayoutBuilder(
+            builder: (context, cardConstraints) {
+              final isNarrow = cardConstraints.maxWidth < 500;
+              final continueButton = FilledButton.icon(
+                onPressed: _handleResumeSession,
+                icon: const Icon(Icons.play_circle_fill, size: 20),
+                label: const Text(
+                  "Continue",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.amber.shade900,
+                  minimumSize: const Size(0, 44),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              );
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isNarrow) ...[
+                    Row(
                       children: [
-                        const Text(
-                          "IN-PROGRESS ADAPTIVE SESSION",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.amber,
-                            letterSpacing: 0.8,
-                          ),
+                        const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.amber,
+                          child: Icon(Icons.play_arrow, color: Colors.white),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          topic,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "IN-PROGRESS ADAPTIVE SESSION",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                topic,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  FilledButton.icon(
-                    onPressed: _handleResumeSession,
-                    icon: const Icon(Icons.play_circle_fill, size: 20),
-                    label: const Text(
-                      "Continue",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: continueButton,
                     ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.amber.shade900,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 12,
+                  ] else ...[
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.amber,
+                          child: Icon(Icons.play_arrow, color: Colors.white),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "IN-PROGRESS ADAPTIVE SESSION",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                topic,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        continueButton,
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Question $cursor of $total in progress",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        "${(continueCard.progressPercentage * 100).toInt()}% completed",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: continueCard.progressPercentage,
+                      minHeight: 8,
+                      backgroundColor: Colors.amber.shade100,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.amber.shade800,
                       ),
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Question $cursor of $total in progress",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    "${(continueCard.progressPercentage * 100).toInt()}% completed",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: LinearProgressIndicator(
-                  value: continueCard.progressPercentage,
-                  minHeight: 8,
-                  backgroundColor: Colors.amber.shade100,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.amber.shade800,
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       );
@@ -493,25 +684,46 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
       color: colorScheme.primaryContainer.withValues(alpha: 0.25),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: colorScheme.primary,
-              child: const Icon(Icons.school, color: Colors.white, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
+        child: LayoutBuilder(
+          builder: (context, cardConstraints) {
+            final isNarrow = cardConstraints.maxWidth < 500;
+            final startButton = FilledButton.icon(
+              onPressed: () => _navigateTo(const AdaptivePracticePage()),
+              icon: const Icon(Icons.play_arrow, size: 18),
+              label: const Text("Start"),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+              ),
+            );
+
+            if (isNarrow) {
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Start Adaptive Practice",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: colorScheme.primary,
+                        child: const Icon(Icons.school,
+                            color: Colors.white, size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          "Start Adaptive Practice",
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     "Launch targeted UPSC Prelims questions adapted to your active knowledge frontier.",
                     style: TextStyle(
@@ -519,22 +731,50 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: startButton,
+                  ),
                 ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            FilledButton.icon(
-              onPressed: () => _navigateTo(const AdaptivePracticePage()),
-              icon: const Icon(Icons.play_arrow, size: 18),
-              label: const Text("Start"),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 12,
+              );
+            }
+
+            return Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: colorScheme.primary,
+                  child:
+                      const Icon(Icons.school, color: Colors.white, size: 24),
                 ),
-              ),
-            ),
-          ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Start Adaptive Practice",
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Launch targeted UPSC Prelims questions adapted to your active knowledge frontier.",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                startButton,
+              ],
+            );
+          },
         ),
       ),
     );
@@ -572,51 +812,71 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
       color: accentColor.withValues(alpha: 0.06),
       child: Padding(
         padding: const EdgeInsets.all(18),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: accentColor.withValues(alpha: 0.15),
-              child: Icon(actionIcon, color: accentColor, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
+        child: LayoutBuilder(
+          builder: (context, cardConstraints) {
+            final isNarrow = cardConstraints.maxWidth < 500;
+            final actionButton = OutlinedButton(
+              onPressed: () => _handleNextActionTap(nextAction),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: accentColor,
+                side: BorderSide(color: accentColor),
+                minimumSize: const Size(0, 44),
+              ),
+              child: const Text(
+                "Action",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            );
+
+            if (isNarrow) {
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          "NEXT BEST ACTION",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                            letterSpacing: 0.6,
-                          ),
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: accentColor.withValues(alpha: 0.15),
+                        child: Icon(actionIcon, color: accentColor, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: accentColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "NEXT BEST ACTION",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: accentColor,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              nextAction.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    nextAction.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     nextAction.description,
                     style: TextStyle(
@@ -625,41 +885,115 @@ class _QuizForgeDashboardPageState extends State<QuizForgeDashboardPage> {
                       height: 1.3,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  InkWell(
-                    onTap: () => _navigateTo(const LearningPlanPage()),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.alt_route, size: 14, color: accentColor),
-                        const SizedBox(width: 4),
-                        Text(
-                          "View Full Learning Plan",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                          ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () => _navigateTo(const LearningPlanPage()),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.alt_route, size: 14, color: accentColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              "View Full Learning Plan",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: accentColor,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      actionButton,
+                    ],
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            OutlinedButton(
-              onPressed: () => _handleNextActionTap(nextAction),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: accentColor,
-                side: BorderSide(color: accentColor),
-              ),
-              child: const Text(
-                "Action",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: accentColor.withValues(alpha: 0.15),
+                  child: Icon(actionIcon, color: accentColor, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "NEXT BEST ACTION",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: accentColor,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        nextAction.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        nextAction.description,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      InkWell(
+                        onTap: () => _navigateTo(const LearningPlanPage()),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.alt_route, size: 14, color: accentColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              "View Full Learning Plan",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: accentColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                actionButton,
+              ],
+            );
+          },
         ),
       ),
     );
